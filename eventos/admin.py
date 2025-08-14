@@ -42,7 +42,7 @@ class InscricaoEventoAdmin(admin.ModelAdmin):
     list_filter = ('status', 'evento', 'data_inscricao')
     search_fields = ('socio__nome_completo', 'evento__nome')
     ordering = ('-data_inscricao',)
-    readonly_fields = ('id', 'data_inscricao', 'data_atualizacao', 'valor_total')
+    readonly_fields = ('id', 'data_inscricao', 'valor_total')
 
 
 @admin.register(ConvidadoEvento)

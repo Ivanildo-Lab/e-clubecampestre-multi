@@ -23,25 +23,26 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
+from core.views import HomeView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
     # API URLs
-    path('api/auth/', include('usuarios.urls')),
-    path('api/socios/', include('socios.urls')),
-    path('api/financeiro/', include('financeiro.urls')),
-    path('api/cobranca/', include('cobranca.urls')),
-    path('api/eventos/', include('eventos.urls')),
-    path('api/core/', include('core.urls')),
+    #path('api/auth/', include('usuarios.urls')),
+    #path('api/socios/', include('socios.urls')),
+    #path('api/financeiro/', include('financeiro.urls')),
+    #path('api/cobranca/', include('cobranca.urls')),
+    #path('api/eventos/', include('eventos.urls')),
+    path('', HomeView.as_view(), name='home'),
     
     # JWT Authentication
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    #path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    #path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    #path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     
     # Health check
-    path('api/health/', include('core.urls')),
+    #path('api/health/', include('core.urls')),
 ]
 
 # Media files

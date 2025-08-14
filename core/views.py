@@ -14,7 +14,12 @@ from .serializers import (
     DashboardSerializer
 )
 
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
+
+
+# Adicione esta classe no FINAL do arquivo core/views.py
 class HealthCheckView(viewsets.ViewSet):
     """View para health check da API"""
     
@@ -204,3 +209,16 @@ class DashboardViewSet(viewsets.ViewSet):
         }
         
         return Response(dashboard_data)
+    
+class HomeView(LoginRequiredMixin, TemplateView):
+    """
+    View para renderizar a página inicial (dashboard) do sistema web.
+    """
+    template_name = 'index.html'
+    login_url = '/admin/login/' # Redireciona para o login do admin se não estiver logado
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = 'Painel Principal'
+        context['usuario'] = self.request.user
+        return context

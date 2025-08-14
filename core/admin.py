@@ -1,3 +1,6 @@
+#e-clubecampestre\core\admin.py
+from django.contrib import admin
+from .models import Socio, CategoriaSocio, Convenio
 from django.contrib import admin
 from .models import ConfiguracaoSistema, Auditoria, Backup, Notificacao
 
@@ -34,5 +37,9 @@ class NotificacaoAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'usuario', 'tipo', 'prioridade', 'status', 'data_criacao')
     list_filter = ('tipo', 'prioridade', 'status', 'data_criacao')
     search_fields = ('titulo', 'mensagem', 'usuario__username')
-    ordering = ('-data_criacao')
+    ordering = ('-data_criacao',)
     readonly_fields = ('id', 'data_criacao', 'data_leitura', 'data_arquivamento')
+
+admin.site.register(Socio)
+admin.site.register(CategoriaSocio)
+admin.site.register(Convenio)

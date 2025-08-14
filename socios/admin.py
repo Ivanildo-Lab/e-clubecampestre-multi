@@ -48,4 +48,4 @@ class InteracaoSocioAdmin(admin.ModelAdmin):
     list_filter = ('tipo', 'data_interacao')
     search_fields = ('socio__nome_completo', 'descricao')
     ordering = ('-data_interacao',)
-    readonly_fields = ('id', 'data_cadastro', 'data_atualizacao')
+    readonly_fields = ('id', )
