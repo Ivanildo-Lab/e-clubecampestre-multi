@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Tabela de usuários do sistema
+model Usuario {
+  id              String   @id @default(cuid())
+  nome            String
+  email           String   @unique
+  senha_hash      String
+  nivel_permissao NivelPermissao @default(ATENDIMENTO)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relacionamentos
+  interacoes      Interacao[]
+  
+  @@map("usuarios")
+}
+
+// Tabela de sócios
+model Socio {
+  id            String      @id @default(cuid())
+  nome          String
+  cpf           String      @unique
+  rg            String?
+  telefone      String?
+  email         String?
+  endereco      String?
+  data_adesao   DateTime    @default(now())
+  categoria     Categoria   @default(TITULAR)
+  status        StatusSocio @default(ATIVO)
+  id_titular    String?
+  anotacoes     String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // Relacionamentos
+  titular       Socio?      @relation("Dependentes", fields: [id_titular], references: [id])
+  dependentes   Socio[]     @relation("Dependentes")
+  mensalidades  Mensalidade[]
+  interacoes    Interacao[]
+  
+  @@map("socios")
+}
+
+// Tabela de mensalidades
+model Mensalidade {
+  id             String           @id @default(cuid())
+  id_socio       String
+  valor          Float
+  data_vencimento DateTime
+  status         StatusMensalidade @default(PENDENTE)
+  data_pagamento DateTime?
+  juros          Float            @default(0)
+  multa          Float            @default(0)
+  forma_pagamento String?
+  recibo         String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  
+  // Relacionamentos
+  socio          Socio            @relation(fields: [id_socio], references: [id], onDelete: Cascade)
+  
+  @@map("mensalidades")
+}
+
+// Tabela de interações/histórico
+model Interacao {
+  id          String        @id @default(cuid())
+  id_socio    String
+  id_usuario  String?
+  tipo        TipoInteracao
+  descricao   String
+  data        DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+  
+  // Relacionamentos
+  socio       Socio         @relation(fields: [id_socio], references: [id], onDelete: Cascade)
+  usuario     Usuario?      @relation(fields: [id_usuario], references: [id])
+  
+  @@map("interacoes")
+}
+
+// Tabela de configurações do sistema
+model Configuracao {
+  id                  String   @id @default(cuid())
+  chave               String   @unique
+  valor               String
+  descricao           String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@map("configuracoes")
+}
+
+// Enums
+enum NivelPermissao {
+  ADMINISTRADOR
+  FINANCEIRO
+  ATENDIMENTO
+}
+
+enum Categoria {
+  TITULAR
+  DEPENDENTE
+  CONTRIBUINTE
+  BENEMERITO
+  VISITANTE
+}
+
+enum StatusSocio {
+  ATIVO
+  INATIVO
+  SUSPENSO
+}
+
+enum StatusMensalidade {
+  PENDENTE
+  PAGO
+  ATRASADO
+  CANCELADO
+}
+
+enum TipoInteracao {
+  EVENTO
+  COMUNICACAO
+  AVISO
+  REUNIAO
+  COBRANCA
+  ANOTACAO
+}
