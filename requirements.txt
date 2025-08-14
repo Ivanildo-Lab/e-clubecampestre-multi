@@ -1,0 +1,16 @@
+# Django
+Django
+
+# Django REST Framework e extensões
+djangorestframework
+djangorestframework-simplejwt
+django-filter
+
+# Banco de Dados (PostgreSQL)
+psycopg2-binary
+
+# Utilitários
+python-decouple
+django-cors-headers
+django-localflavor
+Pillow
