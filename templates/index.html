@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Painel Principal{% endblock %}
+
+{% block titulo_cabecalho %}Dashboard{% endblock %}
+{% block subtitulo_cabecalho %}Visão geral do sistema{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Bem-vindo!</h3>
+      </div>
+      <div class="box-body">
+        <p>Olá, <strong>{{ user.get_full_name|default:user.username }}</strong>!</p>
+        <p>Utilize o menu lateral para navegar pelas funcionalidades do sistema.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

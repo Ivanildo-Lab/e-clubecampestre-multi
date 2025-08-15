@@ -2,7 +2,7 @@
 from django.contrib import admin
 from .models import Socio, CategoriaSocio, Convenio
 from django.contrib import admin
-from .models import ConfiguracaoSistema, Auditoria, Backup, Notificacao
+from .models import ConfiguracaoSistema, Auditoria, Backup, Notificacao,Empresa
 
 
 @admin.register(ConfiguracaoSistema)
@@ -39,6 +39,23 @@ class NotificacaoAdmin(admin.ModelAdmin):
     search_fields = ('titulo', 'mensagem', 'usuario__username')
     ordering = ('-data_criacao',)
     readonly_fields = ('id', 'data_criacao', 'data_leitura', 'data_arquivamento')
+
+@admin.register(Empresa)
+class EmpresaAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'cidade', 'estado', 'responsavel', 'telefone')
+    search_fields = ('nome', 'cidade')
+
+    fieldsets = (
+        ('Dados Gerais', {
+            'fields': ('nome', 'responsavel')
+        }),
+        ('Endereço e Contato', {
+            'fields': ('endereco', 'cidade', 'estado', 'telefone')
+        }),
+        ('Mídia e Outros', {
+            'fields': ('logo', 'observacoes')
+        }),
+    )
 
 admin.site.register(Socio)
 admin.site.register(CategoriaSocio)

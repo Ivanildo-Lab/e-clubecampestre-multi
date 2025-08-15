@@ -507,3 +507,28 @@ class Notificacao(models.Model):
         self.status = 'ARQUIVADA'
         self.data_arquivamento = timezone.now()
         self.save()
+
+class Empresa(models.Model):
+    # --- Dados Gerais ---
+    nome = models.CharField(max_length=255, verbose_name="Nome da Empresa")
+    responsavel = models.CharField(max_length=150, blank=True, verbose_name="Responsável")
+    
+    # --- Contato ---
+    telefone = models.CharField(max_length=20, blank=True, verbose_name="Telefone")
+    
+    # --- Endereço ---
+    endereco = models.CharField(max_length=255, blank=True, verbose_name="Endereço (Rua, Nº, Bairro)")
+    cidade = models.CharField(max_length=100, blank=True, verbose_name="Cidade")
+    estado = models.CharField(max_length=2, blank=True, verbose_name="UF")
+    
+    # --- Outros ---
+    logo = models.ImageField(upload_to='logos_empresas/', blank=True, null=True, verbose_name="Logotipo")
+    observacoes = models.TextField(blank=True, verbose_name="Observações")
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = "Empresa"
+        verbose_name_plural = "Empresas"
+        
