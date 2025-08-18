@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Confirmar Exclusão{% endblock %}
+{% block titulo_cabecalho %}Excluir Sócio{% endblock %}
+{% block subtitulo_cabecalho %}Atenção: esta ação é irreversível{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-danger">
+            <div class="box-body">
+                <p class="lead">Você tem certeza que deseja excluir permanentemente o sócio <strong>"{{ object.nome }}"</strong>?</p>
+                <p>Todos os dados associados, incluindo dependentes e registros financeiros, também poderão ser removidos.</p>
+            </div>
+            <div class="box-footer">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sim, tenho certeza. Excluir.</button>
+                    <a href="{% url 'socios:lista_socios' %}" class="btn btn-default">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

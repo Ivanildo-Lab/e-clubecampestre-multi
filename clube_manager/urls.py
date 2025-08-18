@@ -22,10 +22,11 @@ urlpatterns = [
 
     # path('api/core/', include('core.urls')),
     # path('api/usuarios/', include('usuarios.urls')),
-    # path('api/socios/', include('socios.urls')),
+    path('socios/', include('socios.urls')),
     # path('api/financeiro/', include('financeiro.urls')),
     # path('api/cobranca/', include('cobranca.urls')),
     # path('api/eventos/', include('eventos.urls')),
+    
 ]
 
 # Configuração para servir arquivos estáticos e de mídia em desenvolvimento

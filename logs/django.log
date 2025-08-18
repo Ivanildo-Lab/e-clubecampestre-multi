@@ -222,3 +222,817 @@ Watching for file changes with StatReloader
 "GET / HTTP/1.1" 200 5795
 "GET /static/img/favicon.png HTTP/1.1" 304 0
 "GET /media/logos_empresas/logoAERCA.jpg HTTP/1.1" 304 0
+Watching for file changes with StatReloader
+"GET /admin/ HTTP/1.1" 200 25759
+"GET /static/admin/css/base.css HTTP/1.1" 304 0
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+"GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+"GET /static/admin/js/theme.js HTTP/1.1" 304 0
+"GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+"GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+"GET /admin/core/socio/add/ HTTP/1.1" 200 48649
+"GET /static/admin/css/forms.css HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+"GET /static/admin/js/core.js HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/js/actions.js HTTP/1.1" 304 0
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+"GET /static/admin/css/widgets.css HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+"GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+"GET /static/admin/js/prepopulate_init.js HTTP/1.1" 304 0
+"GET /static/admin/js/calendar.js HTTP/1.1" 200 9141
+"GET /static/admin/js/inlines.js HTTP/1.1" 200 15628
+"GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+"GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+"GET /static/admin/js/change_form.js HTTP/1.1" 304 0
+"GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+"GET /static/admin/img/icon-unknown.svg HTTP/1.1" 200 655
+"GET /static/admin/img/inline-delete.svg HTTP/1.1" 200 537
+"GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+"GET /admin/core/categoriasocio/add/?_to_field=id&_popup=1 HTTP/1.1" 200 5098
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"POST /admin/core/categoriasocio/add/?_to_field=id&_popup=1 HTTP/1.1" 200 327
+"GET /static/admin/js/popup_response.js HTTP/1.1" 200 532
+"GET /admin/core/categoriasocio/add/?_to_field=id&_popup=1 HTTP/1.1" 200 5098
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"POST /admin/core/categoriasocio/add/?_to_field=id&_popup=1 HTTP/1.1" 200 333
+"GET /admin/core/categoriasocio/add/?_to_field=id&_popup=1 HTTP/1.1" 200 5098
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"POST /admin/core/categoriasocio/add/?_to_field=id&_popup=1 HTTP/1.1" 200 329
+"GET /admin/core/categoriasocio/add/?_to_field=id&_popup=1 HTTP/1.1" 200 5098
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"POST /admin/core/categoriasocio/add/?_to_field=id&_popup=1 HTTP/1.1" 200 332
+"GET /admin/core/categoriasocio/add/?_to_field=id&_popup=1 HTTP/1.1" 200 5098
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"POST /admin/core/categoriasocio/add/?_to_field=id&_popup=1 HTTP/1.1" 200 340
+"POST /admin/core/socio/add/ HTTP/1.1" 302 0
+"GET /admin/core/socio/ HTTP/1.1" 200 26294
+"GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+"GET /static/admin/img/search.svg HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/js/filters.js HTTP/1.1" 304 0
+"GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+"GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+"GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+"GET /admin/ HTTP/1.1" 200 28000
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\models.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /admin/core/socio/ HTTP/1.1" 200 26060
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/socio/add/ HTTP/1.1" 200 48990
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\urls.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 5802
+"GET /media/logos_empresas/logoAERCA.jpg HTTP/1.1" 304 0
+"GET /static/img/favicon.png HTTP/1.1" 304 0
+"GET /socios/ HTTP/1.1" 200 9685
+"GET /media/fotos_socios/foto01.jpeg HTTP/1.1" 200 7034
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 9943
+"GET /media/fotos_socios/foto01.jpeg HTTP/1.1" 304 0
+"GET /socios/adicionar/ HTTP/1.1" 200 11100
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 9943
+"GET /static/img/favicon.png HTTP/1.1" 304 0
+"GET /media/logos_empresas/logoAERCA.jpg HTTP/1.1" 304 0
+"GET /media/fotos_socios/foto01.jpeg HTTP/1.1" 304 0
+"GET /socios/adicionar/ HTTP/1.1" 200 14259
+"GET /static/img/avatar-placeholder.png HTTP/1.1" 200 2246
+"GET / HTTP/1.1" 200 5802
+"GET /socios/ HTTP/1.1" 200 9943
+"GET /socios/adicionar/ HTTP/1.1" 200 14259
+"GET /static/img/avatar-placeholder.png HTTP/1.1" 304 0
+"GET /socios/adicionar/ HTTP/1.1" 200 14518
+"GET /static/img/avatar-placeholder.png HTTP/1.1" 304 0
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\urls.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 9976
+"GET /media/fotos_socios/foto01.jpeg HTTP/1.1" 304 0
+"GET /socios/1/editar/ HTTP/1.1" 200 15045
+"GET /static/img/avatar-placeholder.png HTTP/1.1" 304 0
+"POST /socios/1/editar/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 9984
+"GET /media/fotos_socios/foto01_jrqe3Zj.jpeg HTTP/1.1" 200 7034
+"GET /socios/1/editar/ HTTP/1.1" 200 15062
+"GET /static/img/avatar-placeholder.png HTTP/1.1" 304 0
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 9984
+"GET /media/fotos_socios/foto01_jrqe3Zj.jpeg HTTP/1.1" 304 0
+Internal Server Error: /socios/1/editar/
+Traceback (most recent call last):
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 489, in parse
+    raise self.error(token, e)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 710, in __init__
+    raise TemplateSyntaxError(
+    ...<2 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Could not parse the remainder: ' residencial' from 'form.tel_ residencial'
+"GET /socios/1/editar/ HTTP/1.1" 500 245565
+Internal Server Error: /socios/1/editar/
+Traceback (most recent call last):
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 489, in parse
+    raise self.error(token, e)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 710, in __init__
+    raise TemplateSyntaxError(
+    ...<2 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Could not parse the remainder: ' residencial' from 'form.tel_ residencial'
+"GET /socios/1/editar/ HTTP/1.1" 500 245262
+Internal Server Error: /socios/1/editar/
+Traceback (most recent call last):
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 489, in parse
+    raise self.error(token, e)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 710, in __init__
+    raise TemplateSyntaxError(
+    ...<2 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Could not parse the remainder: ' residencial' from 'form.tel_ residencial'
+"GET /socios/1/editar/ HTTP/1.1" 500 245125
+"GET /socios/1/editar/ HTTP/1.1" 200 15365
+"GET /media/logos_empresas/logoAERCA.jpg HTTP/1.1" 304 0
+"GET /static/img/favicon.png HTTP/1.1" 304 0
+"GET /media/fotos_socios/foto01_jrqe3Zj.jpeg HTTP/1.1" 304 0
+"POST /socios/1/editar/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 9984
+"GET /socios/1/excluir/ HTTP/1.1" 200 6330
+"GET /socios/ HTTP/1.1" 200 9984
+"GET /socios/1/editar/ HTTP/1.1" 200 15365
+"GET /media/logos_empresas/logoAERCA.jpg HTTP/1.1" 304 0
+"GET /static/img/favicon.png HTTP/1.1" 304 0
+"GET /media/fotos_socios/foto01_jrqe3Zj.jpeg HTTP/1.1" 304 0
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 10226
+"GET / HTTP/1.1" 200 5802
+"GET / HTTP/1.1" 200 5802
+"GET /socios/ HTTP/1.1" 200 10226
+"GET /socios/ HTTP/1.1" 200 9983
+"POST /socios/1/excluir/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 8322
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\forms.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/adicionar/ HTTP/1.1" 200 14866
+"GET /static/img/avatar-placeholder.png HTTP/1.1" 304 0
+"GET /socios/ HTTP/1.1" 200 9105
+"GET /socios/adicionar/ HTTP/1.1" 200 14866
+"GET /socios/ HTTP/1.1" 200 9105
+"GET /socios/adicionar/ HTTP/1.1" 200 15084
+"GET /socios/ HTTP/1.1" 200 26039
+"GET /media/logos_empresas/logoAERCA.jpg HTTP/1.1" 304 0
+"GET /static/img/favicon.png HTTP/1.1" 304 0
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_homem3.png
+Not Found: /media/fotos_socios/avatar_homem1.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_homem3.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+Not Found: /media/fotos_socios/avatar_mulher4.png
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /socios/5/editar/ HTTP/1.1" 200 17204
+Not Found: /media/fotos_socios/avatar_homem3.png
+"GET /media/fotos_socios/avatar_homem3.png HTTP/1.1" 404 3200
+"GET /socios/ HTTP/1.1" 200 26039
+Not Found: /media/fotos_socios/avatar_homem3.png
+Not Found: /media/fotos_socios/avatar_homem1.png
+"GET /media/fotos_socios/avatar_homem3.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+Not Found: /media/fotos_socios/avatar_mulher4.png
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /socios/2/editar/ HTTP/1.1" 200 17301
+Not Found: /media/fotos_socios/avatar_homem1.png
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+"GET /socios/ HTTP/1.1" 200 26039
+Not Found: /media/fotos_socios/avatar_homem3.png
+Not Found: /media/fotos_socios/avatar_homem1.png
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_homem3.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+Not Found: /media/fotos_socios/avatar_mulher4.png
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /socios/9/editar/ HTTP/1.1" 200 17025
+"GET /static/img/avatar-placeholder.png HTTP/1.1" 304 0
+"GET /socios/ HTTP/1.1" 200 26039
+Not Found: /media/fotos_socios/avatar_homem3.png
+Not Found: /media/fotos_socios/avatar_homem1.png
+"GET /media/fotos_socios/avatar_homem3.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+Not Found: /media/fotos_socios/avatar_mulher4.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /socios/5/editar/ HTTP/1.1" 200 17204
+Not Found: /media/fotos_socios/avatar_homem3.png
+"GET /media/fotos_socios/avatar_homem3.png HTTP/1.1" 404 3200
+"POST /socios/5/editar/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 26105
+Not Found: /media/fotos_socios/avatar_homem1.png
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+Not Found: /media/fotos_socios/avatar_mulher4.png
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /socios/2/editar/ HTTP/1.1" 200 17301
+Not Found: /media/fotos_socios/avatar_homem1.png
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+"POST /socios/2/editar/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 26107
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher4.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/foto01_TDN7LBD.jpeg HTTP/1.1" 200 7034
+"GET /socios/5/editar/ HTTP/1.1" 200 16988
+"GET / HTTP/1.1" 200 4549
+"GET /admin/ HTTP/1.1" 200 28000
+"GET /static/admin/css/base.css HTTP/1.1" 304 0
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+"GET /static/admin/js/theme.js HTTP/1.1" 304 0
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+"GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+"GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+"GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+"GET /admin/socios/dependente/ HTTP/1.1" 200 24444
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+"GET /static/admin/js/core.js HTTP/1.1" 304 0
+"GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+"GET /static/admin/js/actions.js HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+"GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/img/search.svg HTTP/1.1" 304 0
+"GET /static/admin/js/filters.js HTTP/1.1" 304 0
+"GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+"GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 304 0
+"GET /admin/socios/socio/ HTTP/1.1" 200 28108
+"GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/img/sorting-icons.svg HTTP/1.1" 304 0
+"GET /admin/socios/socio/? HTTP/1.1" 200 28108
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/socio/ HTTP/1.1" 200 34971
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/socios/socio/ HTTP/1.1" 200 28108
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/socio/ HTTP/1.1" 200 34971
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/socios/dependente/ HTTP/1.1" 200 24444
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /socios/ HTTP/1.1" 200 26107
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/foto01_TDN7LBD.jpeg HTTP/1.1" 304 0
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+Not Found: /media/fotos_socios/avatar_mulher4.png
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /socios/7/editar/ HTTP/1.1" 200 18658
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"POST /socios/7/editar/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 26107
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher2.png
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_mulher4.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /socios/7/editar/ HTTP/1.1" 200 18658
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /admin/auth/group/ HTTP/1.1" 200 22361
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 26813
+"GET /media/fotos_socios/foto01_TDN7LBD.jpeg HTTP/1.1" 304 0
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher2.png
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+Not Found: /media/fotos_socios/avatar_mulher4.png
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /socios/?page=2 HTTP/1.1" 200 27005
+Not Found: /media/fotos_socios/avatar_mulher5.png
+Not Found: /media/fotos_socios/avatar_homem2.png
+"GET /media/fotos_socios/avatar_mulher5.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_homem2.png HTTP/1.1" 404 3200
+"GET /socios/19/editar/ HTTP/1.1" 200 16960
+"GET /socios/ HTTP/1.1" 200 26813
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_mulher4.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /socios/?page=2 HTTP/1.1" 200 27005
+Not Found: /media/fotos_socios/avatar_mulher5.png
+Not Found: /media/fotos_socios/avatar_homem2.png
+"GET /media/fotos_socios/avatar_mulher5.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_homem2.png HTTP/1.1" 404 3200
+"GET /socios/19/editar/ HTTP/1.1" 200 16960
+"GET /socios/ HTTP/1.1" 200 26813
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_mulher4.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\settings.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\models.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\models.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\models.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\admin.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\serializers.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\serializers.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\serializers.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\settings.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\settings.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\admin.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /admin/ HTTP/1.1" 302 0
+"GET /admin/login/?next=/admin/ HTTP/1.1" 200 4209
+"GET /static/admin/css/login.css HTTP/1.1" 304 0
+"POST /admin/login/?next=/admin/ HTTP/1.1" 200 4410
+Watching for file changes with StatReloader
+"POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+"GET /admin/ HTTP/1.1" 200 9095
+"GET /admin/core/categoriasocio/ HTTP/1.1" 200 9798
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /socios/ HTTP/1.1" 200 26742
+Not Found: /media/fotos_socios/avatar_homem1.png
+Not Found: /media/fotos_socios/avatar_homem3.png
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_homem3.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_mulher4.png
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher1.png
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /socios/24/editar/ HTTP/1.1" 200 18437
+Not Found: /media/fotos_socios/avatar_homem3.png
+"GET /media/fotos_socios/avatar_homem3.png HTTP/1.1" 404 3200
+"POST /socios/24/editar/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 26744
+Not Found: /media/fotos_socios/avatar_homem1.png
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+Not Found: /media/fotos_socios/avatar_mulher4.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 200 7034
+"GET /socios/24/editar/ HTTP/1.1" 200 18443
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+"GET /socios/ HTTP/1.1" 200 26744
+Not Found: /media/fotos_socios/avatar_homem1.png
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+Not Found: /media/fotos_socios/avatar_mulher4.png
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /admin/core/empresa/ HTTP/1.1" 200 10050
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/empresa/add/ HTTP/1.1" 200 15407
+"GET /static/admin/js/prepopulate_init.js HTTP/1.1" 304 0
+"GET /static/admin/css/forms.css HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/css/widgets.css HTTP/1.1" 304 0
+"GET /static/admin/js/change_form.js HTTP/1.1" 304 0
+"POST /admin/core/empresa/add/ HTTP/1.1" 302 0
+"GET /admin/core/empresa/ HTTP/1.1" 200 12271
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /socios/ HTTP/1.1" 200 26864
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 200 150788
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_mulher4.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_homem1.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /socios/?page=2 HTTP/1.1" 200 27128
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+Not Found: /media/fotos_socios/avatar_mulher5.png
+Not Found: /media/fotos_socios/avatar_homem2.png
+"GET /media/fotos_socios/avatar_homem2.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher5.png HTTP/1.1" 404 3204
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/?page=2 HTTP/1.1" 200 27128
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+Not Found: /media/fotos_socios/avatar_mulher5.png
+"GET /media/fotos_socios/avatar_mulher5.png HTTP/1.1" 404 3204
+Not Found: /media/fotos_socios/avatar_homem2.png
+"GET /media/fotos_socios/avatar_homem2.png HTTP/1.1" 404 3200
+"GET /socios/?page=2 HTTP/1.1" 200 27128
+Not Found: /media/fotos_socios/avatar_mulher5.png
+"GET /media/fotos_socios/avatar_mulher5.png HTTP/1.1" 404 3204
+Not Found: /media/fotos_socios/avatar_homem2.png
+"GET /media/fotos_socios/avatar_homem2.png HTTP/1.1" 404 3200
+"GET /socios/ HTTP/1.1" 200 26864
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+Not Found: /media/fotos_socios/avatar_homem1.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_mulher4.png
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 26864
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+Not Found: /media/fotos_socios/avatar_homem1.png
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_homem4.png
+Not Found: /media/fotos_socios/avatar_mulher3.png
+Not Found: /media/fotos_socios/avatar_mulher2.png
+Not Found: /media/fotos_socios/avatar_mulher1.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+Not Found: /media/fotos_socios/avatar_mulher4.png
+"GET /media/fotos_socios/avatar_mulher3.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher1.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher2.png HTTP/1.1" 404 3204
+"GET /media/fotos_socios/avatar_mulher4.png HTTP/1.1" 404 3204
+"GET /socios/ HTTP/1.1" 200 29028
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+"GET /socios/?page=2 HTTP/1.1" 200 29109
+"GET /socios/32/editar/ HTTP/1.1" 200 16926
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+"GET /static/img/avatar-placeholder.png HTTP/1.1" 304 0
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 8609
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+"GET /socios/?q=will HTTP/1.1" 200 8448
+"GET /socios/ HTTP/1.1" 200 29028
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+"GET /socios/ HTTP/1.1" 200 27695
+"GET /socios/?q=diego HTTP/1.1" 200 10995
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+"GET /socios/26/editar/ HTTP/1.1" 200 21385
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /socios/ HTTP/1.1" 200 27695
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+"GET /socios/?q=1006 HTTP/1.1" 200 10994
+"GET /socios/26/editar/ HTTP/1.1" 200 21385
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /socios/ HTTP/1.1" 200 30104
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+"GET /socios/ HTTP/1.1" 200 30114
+"GET /socios/ HTTP/1.1" 200 29145
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+"GET /socios/ HTTP/1.1" 200 28365
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 29500
+"GET /static/img/favicon.png HTTP/1.1" 304 0
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+"GET /socios/?categoria=1&status=&q= HTTP/1.1" 200 29514
+"GET /socios/?categoria=&status=&q=diego HTTP/1.1" 200 12756
+"GET /socios/26/editar/ HTTP/1.1" 200 21385
+"GET /socios/26/editar/ HTTP/1.1" 200 21385
+- Broken pipe from ('127.0.0.1', 52602)
+"GET /socios/26/editar/ HTTP/1.1" 200 21385
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /socios/ HTTP/1.1" 200 29500
+"GET /socios/?categoria=&status=&q=almeida HTTP/1.1" 200 12743
+"GET /socios/25/editar/ HTTP/1.1" 200 16944
+"GET /socios/ HTTP/1.1" 200 29500
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 31161
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+"GET /socios/21/editar/ HTTP/1.1" 200 22846
+Not Found: /media/fotos_socios/avatar_homem1.png
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+"POST /socios/21/editar/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 31160
+"GET /socios/21/editar/ HTTP/1.1" 200 20043
+Not Found: /media/fotos_socios/avatar_homem1.png
+"GET /media/fotos_socios/avatar_homem1.png HTTP/1.1" 404 3200
+"GET /socios/ HTTP/1.1" 200 31160
+"GET /socios/?categoria=&status=ATIVO&q= HTTP/1.1" 200 31157
+"GET /socios/?categoria=&status=INATIVO&q= HTTP/1.1" 200 15222
+"GET /socios/?categoria=&status=SUSPENSO&q= HTTP/1.1" 200 13254
+"GET /socios/?categoria=&status=CANCELADO&q= HTTP/1.1" 200 11470
+"GET /socios/ HTTP/1.1" 200 31160
+"GET /socios/adicionar/ HTTP/1.1" 200 15025
+"GET /socios/ HTTP/1.1" 200 31160
+"POST /socios/25/excluir/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 31169
+"GET /socios/26/editar/ HTTP/1.1" 200 21385
+"GET /static/img/favicon.png HTTP/1.1" 304 0
+"GET /media/logos_empresas/logoAERCA_WwvWaNk.jpg HTTP/1.1" 304 0
+Not Found: /media/fotos_socios/avatar_homem4.png
+"GET /media/fotos_socios/avatar_homem4.png HTTP/1.1" 404 3200
+"GET /socios/ HTTP/1.1" 200 31169
+"GET /media/fotos_socios/foto01_XR2Onju.jpeg HTTP/1.1" 304 0
+"GET /socios/ HTTP/1.1" 200 30819
+"GET /socios/ HTTP/1.1" 200 30819
+"GET / HTTP/1.1" 200 4557
+"GET / HTTP/1.1" 200 4432

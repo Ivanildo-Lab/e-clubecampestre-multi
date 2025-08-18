@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_pagina %}Lista de Sócios{% endblock %}
+{% block titulo_cabecalho %}Sócios{% endblock %}
+{% block subtitulo_cabecalho %}Listagem e Gerenciamento{% endblock %}
+
+{% block content %}
+<!-- Início do Dashboard de Sócios -->
+<div class="row">
+    <div class="col-lg-3 col-xs-6"><div class="small-box bg-aqua"><div class="inner"><h3>{{ total_socios }}</h3><p>Sócios Totais</p></div><div class="icon"><i class="fa fa-users"></i></div></div></div>
+    <div class="col-lg-3 col-xs-6"><div class="small-box bg-green"><div class="inner"><h3>{{ socios_ativos }}</h3><p>Sócios Ativos</p></div><div class="icon"><i class="fa fa-check-circle"></i></div></div></div>
+    <div class="col-lg-3 col-xs-6"><div class="small-box bg-yellow"><div class="inner"><h3>{{ total_titulares }}</h3><p>Titulares</p></div><div class="icon"><i class="fa fa-user-circle"></i></div></div></div>
+    <div class="col-lg-3 col-xs-6"><div class="small-box bg-red"><div class="inner"><h3>{{ total_dependentes }}</h3><p>Dependentes</p></div><div class="icon"><i class="fa fa-child"></i></div></div></div>
+</div>
+<!-- Fim do Dashboard -->
+
+<!-- Início da Lista de Sócios -->
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Filtros e Busca</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'socios:adicionar_socio' %}" class="btn btn-primary btn-flat">
+                        <i class="fa fa-plus"></i> Adicionar Sócio
+                    </a>
+                </div>
+            </div>
+            
+            <form method="GET" action="{% url 'socios:lista_socios' %}">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Categoria</label>
+                                <select name="categoria" class="form-control">
+                                    <option value="">Todas</option>
+                                    {% for cat in categorias %}
+                                        <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == categoria_selecionada %}selected{% endif %}>{{ cat.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select name="status" class="form-control">
+                                    <option value="">Todos</option>
+                                    <!-- CORRIGIDO: Agora usa a variável da view -->
+                                    {% for value, display in situacao_choices %}
+                                        <option value="{{ value }}" {% if value == status_selecionado %}selected{% endif %}>{{ display }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Buscar por Nome, CPF ou Registro</label>
+                            <input type="text" name="q" class="form-control" placeholder="Digite para buscar..." value="{{ search_query }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label>&nbsp;</label>
+                            <div class="btn-group" style="display: flex;">
+                                <button type="submit" class="btn btn-info btn-flat" style="flex-grow: 1;">Filtrar</button>
+                                <a href="{% url 'socios:lista_socios' %}" class="btn btn-default btn-flat" title="Limpar Filtros"><i class="fa fa-eraser"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr>
+                            <th>Sócio</th>
+                            <th>Contato</th>
+                            <th>Categoria</th>
+                            <th>Status</th>
+                            <th class="text-center">Dependentes</th> <!-- NOVA COLUNA -->
+                            <th>Ações</th>
+                        </tr>
+                        {% for socio in socios %}
+                        <tr>
+                            <td style="display: flex; align-items: center;">
+                                {% if socio.foto_existe %}
+                                    <img src="{{ socio.foto.url }}" class="img-circle" alt="User Image" style="width: 50px; height: 50px; margin-right: 15px; object-fit: cover;">
+                                {% else %}
+                                    <div class="img-circle" style="width: 50px; height: 50px; margin-right: 15px; background-color: #f39c12; color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;">{{ socio.nome|slice:":2"|upper }}</div>
+                                {% endif %}
+                                <div>
+                                    <strong style="display: block;">{{ socio.nome }}</strong>
+                                    <small>Admissão: {{ socio.data_admissao|date:"d/m/Y" }}</small>
+                                    <br>
+                                    <small>Registro: <strong>{{ socio.num_registro }}</strong></small>
+                                </div>
+                            </td>
+                            <td><span style="display: block;"><i class="fa fa-envelope-o margin-r-5"></i> {{ socio.email|default:"Não informado" }}</span><span style="display: block;"><i class="fa fa-phone margin-r-5"></i> {{ socio.tel_residencial|default:"Não informado" }}</span></td>
+                            <td>{{ socio.categoria.nome }}</td>
+                            <td>{% if socio.situacao == 'ATIVO' %}<span class="label label-success">{{ socio.get_situacao_display }}</span>{% elif socio.situacao == 'INATIVO' %}<span class="label label-warning">{{ socio.get_situacao_display }}</span>{% else %}<span class="label label-danger">{{ socio.get_situacao_display }}</span>{% endif %}</td>
+                            <td class="text-center"> <!-- NOVO CAMPO DE DADOS -->
+                                <span class="badge bg-light-blue">{{ socio.num_dependentes }}</span>
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-xs btn-primary"><i class="fa fa-eye"></i></a>
+                                <a href="{% url 'socios:editar_socio' socio.pk %}" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a>
+                                <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'socios:excluir_socio' socio.pk %}" data-nome="{{ socio.nome }}"><i class="fa fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Nenhum sócio encontrado com os filtros aplicados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- INÍCIO DA PAGINAÇÃO COMPLETA -->
+            <div class="box-footer clearfix">
+                <ul class="pagination pagination-sm no-margin pull-right">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">&laquo; Primeira</a></li>
+                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">&lsaquo; Anterior</a></li>
+                    {% endif %}
+
+                    <li class="disabled">
+                        <a>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.</a>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">Próxima &rsaquo;</a></li>
+                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">Última &raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <!-- FIM DA PAGINAÇÃO -->
+        </div>
+    </div>
+</div>
+<!-- Fim da Lista -->
+
+<!-- INÍCIO DO MODAL DE EXCLUSÃO (sem alterações) -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Confirmar Exclusão</h4>
+            </div>
+            <div class="modal-body">
+                <p>Você tem certeza que deseja excluir o sócio <strong id="socioNomeModal"></strong>?</p>
+                <p class="text-danger">Atenção: esta ação é irreversível.</p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIM DO MODAL -->
+{% endblock %}
+
+{% block scripts %}
+<!-- INÍCIO DO SCRIPT DO MODAL (sem alterações) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.js-delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const deleteUrl = this.dataset.url;
+            const socioNome = this.dataset.nome;
+            const deleteForm = document.getElementById('deleteForm');
+            const socioNomeModal = document.getElementById('socioNomeModal');
+            deleteForm.action = deleteUrl;
+            socioNomeModal.textContent = `"${socioNome}"`;
+            $('#deleteModal').modal('show');
+        });
+    });
+});
+</script>
+<!-- FIM DO SCRIPT -->
+{% endblock %}

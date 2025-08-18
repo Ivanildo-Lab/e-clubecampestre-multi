@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_pagina %}{{ titulo_pagina }}{% endblock %}
+{% block titulo_cabecalho %}{{ titulo_cabecalho }}{% endblock %}
+{% block subtitulo_cabecalho %}Preencha os dados abaixo com atenção{% endblock %}
+
+{% block content %}
+<form role="form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <!-- Coluna Principal (9 de 12) -->
+        <div class="col-md-9">
+            <!-- Seção de Dados Pessoais -->
+            <div class="box box-primary">
+                <div class="box-header with-border"><h3 class="box-title">Dados Pessoais</h3></div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-8 form-group">{{ form.nome.label_tag }} {{ form.nome }}</div>
+                        <div class="col-md-4 form-group">{{ form.apelido.label_tag }} {{ form.apelido }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 form-group">{{ form.data_nascimento.label_tag }} {{ form.data_nascimento }}</div>
+                        <div class="col-md-4 form-group">{{ form.cpf.label_tag }} {{ form.cpf }}</div>
+                        <div class="col-md-4 form-group">{{ form.rg.label_tag }} {{ form.rg }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 form-group">{{ form.nacionalidade.label_tag }} {{ form.nacionalidade }}</div>
+                        <div class="col-md-4 form-group">{{ form.naturalidade.label_tag }} {{ form.naturalidade }}</div>
+                        <div class="col-md-4 form-group">{{ form.estado_civil.label_tag }} {{ form.estado_civil }}</div>
+                    </div>
+                     <div class="row">
+                        <div class="col-md-12 form-group">{{ form.profissao.label_tag }} {{ form.profissao }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Contato e Endereço -->
+            <div class="box box-info">
+                <div class="box-header with-border"><h3 class="box-title">Contato e Endereço</h3></div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-6 form-group">{{ form.email.label_tag }} {{ form.email }}</div>
+                        <div class="col-md-3 form-group">{{ form.tel_residencial.label_tag }} {{ form.tel_residencial }}</div>
+                        <div class="col-md-3 form-group">{{ form.tel_trabalho.label_tag }} {{ form.tel_trabalho }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-9 form-group">{{ form.endereco.label_tag }} {{ form.endereco }}</div>
+                        <div class="col-md-3 form-group">{{ form.bairro.label_tag }} {{ form.bairro }}</div>
+                    </div>
+                     <div class="row">
+                        <div class="col-md-8 form-group">{{ form.cidade.label_tag }} {{ form.cidade }}</div>
+                        <div class="col-md-2 form-group">{{ form.estado.label_tag }} {{ form.estado }}</div>
+                        <div class="col-md-2 form-group">{{ form.cep.label_tag }} {{ form.cep }}</div>
+                    </div>
+                </div>
+            </div>
+
+             <!-- Seção de Filiação -->
+            <div class="box box-warning">
+                <div class="box-header with-border"><h3 class="box-title">Filiação</h3></div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-6 form-group">{{ form.nome_pai.label_tag }} {{ form.nome_pai }}</div>
+                        <div class="col-md-6 form-group">{{ form.nome_mae.label_tag }} {{ form.nome_mae }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Seção de Observações -->
+            <div class="box box-default">
+                <div class="box-header with-border"><h3 class="box-title">Observações</h3></div>
+                <div class="box-body">
+                    <div class="form-group">{{ form.observacoes.label_tag }} {{ form.observacoes }}</div>
+                </div>
+            </div>
+
+            <!-- INÍCIO DA CORREÇÃO: O BOX DE DEPENDENTES AGORA ESTÁ DENTRO DA COLUNA PRINCIPAL -->
+            <div class="box box-success">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Dependentes</h3>
+                </div>
+                <div class="box-body">
+                    {{ dependente_formset.management_form }}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Nascimento</th>
+                                <th>Parentesco</th>
+                                <th>CPF</th>
+                                <th>Excluir?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for form_dep in dependente_formset %}
+                                <tr>
+                                    <td>{{ form_dep.id }}{{ form_dep.nome }}</td>
+                                    <td>{{ form_dep.data_nascimento }}</td>
+                                    <td>{{ form_dep.parentesco }}</td>
+                                    <td>{{ form_dep.cpf }}</td>
+                                    <td>
+                                        {% if form_dep.instance.pk %}
+                                            {{ form_dep.DELETE }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- FIM DA CORREÇÃO -->
+
+        </div>
+        <!-- Fim da Coluna Principal -->
+
+        <!-- Coluna da Direita (3 de 12) -->
+        <div class="col-md-3">
+            <!-- Seção da Foto -->
+            <div class="box box-success">
+                <div class="box-header with-border"><h3 class="box-title">Foto do Sócio</h3></div>
+                <div class="box-body text-center">
+                    {% if form.instance.foto %}
+                        <img id="foto-preview" src="{{ form.instance.foto.url }}" class="img-responsive img-thumbnail" style="max-height: 200px; margin-bottom: 10px;" alt="Foto do Sócio">
+                    {% else %}
+                        <img id="foto-preview" src="{% static 'img/avatar-placeholder.png' %}" class="img-responsive img-thumbnail" style="max-height: 200px; margin-bottom: 10px;" alt="Avatar Padrão">
+                    {% endif %}
+                    {{ form.foto }}
+                </div>
+            </div>
+
+            <!-- Seção de Dados do Clube -->
+            <div class="box box-danger">
+                <div class="box-header with-border"><h3 class="box-title">Dados do Clube</h3></div>
+                <div class="box-body">
+                    <div class="form-group">{{ form.num_registro.label_tag }} {{ form.num_registro }}</div>
+                    <div class="form-group">{{ form.num_contrato.label_tag }} {{ form.num_contrato }}</div>
+                    <div class="form-group">{{ form.categoria.label_tag }} {{ form.categoria }}</div>
+                    <div class="form-group">{{ form.convenio.label_tag }} {{ form.convenio }}</div>
+                    <div class="form-group">{{ form.data_admissao.label_tag }} {{ form.data_admissao }}</div>
+                    <div class="form-group">{{ form.situacao.label_tag }} {{ form.situacao }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer" style="background-color: #fff; border-top: 1px solid #f4f4f4;">
+                <button type="submit" class="btn btn-primary btn-lg">Salvar Sócio</button>
+                <a href="{% url 'socios:lista_socios' %}" class="btn btn-default btn-lg">Cancelar</a>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fotoInput = document.getElementById('id_foto');
+    const fotoPreview = document.getElementById('foto-preview');
+
+    if (fotoInput) {
+        fotoInput.addEventListener('change', function(event) {
+            if (event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fotoPreview.src = e.target.result;
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

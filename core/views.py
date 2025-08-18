@@ -5,14 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from datetime import timedelta
-from .models import ConfiguracaoSistema, Auditoria, Backup, Notificacao
-from .serializers import (
-    ConfiguracaoSistemaSerializer, 
-    AuditoriaSerializer, 
-    BackupSerializer, 
-    NotificacaoSerializer,
-    DashboardSerializer
-)
+
 
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -33,8 +26,7 @@ class HealthCheckView(viewsets.ViewSet):
 
 class ConfiguracaoSistemaViewSet(viewsets.ModelViewSet):
     """ViewSet para gerenciar configurações do sistema"""
-    queryset = ConfiguracaoSistema.objects.all()
-    serializer_class = ConfiguracaoSistemaSerializer
+   
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
@@ -67,8 +59,6 @@ class ConfiguracaoSistemaViewSet(viewsets.ModelViewSet):
 
 class AuditoriaViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet para visualizar auditoria do sistema"""
-    queryset = Auditoria.objects.all()
-    serializer_class = AuditoriaSerializer
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
@@ -89,8 +79,6 @@ class AuditoriaViewSet(viewsets.ReadOnlyModelViewSet):
 
 class BackupViewSet(viewsets.ModelViewSet):
     """ViewSet para gerenciar backups do sistema"""
-    queryset = Backup.objects.all()
-    serializer_class = BackupSerializer
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
@@ -117,34 +105,6 @@ class BackupViewSet(viewsets.ModelViewSet):
         return Response({'message': 'Backup iniciado com sucesso'})
 
 
-class NotificacaoViewSet(viewsets.ModelViewSet):
-    """ViewSet para gerenciar notificações do usuário"""
-    serializer_class = NotificacaoSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        return Notificacao.objects.filter(usuario=self.request.user).order_by('-data_criacao')
-    
-    @action(detail=True, methods=['post'])
-    def marcar_lida(self, request, pk=None):
-        """Marcar notificação como lida"""
-        notificacao = self.get_object()
-        notificacao.marcar_como_lida()
-        return Response({'message': 'Notificação marcada como lida'})
-    
-    @action(detail=True, methods=['post'])
-    def arquivar(self, request, pk=None):
-        """Arquivar notificação"""
-        notificacao = self.get_object()
-        notificacao.arquivar()
-        return Response({'message': 'Notificação arquivada'})
-    
-    @action(detail=False, methods=['get'])
-    def nao_lidas(self, request):
-        """Listar notificações não lidas"""
-        notificacoes = self.get_queryset().filter(status='NAO_LIDA')
-        serializer = self.get_serializer(notificacoes, many=True)
-        return Response(serializer.data)
 
 
 class DashboardViewSet(viewsets.ViewSet):

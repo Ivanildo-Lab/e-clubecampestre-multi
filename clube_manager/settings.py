@@ -46,13 +46,13 @@ INSTALLED_APPS = [
     'django_filters',
     'localflavor',
     
-    # Local apps
-    'core',
-    'usuarios',
-    'socios',
-    'financeiro',
-    'cobranca',
-    'eventos',
+    # Local apps (APENAS OS QUE ESTAMOS USANDO ATIVAMENTE)
+    'core',   # Onde estão nossos modelos principais.
+    'socios', # Onde estão nossas views e urls de sócios.
+    # 'usuarios', # Desativado por enquanto.
+    # 'financeiro', # Desativado por enquanto.
+    # 'cobranca', # Desativado por enquanto.
+    # 'eventos', # Desativado por enquanto.
 ]
 
 MIDDLEWARE = [
@@ -90,19 +90,37 @@ WSGI_APPLICATION = 'clube_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+#DATABASES = {
+#   'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': config('DB_NAME', default='clube_manager'),
+#        'USER': config('DB_USER', default='postgres'),
+#        'PASSWORD': config('DB_PASSWORD', default=''),
+#        'HOST': config('DB_HOST', default='localhost'),
+#        'PORT': config('DB_PORT', default='5432'),
+#    }
+#}
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='clube_manager'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default=''),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME', default='eclubecampestre_db'),
+        'USER': config('DB_USER', default='seu_usuario_mysql'),
+        'PASSWORD': config('DB_PASSWORD', default='sua_senha_mysql'),
         'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+        'PORT': config('DB_PORT', default='3306'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
-# Fallback to SQLite for development
-if not config('DB_PASSWORD', default=''):
+# Lógica de Fallback: Se não houver uma senha de banco de dados definida no .env,
+# continuamos usando o SQLite para desenvolvimento fácil.
+# Desta forma, não quebramos a funcionalidade original.
+if not config('DB_PASSWORD', default=None):
+    print("AVISO: Nenhuma senha de banco de dados encontrada. Usando SQLite como fallback.")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -204,7 +222,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 # Custom user model
-AUTH_USER_MODEL = 'usuarios.Usuario'
+#AUTH_USER_MODEL = 'usuarios.Usuario'
 
 # Logging configuration
 LOGGING = {
