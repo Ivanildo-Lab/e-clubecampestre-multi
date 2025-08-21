@@ -30,5 +30,9 @@ class EmpresaAdmin(admin.ModelAdmin):
     )
 
 # Registra os outros modelos que não precisam de configuração especial
-admin.site.register(CategoriaSocio)
+@admin.register(CategoriaSocio)
+class CategoriaSocioAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'valor_mensalidade', 'dia_vencimento')
+    search_fields = ('nome',)
+    
 admin.site.register(Convenio)

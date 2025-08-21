@@ -105,6 +105,12 @@
                                 <a href="#" class="btn btn-xs btn-primary"><i class="fa fa-eye"></i></a>
                                 <a href="{% url 'socios:editar_socio' socio.pk %}" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a>
                                 <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'socios:excluir_socio' socio.pk %}" data-nome="{{ socio.nome }}"><i class="fa fa-trash"></i></button>
+                                <form action="{% url 'socios:gerar_mensalidade_individual' socio.pk %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-xs btn-success" title="Gerar Mensalidade do Mês">
+                                        <i class="fa fa-dollar"></i>
+                                    </button>
+                                </form>                                
                             </td>
                         </tr>
                         {% empty %}

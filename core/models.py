@@ -13,14 +13,18 @@ import uuid
 class CategoriaSocio(models.Model):
     nome = models.CharField(max_length=100, unique=True)
     descricao = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.nome
-
-    class Meta:
-        verbose_name = "Categoria de Sócio"
-        verbose_name_plural = "Categorias de Sócios"
-
+    valor_mensalidade = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00,
+        verbose_name="Valor da Mensalidade"
+    )
+    dia_vencimento = models.PositiveIntegerField(
+        default=10,
+        verbose_name="Dia do Vencimento",
+        help_text="O dia do mês em que a mensalidade vence (ex: 10)."
+    )
+    
 # Modelo para os Convênios
 class Convenio(models.Model):
     nome = models.CharField(max_length=150, unique=True)

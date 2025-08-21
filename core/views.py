@@ -5,7 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from datetime import timedelta
-
+from financeiro.models import Mensalidade
+from core.models import Socio
+from django.db.models.functions import TruncMonth
 
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -171,14 +173,59 @@ class DashboardViewSet(viewsets.ViewSet):
         return Response(dashboard_data)
     
 class HomeView(LoginRequiredMixin, TemplateView):
-    """
-    View para renderizar a página inicial (dashboard) do sistema web.
-    """
-    template_name = 'index.html'
-    login_url = '/admin/login/' # Redireciona para o login do admin se não estiver logado
+    template_name = 'index.html' # Usaremos o index.html como nosso dashboard
+    login_url = '/admin/login/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = 'Painel Principal'
-        context['usuario'] = self.request.user
+        context['titulo_pagina'] = 'Dashboard'
+        # ATUALIZA O STATUS DE MENSALIDADES VENCIDAS ANTES DE CALCULAR
+        Mensalidade.objects.atualizar_status_atrasadas()
+        
+        hoje = timezone.now()
+        primeiro_dia_mes = hoje.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        # --- DADOS PARA OS CARDS ---
+        mensalidades_mes = Mensalidade.objects.filter(competencia__month=hoje.month, competencia__year=hoje.year)
+        
+        context['total_socios'] = Socio.objects.filter(situacao='ATIVO').count()
+        
+        receita_mensal = mensalidades_mes.filter(status='PAGA').aggregate(total=Sum('valor'))['total'] or 0
+        context['receita_mensal'] = receita_mensal
+
+        pendentes = mensalidades_mes.filter(status='PENDENTE').count()
+        atrasadas = mensalidades_mes.filter(status='ATRASADA').count()
+        context['pagamentos_pendentes'] = pendentes + atrasadas
+
+        total_cobradas = mensalidades_mes.count()
+        if total_cobradas > 0:
+            taxa_inadimplencia = (atrasadas / total_cobradas) * 100
+        else:
+            taxa_inadimplencia = 0
+        context['taxa_inadimplencia'] = round(taxa_inadimplencia, 2)
+
+        # --- DADOS PARA O GRÁFICO (Últimos 6 meses) ---
+        seis_meses_atras = hoje - timezone.timedelta(days=180)
+        receitas_por_mes = Mensalidade.objects.filter(
+            status='PAGA',
+            data_pagamento__gte=seis_meses_atras
+        ).annotate(
+            mes=TruncMonth('data_pagamento')
+        ).values('mes').annotate(
+            total=Sum('valor')
+        ).order_by('mes')
+
+        # Formatando para o Chart.js
+        chart_labels = [mes['mes'].strftime('%b/%Y') for mes in receitas_por_mes]
+        chart_data = [float(mes['total']) for mes in receitas_por_mes]
+        context['chart_labels'] = chart_labels
+        context['chart_data'] = chart_data
+
+        # --- DADOS PARA ATIVIDADE RECENTE ---
+        context['atividades_recentes'] = Mensalidade.objects.filter(status='PAGA').order_by('-data_pagamento')[:5]
+
+        # --- DADOS PARA LISTA DE INADIMPLENTES ---
+        context['inadimplentes'] = Mensalidade.objects.filter(
+            status='ATRASADA'
+        ).select_related('socio').order_by('data_vencimento')[:10]
         return context

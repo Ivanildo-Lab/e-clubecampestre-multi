@@ -6,6 +6,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
 from core.models import Socio, Dependente, CategoriaSocio 
 from .forms import SocioForm, DependenteFormSet
+from django.views import View
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
+import datetime
+from financeiro.models import Mensalidade # Importe a Mensalidade
 
 class SocioListView(LoginRequiredMixin, ListView):
     model = Socio
@@ -104,3 +109,35 @@ class SocioDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'socios/socio_confirm_delete.html' # Um novo template de confirmação
     success_url = reverse_lazy('socios:lista_socios')
 
+class GerarMensalidadeIndividualView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        socio = get_object_or_404(Socio, pk=pk)
+        hoje = datetime.date.today()
+        competencia = hoje.replace(day=1)
+        
+        if Mensalidade.objects.filter(socio=socio, competencia=competencia).exists():
+            messages.warning(request, f'A mensalidade de {competencia.strftime("%m/%Y")} já existe para {socio.nome}.')
+        else:
+            valor = socio.categoria.valor_mensalidade
+            dia_vencimento = socio.categoria.dia_vencimento
+
+            if valor <= 0:
+                messages.error(request, f'Não foi possível gerar a mensalidade: o valor para a categoria "{socio.categoria.nome}" não está definido.')
+                return redirect('socios:lista_socios')
+
+            try:
+                vencimento = competencia.replace(day=dia_vencimento)
+            except ValueError:
+                import calendar
+                ultimo_dia = calendar.monthrange(competencia.year, competencia.month)[1]
+                vencimento = competencia.replace(day=ultimo_dia)
+
+            Mensalidade.objects.create(
+                socio=socio,
+                competencia=competencia,
+                valor=valor,
+                data_vencimento=vencimento
+            )
+            messages.success(request, f'Mensalidade de {competencia.strftime("%m/%Y")} gerada com sucesso para {socio.nome}!')
+            
+        return redirect('socios:lista_socios')

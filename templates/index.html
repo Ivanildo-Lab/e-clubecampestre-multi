@@ -1,22 +1,119 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block titulo_pagina %}Painel Principal{% endblock %}
-
+{% block titulo_pagina %}Dashboard{% endblock %}
 {% block titulo_cabecalho %}Dashboard{% endblock %}
-{% block subtitulo_cabecalho %}Visão geral do sistema{% endblock %}
+{% block subtitulo_cabecalho %}Visão geral do clube{% endblock %}
 
 {% block content %}
+<!-- Início dos Cards de KPIs -->
 <div class="row">
-  <div class="col-md-12">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">Bem-vindo!</h3>
-      </div>
-      <div class="box-body">
-        <p>Olá, <strong>{{ user.get_full_name|default:user.username }}</strong>!</p>
-        <p>Utilize o menu lateral para navegar pelas funcionalidades do sistema.</p>
-      </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-aqua"><div class="inner"><h3>{{ total_socios }}</h3><p>Sócios Ativos</p></div><div class="icon"><i class="fa fa-users"></i></div></div>
     </div>
-  </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-green"><div class="inner"><h3><sup style="font-size: 20px">R$</sup>{{ receita_mensal|floatformat:2 }}</h3><p>Receita do Mês</p></div><div class="icon"><i class="fa fa-dollar"></i></div></div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-yellow"><div class="inner"><h3>{{ pagamentos_pendentes }}</h3><p>Cobranças Pendentes</p></div><div class="icon"><i class="fa fa-exclamation-triangle"></i></div></div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-red"><div class="inner"><h3>{{ taxa_inadimplencia }}<sup style="font-size: 20px">%</sup></h3><p>Taxa de Inadimplência</p></div><div class="icon"><i class="fa fa-line-chart"></i></div></div>
+    </div>
 </div>
+<!-- Fim dos Cards -->
+
+<div class="row">
+    <!-- Coluna do Gráfico -->
+    <div class="col-md-8">
+        <div class="box box-primary">
+            <div class="box-header with-border"><h3 class="box-title">Receitas Mensais (Últimos 6 Meses)</h3></div>
+            <div class="box-body"><canvas id="revenueChart" style="height: 250px;"></canvas></div>
+        </div>
+    </div>
+    <!-- Coluna da Atividade Recente -->
+    <div class="col-md-4">
+        <div class="box box-info">
+            <div class="box-header with-border"><h3 class="box-title">Atividade Recente</h3></div>
+            <div class="box-body">
+                <ul class="products-list product-list-in-box">
+                    {% for pgto in atividades_recentes %}
+                    <li class="item">
+                        <div class="product-img"><i class="fa fa-check-circle fa-2x text-green"></i></div>
+                        <div class="product-info">
+                            <span class="product-title">{{ pgto.socio.nome }}</span>
+                            <span class="product-description">Pagou mensalidade de R$ {{ pgto.valor|floatformat:2 }}</span>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li>Nenhuma atividade recente.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Lista de Inadimplentes -->
+    <div class="col-xs-12">
+        <div class="box box-danger">
+            <!-- TÍTULO AGORA COM COR VERMELHA -->
+            <div class="box-header">
+                <h3 class="box-title" style="color: #dd4b39;">
+                    <i class="fa fa-warning"></i> Sócios Inadimplentes (Últimas 10)
+                </h3>
+            </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr><th>Sócio</th><th>Competência</th><th>Vencimento</th><th style="text-align: right;">Valor Devido</th></tr>
+                        {% for inadimplente in inadimplentes %}
+                        <tr>
+                            <td>{{ inadimplente.socio.nome }}</td>
+                            <td>{{ inadimplente.competencia|date:"m/Y" }}</td>
+                            <td>{{ inadimplente.data_vencimento|date:"d/m/Y" }}</td>
+                            <!-- VALOR AGORA COM COR VERMELHA -->
+                            <td style="text-align: right; color: #dd4b39;">
+                                <strong>R$ {{ inadimplente.valor|floatformat:2 }}</strong>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center">Nenhum sócio inadimplente.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Pega os dados JSON do template
+    const chartLabels = JSON.parse('{{ chart_labels_json|safe }}');
+    const chartData = JSON.parse('{{ chart_data_json|safe }}');
+
+    var ctx = document.getElementById('revenueChart').getContext('2d');
+    var revenueChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartLabels, // <-- Usa a variável JavaScript
+            datasets: [{
+                label: 'Receita (R$)',
+                data: chartData, // <-- Usa a variável JavaScript
+                backgroundColor: 'rgba(60,141,188,0.8)',
+                borderColor: 'rgba(60,141,188,1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            // ... (o resto das opções continua igual) ...
+        }
+    });
+});
+</script>
 {% endblock %}

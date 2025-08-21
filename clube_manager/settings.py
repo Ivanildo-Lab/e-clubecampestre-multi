@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'core',   # Onde estão nossos modelos principais.
     'socios', # Onde estão nossas views e urls de sócios.
     # 'usuarios', # Desativado por enquanto.
-    # 'financeiro', # Desativado por enquanto.
+    'financeiro', # Desativado por enquanto.
     # 'cobranca', # Desativado por enquanto.
     # 'eventos', # Desativado por enquanto.
 ]
