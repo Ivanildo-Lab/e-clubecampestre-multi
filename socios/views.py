@@ -10,7 +10,14 @@ from django.views import View
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 import datetime
-from financeiro.models import Mensalidade # Importe a Mensalidade
+from financeiro.models import Mensalidade 
+from django.views import View
+from django.contrib import messages
+from core.models import Convenio
+from .forms import ConvenioForm
+from core.models import CategoriaSocio 
+from .forms import CategoriaSocioForm 
+
 
 class SocioListView(LoginRequiredMixin, ListView):
     model = Socio
@@ -141,3 +148,64 @@ class GerarMensalidadeIndividualView(LoginRequiredMixin, View):
             messages.success(request, f'Mensalidade de {competencia.strftime("%m/%Y")} gerada com sucesso para {socio.nome}!')
             
         return redirect('socios:lista_socios')
+
+
+class CategoriaSocioListView(LoginRequiredMixin, ListView):
+    model = CategoriaSocio
+    template_name = 'socios/categoria_list.html'
+    context_object_name = 'categorias'
+
+class CategoriaSocioCreateView(LoginRequiredMixin, CreateView):
+    model = CategoriaSocio
+    form_class = CategoriaSocioForm
+    template_name = 'socios/categoria_form.html'
+    success_url = reverse_lazy('socios:lista_categorias')
+
+class CategoriaSocioUpdateView(LoginRequiredMixin, UpdateView):
+    model = CategoriaSocio
+    form_class = CategoriaSocioForm
+    template_name = 'socios/categoria_form.html'
+    success_url = reverse_lazy('socios:lista_categorias')
+
+class CategoriaSocioDeleteActionView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        categoria = get_object_or_404(CategoriaSocio, pk=pk)
+        try:
+            nome_categoria = categoria.nome
+            categoria.delete()
+            messages.success(request, f'A categoria "{nome_categoria}" foi excluída com sucesso.')
+        except Exception as e:
+            # Proteção caso a categoria esteja em uso por algum sócio
+            messages.error(request, f'Não foi possível excluir a categoria "{categoria.nome}", pois ela está em uso.')
+        return redirect('socios:lista_categorias')
+    
+
+# Adicione estas novas views no final de socios/views.py
+
+class ConvenioListView(LoginRequiredMixin, ListView):
+    model = Convenio
+    template_name = 'socios/convenio_list.html'
+    context_object_name = 'convenios'
+
+class ConvenioCreateView(LoginRequiredMixin, CreateView):
+    model = Convenio
+    form_class = ConvenioForm
+    template_name = 'socios/convenio_form.html'
+    success_url = reverse_lazy('socios:lista_convenios')
+
+class ConvenioUpdateView(LoginRequiredMixin, UpdateView):
+    model = Convenio
+    form_class = ConvenioForm
+    template_name = 'socios/convenio_form.html'
+    success_url = reverse_lazy('socios:lista_convenios')
+
+class ConvenioDeleteActionView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        convenio = get_object_or_404(Convenio, pk=pk)
+        try:
+            nome_convenio = convenio.nome
+            convenio.delete()
+            messages.success(request, f'O convênio "{nome_convenio}" foi excluído com sucesso.')
+        except Exception as e:
+            messages.error(request, f'Não foi possível excluir o convênio "{convenio.nome}", pois ele pode estar em uso.')
+        return redirect('socios:lista_convenios')

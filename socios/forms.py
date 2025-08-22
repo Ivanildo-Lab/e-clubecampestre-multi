@@ -1,23 +1,35 @@
 # socios/forms.py
 
 from django import forms
-from core.models import Socio,Dependente
+from core.models import Socio, CategoriaSocio, Convenio, Dependente
 from django.forms import inlineformset_factory
+from core.models import Convenio 
 
 class SocioForm(forms.ModelForm):
+    # Definimos os campos de ForeignKey explicitamente para ter mais controle
+    categoria = forms.ModelChoiceField(
+        queryset=CategoriaSocio.objects.all(),
+        empty_label="Selecione uma categoria",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    convenio = forms.ModelChoiceField(
+        queryset=Convenio.objects.all(),
+        empty_label="Nenhum",
+        required=False, # Torna o campo não obrigatório
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = Socio
+        # ... (a lista de fields continua a mesma) ...
         fields = [
             'nome', 'apelido', 'foto', 'data_nascimento', 'cpf', 'rg',
             'nacionalidade', 'naturalidade', 'estado_civil', 'profissao', 
             'nome_pai', 'nome_mae', 'email', 'tel_residencial', 'tel_trabalho',
             'endereco', 'bairro', 'cidade', 'estado', 'cep',
             'categoria', 'convenio', 'num_registro', 'num_contrato',
-            'data_admissao', 
-            'situacao', 'observacoes',
+            'data_admissao', 'situacao', 'observacoes',
         ]
-        
-        
         widgets = {
             'data_nascimento': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
             'data_admissao': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
@@ -26,11 +38,13 @@ class SocioForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # O laço agora só precisa se preocupar com os outros campos
         for field_name, field in self.fields.items():
-            if field.widget.attrs.get('class'):
-                field.widget.attrs['class'] += ' form-control'
-            else:
-                field.widget.attrs['class'] = 'form-control'
+            if not isinstance(field.widget, forms.Select):
+                if field.widget.attrs.get('class'):
+                    field.widget.attrs['class'] += ' form-control'
+                else:
+                    field.widget.attrs['class'] = 'form-control'
         
         self.fields['foto'].widget.attrs.pop('class', None)
 
@@ -57,3 +71,28 @@ DependenteFormSet = inlineformset_factory(
     can_delete=True,  # Permite marcar dependentes para exclusão
     can_delete_extra=True
 )
+
+class CategoriaSocioForm(forms.ModelForm):
+    class Meta:
+        model = CategoriaSocio
+        fields = ['nome', 'descricao', 'valor_mensalidade', 'dia_vencimento']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class ConvenioForm(forms.ModelForm):
+    class Meta:
+        model = Convenio
+        fields = ['nome', 'empresa_contato', 'telefone_contato']
+        widgets = {
+            'empresa_contato': forms.TextInput(attrs={'placeholder': 'Nome do contato na empresa'}),
+            'telefone_contato': forms.TextInput(attrs={'placeholder': '(XX) XXXXX-XXXX'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'

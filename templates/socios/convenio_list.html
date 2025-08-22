@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_pagina %}Convênios{% endblock %}
+{% block titulo_cabecalho %}Convênios{% endblock %}
+{% block subtitulo_cabecalho %}Gerencie os convênios parceiros do clube{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Todos os Convênios</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'socios:adicionar_convenio' %}" class="btn btn-primary btn-flat">
+                        <i class="fa fa-plus"></i> Adicionar Novo Convênio
+                    </a>
+                </div>
+            </div>
+            
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr>
+                            <th>Nome do Convênio</th>
+                            <th>Empresa / Contato</th>
+                            <th>Telefone</th>
+                            <th>Ações</th>
+                        </tr>
+                        {% for convenio in convenios %}
+                        <tr>
+                            <td><strong>{{ convenio.nome }}</strong></td>
+                            <td>{{ convenio.empresa_contato|default:"--" }}</td>
+                            <td>{{ convenio.telefone_contato|default:"--" }}</td>
+                            <td>
+                                <a href="{% url 'socios:editar_convenio' convenio.pk %}" class="btn btn-xs btn-info" title="Editar"><i class="fa fa-pencil"></i></a>
+                                <button class="btn btn-xs btn-danger js-delete-btn"
+                                        data-url="{% url 'socios:excluir_convenio_action' convenio.pk %}"
+                                        data-nome="{{ convenio.nome }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">Nenhum convênio cadastrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Exclusão Genérico (reutilizado) -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title">Confirmar Exclusão</h4></div>
+            <div class="modal-body"><p>Você tem certeza que deseja excluir o item <strong id="itemNameModal"></strong>?</p><p class="text-danger">Atenção: se este convênio estiver em uso, a exclusão não será permitida.</p></div>
+            <div class="modal-footer"><form id="deleteForm" method="post">{% csrf_token %}<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-danger">Sim, Excluir</button></form></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Script do Modal Genérico (reutilizado) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.js-delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const deleteUrl = this.dataset.url;
+            const itemName = this.dataset.nome;
+            document.getElementById('deleteForm').action = deleteUrl;
+            document.getElementById('itemNameModal').textContent = `"${itemName}"`;
+            $('#deleteModal').modal('show');
+        });
+    });
+});
+</script>
+{% endblock %}

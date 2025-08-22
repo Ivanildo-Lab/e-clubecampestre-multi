@@ -31,31 +31,34 @@
     </nav>
   </header>
   
-  <!-- INÍCIO DA CORREÇÃO DO MENU -->
   <aside class="main-sidebar">
     <section class="sidebar">
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">NAVEGAÇÃO</li>
-        <li {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>
-          <a href="{% url 'home' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
+        <li {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}><a href="{% url 'home' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+        <li {% if request.resolver_match.app_name == 'socios' and 'categorias' not in request.path and 'convenios' not in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_socios' %}"><i class="fa fa-users"></i> <span>Sócios</span></a></li>
+        <li {% if request.resolver_match.app_name == 'financeiro' %}class="active"{% endif %}><a href="{% url 'financeiro:lista_mensalidades' %}"><i class="fa fa-money"></i> <span>Financeiro</span></a></li>
+
+        <!-- NOVO MENU DROPDOWN -->
+        <li class="treeview {% if 'categorias' in request.path or 'convenios' in request.path %}active menu-open{% endif %}">
+          <a href="#">
+            <i class="fa fa-cogs"></i> <span>Cadastros Auxiliares</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+              <li {% if 'categorias' in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_categorias' %}"><i class="fa fa-circle-o"></i> Categorias de Sócios</a></li>
+              <li {% if 'convenios' in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_convenios' %}"><i class="fa fa-circle-o"></i> Convênios</a></li>
+          </ul>
         </li>
-        <li {% if request.resolver_match.app_name == 'socios' %}class="active"{% endif %}>
-          <a href="{% url 'socios:lista_socios' %}"><i class="fa fa-users"></i> <span>Sócios</span></a>
-        </li>
-        <li {% if request.resolver_match.app_name == 'financeiro' %}class="active"{% endif %}>
-          <a href="{% url 'financeiro:lista_mensalidades' %}"><i class="fa fa-money"></i> <span>Financeiro</span></a>
-        </li> 
       </ul>
     </section>
   </aside>
-  <!-- FIM DA CORREÇÃO DO MENU -->
 
   <div class="content-wrapper">
     <section class="content-header">
-      <h1>
-        {% block titulo_cabecalho %}Dashboard{% endblock %}
-        <small>{% block subtitulo_cabecalho %}Visão Geral{% endblock %}</small>
-      </h1>
+      <h1>{% block titulo_cabecalho %}Dashboard{% endblock %}<small>{% block subtitulo_cabecalho %}Visão Geral{% endblock %}</small></h1>
     </section>
 
     <section class="content container-fluid">
@@ -68,7 +71,6 @@
           </div>
         {% endfor %}
       {% endif %}
-      
       {% block content %}{% endblock %}
     </section>
   </div>
@@ -79,7 +81,6 @@
 <script src="{% static 'adminlte/bower_components/jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'adminlte/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'adminlte/dist/js/adminlte.min.js' %}"></script>
-<!-- ChartJS (Biblioteca de Gráficos) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
 
 {% block scripts %}{% endblock %}

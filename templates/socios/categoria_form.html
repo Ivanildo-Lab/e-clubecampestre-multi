@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Formulário de Categoria{% endblock %}
+{% block titulo_cabecalho %}{% if object %}Editar Categoria{% else %}Adicionar Categoria{% endif %}{% endblock %}
+{% block subtitulo_cabecalho %}Preencha os dados da categoria abaixo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="box box-primary">
+            <form role="form" method="post">
+                {% csrf_token %}
+                <div class="box-body">
+                    <div class="form-group">{{ form.nome.label_tag }} {{ form.nome }}</div>
+                    <div class="form-group">{{ form.descricao.label_tag }} {{ form.descricao }}</div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            {{ form.valor_mensalidade.label_tag }}
+                            <div class="input-group">
+                                <span class="input-group-addon">R$</span>
+                                {{ form.valor_mensalidade }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            {{ form.dia_vencimento.label_tag }}
+                            {{ form.dia_vencimento }}
+                        </div>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">Salvar Categoria</button>
+                    <a href="{% url 'socios:lista_categorias' %}" class="btn btn-default">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

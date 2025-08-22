@@ -1504,3 +1504,180 @@ Watching for file changes with StatReloader
 "GET / HTTP/1.1" 200 8804
 "GET /socios/ HTTP/1.1" 200 36561
 "GET /financeiro/mensalidades/ HTTP/1.1" 200 31462
+"GET /admin/financeiro/mensalidade/ HTTP/1.1" 200 33532
+"GET /admin/financeiro/mensalidade/ HTTP/1.1" 200 33532
+"GET /socios/ HTTP/1.1" 200 36561
+"GET /socios/adicionar/ HTTP/1.1" 200 12480
+"GET /socios/ HTTP/1.1" 200 36561
+"GET /socios/4/editar/ HTTP/1.1" 200 15786
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 36561
+"GET /static/img/favicon.png HTTP/1.1" 304 0
+"GET /socios/4/editar/ HTTP/1.1" 200 18492
+Not Found: /media/fotos_socios/avatar_homem3.png
+"GET /media/fotos_socios/avatar_homem3.png HTTP/1.1" 404 3354
+"GET /admin/financeiro/mensalidade/ HTTP/1.1" 200 33532
+"GET /static/admin/css/base.css HTTP/1.1" 304 0
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+"GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+"GET /static/admin/css/forms.css HTTP/1.1" 304 0
+"GET /static/admin/js/theme.js HTTP/1.1" 304 0
+"GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+"GET /static/admin/js/calendar.js HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+"GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 304 0
+"GET /static/admin/js/core.js HTTP/1.1" 304 0
+"GET /static/admin/js/actions.js HTTP/1.1" 304 0
+"GET /static/admin/css/widgets.css HTTP/1.1" 304 0
+"GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+"GET /static/admin/img/search.svg HTTP/1.1" 304 0
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/js/filters.js HTTP/1.1" 304 0
+"GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+"GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 304 0
+"GET /static/admin/img/icon-calendar.svg HTTP/1.1" 304 0
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 3014
+"GET /admin/core/categoriasocio/ HTTP/1.1" 200 14183
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"POST /socios/4/editar/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 36497
+"GET /media/fotos_socios/foto01_JLVwevW.jpeg HTTP/1.1" 200 7034
+"GET /socios/4/editar/ HTTP/1.1" 200 18498
+"GET /media/fotos_socios/foto01_JLVwevW.jpeg HTTP/1.1" 304 0
+"GET /admin/core/convenio/ HTTP/1.1" 200 11668
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/convenio/add/ HTTP/1.1" 200 13742
+"GET /static/admin/js/prepopulate_init.js HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/js/change_form.js HTTP/1.1" 304 0
+"POST /admin/core/convenio/add/ HTTP/1.1" 302 0
+"GET /admin/core/convenio/ HTTP/1.1" 200 13178
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+"GET /socios/4/editar/ HTTP/1.1" 200 18535
+"GET /media/fotos_socios/foto01_JLVwevW.jpeg HTTP/1.1" 304 0
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/4/editar/ HTTP/1.1" 200 18504
+"GET /media/fotos_socios/foto01_JLVwevW.jpeg HTTP/1.1" 304 0
+"GET /socios/4/editar/ HTTP/1.1" 200 18504
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\forms.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 200 36843
+"GET /media/fotos_socios/foto01_JLVwevW.jpeg HTTP/1.1" 304 0
+"GET / HTTP/1.1" 200 9150
+"GET /socios/categorias/ HTTP/1.1" 200 8808
+"GET /socios/categorias/adicionar/ HTTP/1.1" 200 6288
+"GET /socios/categorias/ HTTP/1.1" 200 8808
+"GET /socios/categorias/adicionar/ HTTP/1.1" 200 6288
+"POST /socios/categorias/adicionar/ HTTP/1.1" 302 0
+"GET /socios/categorias/ HTTP/1.1" 200 9593
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31920
+"GET / HTTP/1.1" 200 9150
+"GET /socios/categorias/ HTTP/1.1" 200 9593
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/categorias/ HTTP/1.1" 200 9947
+"GET / HTTP/1.1" 200 9150
+"GET /socios/categorias/ HTTP/1.1" 200 9947
+"POST /socios/categorias/3/delete-action/ HTTP/1.1" 302 0
+"GET /socios/categorias/ HTTP/1.1" 200 9407
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/categorias/ HTTP/1.1" 200 9088
+"GET / HTTP/1.1" 200 9172
+"GET /socios/categorias/ HTTP/1.1" 200 9088
+"GET /socios/convenios/ HTTP/1.1" 200 7811
+"GET /socios/convenios/adicionar/ HTTP/1.1" 200 5678
+"POST /socios/convenios/adicionar/ HTTP/1.1" 302 0
+"GET /socios/convenios/ HTTP/1.1" 200 8585
+"POST /socios/convenios/2/delete-action/ HTTP/1.1" 302 0
+"GET /socios/convenios/ HTTP/1.1" 200 8152
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31830
+"GET /financeiro/mensalidades/51/editar/ HTTP/1.1" 200 6172
+"POST /financeiro/mensalidades/51/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31834
+"GET /financeiro/mensalidades/?page=2&q=&categoria=&status= HTTP/1.1" 200 12166
+"GET /financeiro/mensalidades/?page=1&q=&categoria=&status= HTTP/1.1" 200 31834
+"GET /financeiro/mensalidades/50/editar/ HTTP/1.1" 200 6174
+"POST /financeiro/mensalidades/50/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31838
+"GET /financeiro/mensalidades/35/editar/ HTTP/1.1" 200 6177
+"POST /financeiro/mensalidades/35/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31837
+"GET /financeiro/mensalidades/47/editar/ HTTP/1.1" 200 6174
+"POST /financeiro/mensalidades/47/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31836
+"GET /financeiro/mensalidades/36/editar/ HTTP/1.1" 200 6174
+"POST /financeiro/mensalidades/36/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31835
+"GET / HTTP/1.1" 200 11493
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31835
+"GET /financeiro/mensalidades/?status=ATRASADA&categoria=&q= HTTP/1.1" 200 21040
+"POST /financeiro/mensalidades/51/marcar-paga/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 32166
+"GET /financeiro/mensalidades/?page=2&q=&categoria=&status= HTTP/1.1" 200 12174
+"POST /financeiro/mensalidades/50/marcar-paga/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 32168
+"GET /financeiro/mensalidades/?status=ATRASADA&categoria=&q= HTTP/1.1" 200 18022
+"POST /financeiro/mensalidades/35/marcar-paga/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 32184
+"GET /financeiro/mensalidades/?status=ATRASADA&categoria=&q= HTTP/1.1" 200 16509
+"POST /financeiro/mensalidades/47/marcar-paga/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 32194
+"POST /financeiro/mensalidades/36/marcar-paga/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 32207
+"POST /financeiro/mensalidades/37/marcar-paga/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 32225
+"GET / HTTP/1.1" 200 10896
+"GET / HTTP/1.1" 200 10896
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31887
+"GET /financeiro/mensalidades/37/editar/ HTTP/1.1" 200 6198
+"POST /financeiro/mensalidades/37/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31887
+"POST /financeiro/mensalidades/41/marcar-paga/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 32243
+"GET /financeiro/mensalidades/41/editar/ HTTP/1.1" 200 6203
+"POST /financeiro/mensalidades/41/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31900
+"POST /financeiro/mensalidades/46/marcar-paga/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 32249
+"GET /financeiro/mensalidades/46/editar/ HTTP/1.1" 200 6196
+"POST /financeiro/mensalidades/46/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31913
+"GET /financeiro/mensalidades/36/editar/ HTTP/1.1" 200 6193
+"POST /financeiro/mensalidades/36/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31913
+"GET /financeiro/mensalidades/47/editar/ HTTP/1.1" 200 6193
+"POST /financeiro/mensalidades/47/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31913
+"GET /financeiro/mensalidades/?page=2&q=&categoria=&status= HTTP/1.1" 200 12187
+"GET /financeiro/mensalidades/50/editar/ HTTP/1.1" 200 6193
+"POST /financeiro/mensalidades/50/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31913
+"GET /financeiro/mensalidades/?page=2&q=&categoria=&status= HTTP/1.1" 200 12187
+"GET /financeiro/mensalidades/51/editar/ HTTP/1.1" 200 6191
+"POST /financeiro/mensalidades/51/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31913
+"GET / HTTP/1.1" 200 10092
+"GET / HTTP/1.1" 200 10092
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 31913
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 10200
