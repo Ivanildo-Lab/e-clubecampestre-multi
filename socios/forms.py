@@ -5,23 +5,11 @@ from core.models import Socio, CategoriaSocio, Convenio, Dependente
 from django.forms import inlineformset_factory
 from core.models import Convenio 
 
-class SocioForm(forms.ModelForm):
-    # Definimos os campos de ForeignKey explicitamente para ter mais controle
-    categoria = forms.ModelChoiceField(
-        queryset=CategoriaSocio.objects.all(),
-        empty_label="Selecione uma categoria",
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-    convenio = forms.ModelChoiceField(
-        queryset=Convenio.objects.all(),
-        empty_label="Nenhum",
-        required=False, # Torna o campo não obrigatório
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
+# Em socios/forms.py
 
+class SocioForm(forms.ModelForm):
     class Meta:
         model = Socio
-        # ... (a lista de fields continua a mesma) ...
         fields = [
             'nome', 'apelido', 'foto', 'data_nascimento', 'cpf', 'rg',
             'nacionalidade', 'naturalidade', 'estado_civil', 'profissao', 
@@ -37,17 +25,16 @@ class SocioForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        # REMOVEMOS a lógica de 'empresa = kwargs.pop...' 
         super().__init__(*args, **kwargs)
-        # O laço agora só precisa se preocupar com os outros campos
+        
+        # A única responsabilidade deste __init__ é estilizar os campos
         for field_name, field in self.fields.items():
-            if not isinstance(field.widget, forms.Select):
-                if field.widget.attrs.get('class'):
-                    field.widget.attrs['class'] += ' form-control'
-                else:
-                    field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['class'] = 'form-control'
         
         self.fields['foto'].widget.attrs.pop('class', None)
 
+        
 class DependenteForm(forms.ModelForm):
     class Meta:
         model = Dependente

@@ -1,15 +1,15 @@
-from django.urls import path
-from . import views
+# usuarios/urls.py
 
+from django.urls import path
+from .views import SiteLoginView, site_logout_view
+
+# app_name define o "bairro" que usamos na tag {% url %}
 app_name = 'usuarios'
 
 urlpatterns = [
-    path('register/', views.UsuarioCreateView.as_view(), name='usuario-create'),
-    path('login/', views.UsuarioLoginView.as_view(), name='usuario-login'),
-    path('logout/', views.UsuarioLogoutView.as_view(), name='usuario-logout'),
-    path('profile/', views.UsuarioProfileView.as_view(), name='usuario-profile'),
-    path('profile/update/', views.UsuarioProfileUpdateView.as_view(), name='usuario-profile-update'),
-    path('list/', views.UsuarioListView.as_view(), name='usuario-list'),
-    path('<uuid:pk>/', views.UsuarioDetailView.as_view(), name='usuario-detail'),
-    path('permissions/', views.UsuarioPermissionsView.as_view(), name='usuario-permissions'),
+    # A rota para a nossa página de login, com o nome 'site-login'
+    path('login/', SiteLoginView.as_view(), name='site-login'),
+    
+    # A rota para a nossa função de logout, com o nome 'site-logout'
+    path('logout/', site_logout_view, name='site-logout'),
 ]

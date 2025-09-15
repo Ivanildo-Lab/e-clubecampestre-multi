@@ -2,33 +2,49 @@
 
 from django.db import models
 from django.utils import timezone
-import datetime
-from core.models import Socio # Importamos o Sócio para criar o relacionamento
 from django.db import transaction
+import datetime
 
+# Importa os modelos do app 'core' de forma segura para evitar erros
+from core.models import Socio, Empresa 
 
+# Manager customizado para a lógica de negócio das mensalidades
 class MensalidadeManager(models.Manager):
     def atualizar_status_atrasadas(self):
-        # ... (esta função continua a mesma) ...
-        hoje = timezone.now().date()
-        mensalidades_vencidas = self.get_queryset().filter(status='PENDENTE', data_vencimento__lt=hoje)
-        num_atualizadas = mensalidades_vencidas.update(status='ATRASADA')
-        return num_atualizadas
-
-    def gerar_mensalidades_para_ativos(self):
         """
-        Lógica centralizada para gerar mensalidades.
+        Encontra todas as mensalidades pendentes que já venceram e
+        atualiza seu status para 'ATRASADA'.
+        """
+        hoje = timezone.now().date()
+        mensalidades_vencidas = self.get_queryset().filter(
+            status='PENDENTE',
+            data_vencimento__lt=hoje
+        )
+        mensalidades_vencidas.update(status='ATRASADA')
+
+    def gerar_mensalidades_para_ativos(self, empresa_id):
+        """
+        Lógica centralizada para gerar mensalidades para uma empresa específica.
         Retorna uma tupla: (num_criadas, num_ignoradas)
         """
         hoje = datetime.date.today()
         competencia = hoje.replace(day=1)
         
-        socios_ativos = Socio.objects.filter(situacao=Socio.Situacao.ATIVO).select_related('categoria')
-        socios_com_mensalidade = self.get_queryset().filter(competencia=competencia).values_list('socio_id', flat=True)
+        # Filtra sócios ativos DA EMPRESA ESPECÍFICA
+        socios_ativos = Socio.objects.filter(
+            empresa_id=empresa_id,
+            situacao=Socio.Situacao.ATIVO
+        ).select_related('categoria')
+
+        socios_com_mensalidade = self.get_queryset().filter(
+            socio__empresa_id=empresa_id,
+            competencia=competencia
+        ).values_list('socio_id', flat=True)
+
         socios_para_gerar = socios_ativos.exclude(id__in=socios_com_mensalidade)
         
         if not socios_para_gerar.exists():
-            return (0, 0) # Retorna 0 criadas, 0 ignoradas
+            return (0, 0)
 
         novas_mensalidades = []
         num_ignoradas = 0
@@ -58,7 +74,7 @@ class MensalidadeManager(models.Manager):
         
         return (len(novas_mensalidades), num_ignoradas)
 
-
+# Modelo de Mensalidade
 class Mensalidade(models.Model):
     class StatusChoice(models.TextChoices):
         PENDENTE = 'PENDENTE', 'Pendente'
@@ -72,43 +88,40 @@ class Mensalidade(models.Model):
     data_vencimento = models.DateField()
     data_pagamento = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=10, choices=StatusChoice.choices, default=StatusChoice.PENDENTE)
-
-    # Conecta nosso manager customizado ao modelo
+    
     objects = MensalidadeManager()
 
     def __str__(self):
         return f"Mensalidade de {self.socio.nome} - {self.competencia.strftime('%m/%Y')}"
-
     class Meta:
         verbose_name = "Mensalidade"
         verbose_name_plural = "Mensalidades"
         unique_together = ('socio', 'competencia')
 
-
+# Modelos de Categoria de Transação e Transação
 class CategoriaTransacao(models.Model):
-    """ Ex: 'Taxa de Evento', 'Aluguel de Quiosque', 'Salários', 'Manutenção' """
-    nome = models.CharField(max_length=100, unique=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    nome = models.CharField(max_length=100)
     TIPO_CHOICES = [('RECEITA', 'Receita'), ('DESPESA', 'Despesa')]
     tipo = models.CharField(max_length=7, choices=TIPO_CHOICES)
 
     def __str__(self):
         return self.nome
-
     class Meta:
         verbose_name = "Categoria de Transação"
         verbose_name_plural = "Categorias de Transações"
+        unique_together = ('empresa', 'nome')
 
 class Transacao(models.Model):
-    """ Modelo genérico para Receitas e Despesas Avulsas """
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     categoria = models.ForeignKey(CategoriaTransacao, on_delete=models.PROTECT)
     descricao = models.CharField(max_length=255)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     data_transacao = models.DateField(default=timezone.now)
-    socio = models.ForeignKey(Socio, on_delete=models.SET_NULL, blank=True, null=True, help_text="Opcional, se a transação for ligada a um sócio específico")
+    socio = models.ForeignKey(Socio, on_delete=models.SET_NULL, blank=True, null=True, help_text="Opcional")
     
     def __str__(self):
         return f"{self.categoria.get_tipo_display()}: {self.descricao} - R${self.valor}"
-
     class Meta:
         verbose_name = "Transação Avulsa"
         verbose_name_plural = "Transações Avulsas"

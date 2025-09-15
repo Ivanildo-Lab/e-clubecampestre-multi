@@ -1,5 +1,6 @@
+# core/admin.py
+
 from django.contrib import admin
-# Vamos importar apenas os modelos que realmente existem agora
 from .models import Socio, CategoriaSocio, Convenio, Empresa, Dependente
 
 # --- Classes de Configuração do Admin ---
@@ -26,10 +27,8 @@ class EmpresaAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Dados Gerais', {'fields': ('nome', 'responsavel')}),
         ('Endereço e Contato', {'fields': ('endereco', 'cidade', 'estado', 'telefone')}),
-        ('Mídia e Outros', {'fields': ('logo', 'observacoes')}),
-    )
+        ('Mídia e Outros', {'fields': ('logo', 'imagem_hero', 'observacoes')}),    )
 
-# Registra os outros modelos que não precisam de configuração especial
 @admin.register(CategoriaSocio)
 class CategoriaSocioAdmin(admin.ModelAdmin):
     list_display = ('nome', 'valor_mensalidade', 'dia_vencimento')

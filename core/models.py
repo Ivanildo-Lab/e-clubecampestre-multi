@@ -8,10 +8,28 @@ import uuid
 # ==============================================================================
 # MODELOS ATIVOS QUE ESTAMOS USANDO
 # ==============================================================================
+# Modelo de Empresa
+class Empresa(models.Model):
+    nome = models.CharField(max_length=255, verbose_name="Nome da Empresa")
+    responsavel = models.CharField(max_length=150, blank=True, verbose_name="Responsável")
+    telefone = models.CharField(max_length=20, blank=True, verbose_name="Telefone")
+    endereco = models.CharField(max_length=255, blank=True, verbose_name="Endereço (Rua, Nº, Bairro)")
+    cidade = models.CharField(max_length=100, blank=True, verbose_name="Cidade")
+    estado = models.CharField(max_length=2, blank=True, verbose_name="UF")
+    imagem_hero = models.ImageField(upload_to='hero_images/', blank=True, null=True, verbose_name="Imagem de Fundo (Landing Page)")
+    logo = models.ImageField(upload_to='logos_empresas/', blank=True, null=True, verbose_name="Logotipo")
+    observacoes = models.TextField(blank=True, verbose_name="Observações")
+
+    def __str__(self):
+        return self.nome
+    class Meta:
+        verbose_name = "Empresa"
+        verbose_name_plural = "Empresas"
 
 # Modelo para as Categorias dos Sócios
 class CategoriaSocio(models.Model):
-    nome = models.CharField(max_length=100, unique=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)   
+    nome = models.CharField(max_length=100) # unique=True foi removido
     descricao = models.TextField(blank=True, null=True)
     valor_mensalidade = models.DecimalField(
         max_digits=10, 
@@ -24,15 +42,32 @@ class CategoriaSocio(models.Model):
         verbose_name="Dia do Vencimento",
         help_text="O dia do mês em que a mensalidade vence (ex: 10)."
     )
-    
-# Modelo para os Convênios
+
+    # MÉTODO __str__ ADICIONADO
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = "Categoria de Sócio"
+        verbose_name_plural = "Categorias de Sócios"
+        # Garante que o nome da categoria seja único POR EMPRESA
+        unique_together = ('empresa', 'nome')
+
+# Modelo para os Convênios 
 class Convenio(models.Model):
-    nome = models.CharField(max_length=150, unique=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE) 
+    nome = models.CharField(max_length=150) # unique=True foi removido
     empresa_contato = models.CharField(max_length=100, blank=True)
     telefone_contato = models.CharField(max_length=20, blank=True)
 
     def __str__(self):
         return self.nome
+
+    class Meta:
+        verbose_name = "Convênio"
+        verbose_name_plural = "Convênios"
+        # Garante que o nome do convênio seja único POR EMPRESA
+        unique_together = ('empresa', 'nome')
 
 # Modelo Principal de Sócio
 class Socio(models.Model):
@@ -47,7 +82,7 @@ class Socio(models.Model):
         INATIVO = 'INATIVO', 'Inativo'
         SUSPENSO = 'SUSPENSO', 'Suspenso'
         CANCELADO = 'CANCELADO', 'Cancelado'
-
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE) 
     num_registro = models.IntegerField(unique=True, help_text="Número de registro único do sócio.")
     num_contrato = models.IntegerField(unique=True, blank=True, null=True, help_text="Número do contrato, se aplicável.")
     categoria = models.ForeignKey(CategoriaSocio, on_delete=models.PROTECT, related_name='socios')
@@ -109,22 +144,6 @@ class Dependente(models.Model):
         verbose_name_plural = "Dependentes"
         ordering = ['nome']
 
-# Modelo de Empresa
-class Empresa(models.Model):
-    nome = models.CharField(max_length=255, verbose_name="Nome da Empresa")
-    responsavel = models.CharField(max_length=150, blank=True, verbose_name="Responsável")
-    telefone = models.CharField(max_length=20, blank=True, verbose_name="Telefone")
-    endereco = models.CharField(max_length=255, blank=True, verbose_name="Endereço (Rua, Nº, Bairro)")
-    cidade = models.CharField(max_length=100, blank=True, verbose_name="Cidade")
-    estado = models.CharField(max_length=2, blank=True, verbose_name="UF")
-    logo = models.ImageField(upload_to='logos_empresas/', blank=True, null=True, verbose_name="Logotipo")
-    observacoes = models.TextField(blank=True, verbose_name="Observações")
-
-    def __str__(self):
-        return self.nome
-    class Meta:
-        verbose_name = "Empresa"
-        verbose_name_plural = "Empresas"
 
 
 # ==============================================================================

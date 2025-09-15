@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Login | e-Clube Campestre</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <link rel="stylesheet" href="{% static 'adminlte/bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'adminlte/bower_components/font-awesome/css/font-awesome.min.css' %}">
+  <link rel="stylesheet" href="{% static 'adminlte/dist/css/AdminLTE.min.css' %}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+<body class="hold-transition login-page">
+<div class="login-box">
+  <div class="login-logo">
+    <a href="{% url 'landing_page' %}"><b>e-Clube</b> Campestre</a>
+  </div>
+  <div class="login-box-body">
+    <p class="login-box-msg">Faça login para iniciar sua sessão</p>
+
+    {% if form.errors %}
+      <div class="alert alert-danger alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <h4><i class="icon fa fa-ban"></i> Erro!</h4>
+          Usuário ou senha inválidos. Por favor, tente novamente.
+      </div>
+    {% endif %}
+
+    <form action="{% url 'usuarios:site-login' %}" method="post">
+      {% csrf_token %}
+      <div class="form-group has-feedback">
+        <input type="text" class="form-control" placeholder="Usuário (Username)" name="username" id="id_username" required>
+        <span class="glyphicon glyphicon-user form-control-feedback"></span>
+      </div>
+      <div class="form-group has-feedback">
+        <input type="password" class="form-control" placeholder="Senha" name="password" id="id_password" required>
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <button type="submit" class="btn btn-primary btn-block btn-flat">Entrar</button>
+        </div>
+      </div>
+    </form>
+    <br>
+    <a href="{% url 'landing_page' %}">Voltar para a página inicial</a><br>
+
+  </div>
+</div>
+
+<script src="{% static 'adminlte/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'adminlte/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+</body>
+</html>

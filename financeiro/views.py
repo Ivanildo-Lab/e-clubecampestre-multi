@@ -1,19 +1,18 @@
 # financeiro/views.py
 
-from django.views.generic import ListView, View,UpdateView
+from django.views.generic import ListView, View, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from django.urls import reverse_lazy
+from django.core.management import call_command
+
+# Importações de Modelos e Formulários
 from .models import Mensalidade
 from .forms import MensalidadeForm
-from core.models import CategoriaSocio 
-from django.core.management import call_command
-from io import StringIO
-from financeiro.models import Mensalidade
-
+from core.models import CategoriaSocio
 
 class GerarMensalidadesEmMassaView(LoginRequiredMixin, View):
     def post(self, request):
@@ -21,6 +20,8 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, View):
             messages.error(request, 'Você não tem permissão para executar esta ação.')
             return redirect('financeiro:lista_mensalidades')
         
+        # TODO: Ajustar o comando 'gerar_mensalidades' para aceitar um parâmetro de empresa
+        # e ser totalmente compatível com multi-tenancy.
         try:
             num_criadas, num_ignoradas = Mensalidade.objects.gerar_mensalidades_para_ativos()
             
@@ -44,47 +45,39 @@ class MensalidadeListView(LoginRequiredMixin, ListView):
     paginate_by = 15
 
     def get_queryset(self):
-
-        # ATUALIZA O STATUS DE MENSALIDADES VENCIDAS ANTES DE LISTAR
         Mensalidade.objects.atualizar_status_atrasadas()
-
-        queryset = super().get_queryset().select_related('socio', 'socio__categoria')
+        # Filtra mensalidades apenas da empresa do usuário logado
+        queryset = Mensalidade.objects.filter(socio__empresa=self.request.user.empresa)
         
-        # Pega os parâmetros da URL
         search_query = self.request.GET.get('q')
         status = self.request.GET.get('status')
-        categoria_id = self.request.GET.get('categoria') # NOVO FILTRO
-        
+        categoria_id = self.request.GET.get('categoria')
+
         if search_query:
             queryset = queryset.filter(socio__nome__icontains=search_query)
-            
         if status:
             queryset = queryset.filter(status=status)
-
-        if categoria_id: # LÓGICA DO NOVO FILTRO
+        if categoria_id:
             queryset = queryset.filter(socio__categoria_id=categoria_id)
             
-        return queryset.order_by('-data_vencimento')
+        return queryset.select_related('socio', 'socio__categoria').order_by('-data_vencimento')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
         context['titulo_pagina'] = 'Mensalidades'
-        context['titulo_cabecalho'] = 'Gestão de Mensalidades'
         
-        # Enviando dados dos filtros para o template
-        context['situacao_choices'] = Mensalidade.StatusChoice.choices 
-        context['categorias'] = CategoriaSocio.objects.all() # NOVO DADO
+        # Filtra categorias apenas da empresa do usuário logado
+        context['categorias'] = CategoriaSocio.objects.filter(empresa=self.request.user.empresa)
+        context['situacao_choices'] = Mensalidade.StatusChoice.choices
         context['search_query'] = self.request.GET.get('q', '')
         context['status_selecionado'] = self.request.GET.get('status', '')
-        context['categoria_selecionada'] = self.request.GET.get('categoria', '') # NOVO DADO
-
+        context['categoria_selecionada'] = self.request.GET.get('categoria', '')
         return context
 
-# NOVA VIEW PARA A AÇÃO DE PAGAMENTO
 class MarcarComoPagaView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        mensalidade = get_object_or_404(Mensalidade, pk=pk)
+        # Garante que a mensalidade pertence a um sócio da empresa do usuário
+        mensalidade = get_object_or_404(Mensalidade, pk=pk, socio__empresa=request.user.empresa)
         
         if mensalidade.status != 'PAGA':
             mensalidade.status = 'PAGA'
@@ -95,11 +88,16 @@ class MarcarComoPagaView(LoginRequiredMixin, View):
             messages.info(request, "Esta mensalidade já estava paga.")
             
         return redirect('financeiro:lista_mensalidades')
+
 class MensalidadeUpdateView(LoginRequiredMixin, UpdateView):
     model = Mensalidade
     form_class = MensalidadeForm
     template_name = 'financeiro/mensalidade_form.html'
     success_url = reverse_lazy('financeiro:lista_mensalidades')
+    
+    def get_queryset(self):
+        # Garante que só se pode editar mensalidades da empresa do usuário
+        return Mensalidade.objects.filter(socio__empresa=self.request.user.empresa)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -109,9 +107,7 @@ class MensalidadeUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def dispatch(self, request, *args, **kwargs):
-        # Proteção extra: apenas superusuários podem acessar esta view
         if not request.user.is_superuser:
             messages.error(request, 'Você não tem permissão para editar mensalidades.')
             return redirect('financeiro:lista_mensalidades')
         return super().dispatch(request, *args, **kwargs)
-    

@@ -1,7 +1,8 @@
 # financeiro/forms.py
 
 from django import forms
-from .models import Mensalidade
+# A importação agora vem do lugar certo: o arquivo de modelos!
+from .models import Mensalidade 
 
 class MensalidadeForm(forms.ModelForm):
     class Meta:

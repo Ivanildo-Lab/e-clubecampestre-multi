@@ -4,32 +4,25 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-
-# Importe a nossa view da página inicial
-from core.views import HomeView
+from django.contrib.auth.decorators import login_required
+from core.views import HomeView, LandingPageView
 
 urlpatterns = [
-    # Rota para o Painel de Administração (Funcional)
     path('admin/', admin.site.urls),
 
-    # Rota para a Página Inicial (Funcional)
-    path('', HomeView.as_view(), name='home'),
-    
-    # --- ROTAS DA API ---
-    # Vamos manter comentadas todas as rotas de apps cujas views
-    # ainda não foram construídas. Nós vamos descomentar uma por uma
-    # conforme formos desenvolvendo cada funcionalidade.
+    # --- ROTAS PRINCIPAIS DO SITE ---
+    path('dashboard/', login_required(HomeView.as_view()), name='home'),
+    path('', LandingPageView.as_view(), name='landing_page'),
 
-    # path('api/core/', include('core.urls')),
-    # path('api/usuarios/', include('usuarios.urls')),
+    # --- ROTAS DOS APPS ---
+    # ESTA LINHA CONECTA O MAPA MESTRE AO MAPA DO BAIRRO 'usuarios'
+    path('usuarios/', include('usuarios.urls')),
+    
     path('socios/', include('socios.urls')),
     path('financeiro/', include('financeiro.urls')),
-    # path('api/cobranca/', include('cobranca.urls')),
-    # path('api/eventos/', include('eventos.urls')),
-    
 ]
 
-# Configuração para servir arquivos estáticos e de mídia em desenvolvimento
+# Configuração para servir arquivos de mídia e estáticos em desenvolvimento
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

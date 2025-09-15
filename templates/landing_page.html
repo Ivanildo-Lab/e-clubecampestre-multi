@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Bem-vindo ao {% if empresa_logada %}{{ empresa_logada.nome }}{% else %}e-Clube Campestre{% endif %}</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+  
+  <link rel="stylesheet" href="{% static 'adminlte/bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'adminlte/bower_components/font-awesome/css/font-awesome.min.css' %}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+  <style>
+    html, body { height: 100%; margin: 0; display: flex; flex-direction: column; }
+    .main-content { flex-grow: 1; }
+    .navbar-custom { background-color: #ffffff; border-bottom: 1px solid #ddd; padding: 10px 0; }
+    .hero-section { position: relative; min-height: 450px; height: 60vh; background-repeat: no-repeat; background-position: center center; background-size: cover; display: flex; align-items: center; justify-content: center; color: white; text-align: center; }
+    .hero-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); }
+    .hero-content { position: relative; z-index: 2; padding: 20px; }
+    .hero-content h1 { font-size: 48px; font-weight: 600; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); }
+    .content-section { padding: 60px 0; }
+    .footer { padding: 20px 0; background-color: #333; color: #aaa; text-align: center; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-custom navbar-static-top">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#"><b>{% if empresa_logada %}{{ empresa_logada.nome }}{% else %}e-Clube Campestre{% endif %}</b></a>
+    </div>
+    <div class="navbar-collapse">
+      <ul class="nav navbar-nav navbar-right">
+        {% if user.is_authenticated %}
+          <li><a href="#">Olá, {{ user.first_name|default:user.username }}!</a></li>
+          <li><a href="{% url 'home' %}" class="btn btn-primary" style="color:white; margin-top: 8px;">Acessar Dashboard</a></li>
+          <li><a href="{% url 'usuarios:site-logout' %}" style="margin-top: 8px;">Sair</a></li>
+        {% else %}
+          <li><a href="{% url 'usuarios:site-login' %}" class="btn btn-success" style="color:white; margin-top: 8px;"><i class="fa fa-sign-in"></i> Login</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="main-content">
+  <div class="hero-section" style="background-image: 
+    {% if empresa_logada and empresa_logada.imagem_hero %}
+      url('{{ empresa_logada.imagem_hero.url }}')
+    {% else %}
+      url('{% static 'img/landing-bg.jpg' %}')
+    {% endif %};">
+    
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      {% if empresa_logada %}
+        <h1>Bem-vindo ao {{ empresa_logada.nome }}</h1>
+        <p class="lead">Pronto para começar a gerenciar?</p>
+        <a href="{% url 'home' %}" class="btn btn-lg btn-primary" style="margin-top: 20px;">Ir para o seu Dashboard</a>
+      {% else %}
+        <h1>Modernidade e Gestão para o seu Clube</h1>
+        <p class="lead">A plataforma completa para a administração de sócios e finanças.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="content-section">
+    <div class="container"><div class="row"><div class="col-md-12 text-center"><h2>A plataforma completa para o seu clube</h2><p class="lead">Controle total de forma simples e intuitiva.</p></div></div></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>&copy; {% now "Y" %} {% if empresa_logada %}{{ empresa_logada.nome }}{% else %}e-Clube Campestre{% endif %}. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<script src="{% static 'adminlte/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'adminlte/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+</body>
+</html>

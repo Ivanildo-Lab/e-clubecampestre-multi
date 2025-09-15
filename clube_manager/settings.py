@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     # Local apps (APENAS OS QUE ESTAMOS USANDO ATIVAMENTE)
     'core',   # Onde estão nossos modelos principais.
     'socios', # Onde estão nossas views e urls de sócios.
-    # 'usuarios', # Desativado por enquanto.
+    'usuarios', # Desativado por enquanto.
     'financeiro', # Desativado por enquanto.
     # 'cobranca', # Desativado por enquanto.
     # 'eventos', # Desativado por enquanto.
@@ -222,7 +222,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 # Custom user model
-#AUTH_USER_MODEL = 'usuarios.Usuario'
+AUTH_USER_MODEL = 'usuarios.Usuario'
 
 # Logging configuration
 LOGGING = {
@@ -255,3 +255,5 @@ LOGGING = {
 
 # Create logs directory if it doesn't exist
 os.makedirs(BASE_DIR / 'logs', exist_ok=True)
+LOGIN_REDIRECT_URL = 'home'  # O nome da nossa rota do dashboard
+LOGOUT_REDIRECT_URL = 'landing_page' # Opcional: para onde ir após o logout
