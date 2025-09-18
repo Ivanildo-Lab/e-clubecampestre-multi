@@ -4,6 +4,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, V
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
+from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 import datetime
@@ -133,30 +134,56 @@ class SocioDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return Socio.objects.filter(empresa=self.request.user.empresa)
 
+# Em socios/views.py
+
 class GerarMensalidadeIndividualView(LoginRequiredMixin, View):
     def post(self, request, pk):
         socio = get_object_or_404(Socio, pk=pk, empresa=request.user.empresa)
         hoje = datetime.date.today()
-        competencia = hoje.replace(day=1)
         
-        if Mensalidade.objects.filter(socio=socio, competencia=competencia).exists():
-            messages.warning(request, f'A mensalidade de {competencia.strftime("%m/%Y")} já existe para {socio.nome}.')
-        else:
-            valor = socio.categoria.valor_mensalidade
-            dia_vencimento = socio.categoria.dia_vencimento
-            if valor <= 0:
-                messages.error(request, f'Não foi possível gerar: valor da categoria "{socio.categoria.nome}" não definido.')
-                return redirect('socios:lista_socios')
-            try:
-                vencimento = competencia.replace(day=dia_vencimento)
-            except ValueError:
-                import calendar
-                ultimo_dia = calendar.monthrange(competencia.year, competencia.month)[1]
-                vencimento = competencia.replace(day=ultimo_dia)
-            Mensalidade.objects.create(socio=socio, competencia=competencia, valor=valor, data_vencimento=vencimento)
-            messages.success(request, f'Mensalidade de {competencia.strftime("%m/%Y")} gerada com sucesso para {socio.nome}!')
-        return redirect('socios:lista_socios')
+        novas_mensalidades_criadas = []
+        meses_a_gerar = 12
 
+        # Loop pelos próximos 12 meses
+        for i in range(meses_a_gerar):
+            ano_competencia = hoje.year + (hoje.month + i - 1) // 12
+            mes_competencia = (hoje.month + i - 1) % 12 + 1
+            competencia = datetime.date(ano_competencia, mes_competencia, 1)
+
+            # Verifica se a mensalidade para esta competência específica já existe
+            if not Mensalidade.objects.filter(socio=socio, competencia=competencia).exists():
+                valor = socio.categoria.valor_mensalidade
+                dia_vencimento = socio.categoria.dia_vencimento
+
+                if valor <= 0:
+                    messages.warning(request, f'A categoria "{socio.categoria.nome}" não tem valor de mensalidade definido. Geração ignorada para algumas competências.')
+                    continue
+                
+                try:
+                    vencimento = competencia.replace(day=dia_vencimento)
+                except ValueError:
+                    import calendar
+                    ultimo_dia = calendar.monthrange(competencia.year, competencia.month)[1]
+                    vencimento = competencia.replace(day=ultimo_dia)
+
+                novas_mensalidades_criadas.append(Mensalidade(
+                    socio=socio,
+                    competencia=competencia,
+                    valor=valor,
+                    data_vencimento=vencimento
+                ))
+
+        if novas_mensalidades_criadas:
+            try:
+                with transaction.atomic():
+                    Mensalidade.objects.bulk_create(novas_mensalidades_criadas)
+                messages.success(request, f'{len(novas_mensalidades_criadas)} mensalidades foram geradas com sucesso para {socio.nome}!')
+            except Exception as e:
+                messages.error(request, f"Ocorreu um erro ao gerar as mensalidades: {e}")
+        else:
+            messages.info(request, f'Nenhuma nova mensalidade precisava ser gerada para {socio.nome}.')
+            
+        return redirect('socios:lista_socios')
 # --- Views de CategoriaSocio ---
 
 class CategoriaSocioListView(LoginRequiredMixin, ListView):

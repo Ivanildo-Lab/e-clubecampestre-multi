@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Caixas e Contas{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Caixas e Contas Bancárias</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'financeiro:adicionar_caixa' %}" class="btn btn-primary btn-flat">
+                        <i class="fa fa-plus"></i> Adicionar Caixa/Conta
+                    </a>
+                </div>
+            </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr><th>Nome do Caixa/Conta</th><th style="text-align: right;">Saldo Inicial</th><th>Ações</th></tr>
+                        {% for caixa in caixas %}
+                        <tr>
+                            <td><strong>{{ caixa.nome }}</strong></td>
+                            <td style="text-align: right;">R$ {{ caixa.saldo_inicial|floatformat:2 }}</td>
+                            <td>
+                                <a href="{% url 'financeiro:editar_caixa' caixa.pk %}" class="btn btn-xs btn-info" title="Editar"><i class="fa fa-pencil"></i></a>
+                                <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'financeiro:excluir_caixa' caixa.pk %}" data-nome="{{ caixa.nome }}"><i class="fa fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center">Nenhum caixa ou conta bancária cadastrado.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'partials/modal_delete.html' %}
+{% endblock %}
+{% block scripts %}
+{% include 'partials/modal_delete_script.js' %}
+{% endblock %}

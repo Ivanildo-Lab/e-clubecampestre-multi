@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'localflavor',
-    
+    'django_select2',
+
     # Local apps (APENAS OS QUE ESTAMOS USANDO ATIVAMENTE)
     'core',   # Onde estão nossos modelos principais.
     'socios', # Onde estão nossas views e urls de sócios.

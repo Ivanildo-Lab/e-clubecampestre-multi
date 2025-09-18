@@ -13,6 +13,9 @@
   <link rel="stylesheet" href="{% static 'adminlte/dist/css/AdminLTE.min.css' %}">
   <link rel="stylesheet" href="{% static 'adminlte/dist/css/skins/_all-skins.min.css' %}">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css">
+
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -37,9 +40,27 @@
         <li class="header">NAVEGAÇÃO</li>
         <li {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}><a href="{% url 'home' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
         <li {% if request.resolver_match.app_name == 'socios' and 'categorias' not in request.path and 'convenios' not in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_socios' %}"><i class="fa fa-users"></i> <span>Sócios</span></a></li>
-        <li {% if request.resolver_match.app_name == 'financeiro' %}class="active"{% endif %}><a href="{% url 'financeiro:lista_mensalidades' %}"><i class="fa fa-money"></i> <span>Financeiro</span></a></li>
+        
+        <!-- MENU FINANCEIRO CORRIGIDO -->
+        <li class="treeview {% if request.resolver_match.app_name == 'financeiro' %}active menu-open{% endif %}">
+          <a href="#">
+            <i class="fa fa-money"></i> <span>Financeiro</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li {% if 'mensalidades' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_mensalidades' %}"><i class="fa fa-calendar-check-o"></i> Mensalidades</a></li>
+            <li {% if 'caixas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_caixas' %}"><i class="fa fa-bank"></i> Caixas e Contas</a></li>
+            <li {% if 'fluxo-de-caixa' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:fluxo_de_caixa' %}"><i class="fa fa-line-chart"></i> Fluxo de Caixa</a></li>
+            <li {% if 'plano-de-contas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_plano_de_contas' %}"><i class="fa fa-book"></i> Plano de Contas</a></li>
+            <li {% if 'contas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_contas' %}"><i class="fa fa-list-alt"></i> Contas a Pagar/Receber</a></li>
+            <li {% if 'caixas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_caixas' %}"><i class="fa fa-bank"></i> Caixas e Contas</a></li>
 
-        <!-- NOVO MENU DROPDOWN -->
+          </ul>
+        </li>
+
+        <!-- MENU DE CADASTROS AUXILIARES CORRIGIDO -->
         <li class="treeview {% if 'categorias' in request.path or 'convenios' in request.path %}active menu-open{% endif %}">
           <a href="#">
             <i class="fa fa-cogs"></i> <span>Cadastros Auxiliares</span>

@@ -20,6 +20,7 @@ urlpatterns = [
     
     path('socios/', include('socios.urls')),
     path('financeiro/', include('financeiro.urls')),
+    path('select2/', include('django_select2.urls'))
 ]
 
 # Configuração para servir arquivos de mídia e estáticos em desenvolvimento

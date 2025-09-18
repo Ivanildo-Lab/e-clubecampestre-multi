@@ -144,6 +144,19 @@ class Dependente(models.Model):
         verbose_name_plural = "Dependentes"
         ordering = ['nome']
 
+class ConfiguracaoSistema(models.Model):
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    chave = models.CharField(max_length=50, verbose_name="Chave de Configuração")
+    valor = models.CharField(max_length=255, verbose_name="Valor da Configuração")
+    descricao = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.chave} ({self.empresa.nome})"
+
+    class Meta:
+        verbose_name = "Parâmetro do Sistema"
+        verbose_name_plural = "Parâmetros do Sistema"
+        unique_together = ('empresa', 'chave')
 
 
 # ==============================================================================
@@ -153,8 +166,6 @@ class Dependente(models.Model):
 #
 # Usuario = get_user_model()
 #
-# class ConfiguracaoSistema(models.Model):
-#     # ... (código do modelo)
 #
 # class Auditoria(models.Model):
 #     # ... (código do modelo)

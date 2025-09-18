@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Formulário de Caixa/Conta{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">{% if object %}Editar Caixa/Conta{% else %}Adicionar Caixa/Conta{% endif %}</h3>
+            </div>
+            <form role="form" method="post">
+                {% csrf_token %}
+                <div class="box-body">
+                    <div class="form-group">{{ form.nome.label_tag }} {{ form.nome }}</div>
+                    <div class="form-group">
+                        {{ form.saldo_inicial.label_tag }}
+                        <div class="input-group">
+                            <span class="input-group-addon">R$</span>
+                            {{ form.saldo_inicial }}
+                        </div>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{% url 'financeiro:lista_caixas' %}" class="btn btn-default">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

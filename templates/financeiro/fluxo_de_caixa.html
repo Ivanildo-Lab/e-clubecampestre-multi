@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_pagina %}Fluxo de Caixa{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Fluxo de Caixa / Extrato</h3>
+                <!-- BOTÃO DE ADICIONAR LANÇAMENTO MANUAL -->
+                <div class="box-tools pull-right">
+                    <a href="{% url 'financeiro:adicionar_lancamento' %}" class="btn btn-primary btn-flat">
+                        <i class="fa fa-plus"></i> Adicionar Lançamento
+                    </a>
+                </div>
+            </div>
+            
+            <form method="GET" action="{% url 'financeiro:fluxo_de_caixa' %}">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Selecione o Caixa / Conta</label>
+                            <select name="caixa" class="form-control" required onchange="this.form.submit()">
+                                <option value="">--- Selecione ---</option>
+                                {% for caixa in caixas %}
+                                <option value="{{ caixa.id }}" {% if caixa.id|stringformat:"s" == caixa_selecionado_id %}selected{% endif %}>
+                                    {{ caixa.nome }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Data de Início</label>
+                            <input type="date" name="data_inicio" class="form-control" value="{{ data_inicio }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label>Data Final</label>
+                            <input type="date" name="data_fim" class="form-control" value="{{ data_fim }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-info btn-flat btn-block">Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            {% if caixa_selecionado_id %}
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-3"><div class="info-box"><span class="info-box-icon bg-gray"><i class="fa fa-calculator"></i></span><div class="info-box-content"><span class="info-box-text">Saldo Inicial</span><span class="info-box-number">R$ {{ saldo_inicial|floatformat:2 }}</span></div></div></div>
+                    <div class="col-md-3"><div class="info-box"><span class="info-box-icon bg-green"><i class="fa fa-arrow-down"></i></span><div class="info-box-content"><span class="info-box-text">Total de Entradas</span><span class="info-box-number">R$ {{ total_entradas|floatformat:2 }}</span></div></div></div>
+                    <div class="col-md-3"><div class="info-box"><span class="info-box-icon bg-red"><i class="fa fa-arrow-up"></i></span><div class="info-box-content"><span class="info-box-text">Total de Saídas</span><span class="info-box-number">R$ {{ total_saidas_abs|floatformat:2 }}</span></div></div></div>
+                    <div class="col-md-3">
+                        <div class="info-box {% if saldo_final < 0 %}bg-red{% else %}bg-blue{% endif %}">
+                            <span class="info-box-icon"><i class="fa fa-balance-scale"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Saldo Final</span>
+                                <span class="info-box-number">R$ {{ saldo_final|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr>
+                            <th>Data</th>
+                            <th>Plano de Contas</th>
+                            <th>Descrição</th>
+                            <th style="text-align: right;">Valor</th>
+                            <th>Ações</th> <!-- NOVA COLUNA -->
+                        </tr>
+                        {% for lancamento in lancamentos %}
+                        <tr>
+                            <td>{{ lancamento.data_lancamento|date:"d/m/Y" }}</td>
+                            <td>{{ lancamento.plano_de_contas.nome }}</td>
+                            <td>{{ lancamento.descricao }}</td>
+                            <td style="text-align: right;">
+                                {% if lancamento.valor > 0 %}
+                                    <strong class="text-green">+ R$ {{ lancamento.valor|floatformat:2 }}</strong>
+                                {% else %}
+                                    <strong class="text-red">- R$ {{ lancamento.valor|floatformat:"-2" }}</strong>
+                                {% endif %}
+                            </td>
+                            <!-- CÉLULA DE AÇÕES COM LÓGICA -->
+                            <td>
+                                {% if not lancamento.mensalidade_origem and not lancamento.conta_origem %}
+                                    <a href="{% url 'financeiro:editar_lancamento' lancamento.pk %}" class="btn btn-xs btn-info" title="Editar Lançamento Manual"><i class="fa fa-pencil"></i></a>
+                                    <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'financeiro:excluir_lancamento' lancamento.pk %}" data-nome="este lançamento"><i class="fa fa-trash"></i></button>
+                                {% else %}
+                                    <span class="text-muted" title="Lançamento automático, não pode ser editado."><i class="fa fa-lock"></i></span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center">Nenhum lançamento encontrado para o período e caixa selecionados.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% include 'partials/modal_delete.html' %}
+{% endblock %}
+
+{% block scripts %}
+{% include 'partials/modal_delete_script.js' %}
+{% endblock %}

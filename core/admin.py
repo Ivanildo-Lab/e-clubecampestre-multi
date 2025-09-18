@@ -1,7 +1,7 @@
 # core/admin.py
 
 from django.contrib import admin
-from .models import Socio, CategoriaSocio, Convenio, Empresa, Dependente
+from .models import Socio, CategoriaSocio, Convenio, Empresa, Dependente, ConfiguracaoSistema
 
 # --- Classes de Configuração do Admin ---
 
@@ -35,3 +35,9 @@ class CategoriaSocioAdmin(admin.ModelAdmin):
     search_fields = ('nome',)
     
 admin.site.register(Convenio)
+
+@admin.register(ConfiguracaoSistema)
+class ConfiguracaoSistemaAdmin(admin.ModelAdmin):
+    list_display = ('chave', 'valor', 'empresa')
+    list_filter = ('empresa',)
+    search_fields = ('chave',)

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Plano de Contas{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Plano de Contas</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'financeiro:adicionar_plano_de_contas' %}" class="btn btn-primary btn-flat">
+                        <i class="fa fa-plus"></i> Adicionar Conta
+                    </a>
+                </div>
+            </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr><th>Nome da Conta</th><th>Tipo</th><th>Ações</th></tr>
+                        {% for conta in planos_de_contas %}
+                        <tr>
+                            <td>{{ conta.nome }}</td>
+                            <td>
+                                {% if conta.tipo == 'RECEITA' %}<span class="label label-success">{{ conta.get_tipo_display }}</span>
+                                {% else %}<span class="label label-danger">{{ conta.get_tipo_display }}</span>{% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'financeiro:editar_plano_de_contas' conta.pk %}" class="btn btn-xs btn-info" title="Editar"><i class="fa fa-pencil"></i></a>
+                                <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'financeiro:excluir_plano_de_contas' conta.pk %}" data-nome="{{ conta.nome }}"><i class="fa fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center">Nenhuma conta cadastrada no plano.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'partials/modal_delete.html' %}
+{% endblock %}
+{% block scripts %}
+{% include 'partials/modal_delete_script.js' %}
+{% endblock %}

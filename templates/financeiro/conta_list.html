@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_pagina %}Contas a Pagar e Receber{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Contas a Pagar e Receber</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'financeiro:adicionar_conta' %}" class="btn btn-primary btn-flat">
+                        <i class="fa fa-plus"></i> Adicionar Conta
+                    </a>
+                </div>
+            </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Plano de Contas</th>
+                            <th>Vencimento</th>
+                            <th style="text-align: right;">Valor</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                        {% for conta in contas %}
+                        <tr>
+                            <td>{{ conta.descricao }}</td>
+                            <td>
+                                <span class="text-muted">{{ conta.plano_de_contas.get_tipo_display }}:</span><br>
+                                {{ conta.plano_de_contas.nome }}
+                            </td>
+                            <td>{{ conta.data_vencimento|date:"d/m/Y" }}</td>
+                            <td style="text-align: right;">
+                                {% if conta.plano_de_contas.tipo == 'RECEITA' %}
+                                    <strong class="text-green">+ R$ {{ conta.valor|floatformat:2 }}</strong>
+                                {% else %}
+                                    <strong class="text-red">- R$ {{ conta.valor|floatformat:2 }}</strong>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if conta.status == 'PAGA' %}<span class="label label-success">{{ conta.get_status_display }}</span>
+                                {% elif conta.status == 'VENCIDA' %}<span class="label label-danger">{{ conta.get_status_display }}</span>
+                                {% else %}<span class="label label-warning">{{ conta.get_status_display }}</span>{% endif %}
+                            </td>
+                            <td>
+                                {% if conta.status != 'PAGA' %}
+                                <button class="btn btn-xs btn-success js-baixa-btn" 
+                                        data-url="{% url 'financeiro:baixar_conta' conta.pk %}"
+                                        data-descricao="{{ conta.descricao }}"
+                                        data-valor="{{ conta.valor|floatformat:2 }}"
+                                        data-tipo="{{ conta.plano_de_contas.tipo }}">
+                                    <i class="fa fa-check"></i> Baixar
+                                </button>
+                                {% endif %}
+                                <a href="{% url 'financeiro:editar_conta' conta.pk %}" class="btn btn-xs btn-info" title="Editar"><i class="fa fa-pencil"></i></a>
+                                <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'financeiro:excluir_conta' conta.pk %}" data-nome="{{ conta.descricao }}"><i class="fa fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center">Nenhuma conta encontrada.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Baixa de Conta -->
+<div class="modal fade" id="baixaModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="baixaForm" method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Baixar Conta</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Você está baixando a seguinte conta:</p>
+                    <p><strong>Descrição:</strong> <span id="contaDescricaoModal"></span></p>
+                    <p><strong>Valor:</strong> <span id="contaValorModal"></span></p>
+                    <hr>
+                    <div class="form-group">
+                        <label for="id_caixa">Confirmar no Caixa / Conta:</label>
+                        <select name="caixa" id="id_caixa" class="form-control" required>
+                            <option value="">--- Selecione ---</option>
+                            {% for caixa in caixas_disponiveis %}
+                            <option value="{{ caixa.id }}" {% if caixa.id == caixa_padrao_id %}selected{% endif %}>
+                                {{ caixa.nome }}
+                            </option>
+                            {% endfor %}
+                        </select>                    </div>
+                    <div class="form-group">
+                        <label for="id_data_pagamento">Data do Pagamento / Recebimento:</label>
+                        <input type="date" name="data_pagamento" id="id_data_pagamento" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Confirmar Baixa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include 'partials/modal_delete.html' %}
+{% endblock %}
+
+{% block scripts %}
+{% include 'partials/modal_delete_script.js' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const baixaButtons = document.querySelectorAll('.js-baixa-btn');
+    const hoje = new Date().toISOString().slice(0, 10);
+
+    baixaButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const url = this.dataset.url;
+            const descricao = this.dataset.descricao;
+            const valor = this.dataset.valor;
+            const tipo = this.dataset.tipo;
+
+            document.getElementById('baixaForm').action = url;
+            document.getElementById('contaDescricaoModal').textContent = descricao;
+            document.getElementById('contaValorModal').textContent = (tipo === 'RECEITA' ? '+ R$ ' : '- R$ ') + valor;
+            document.getElementById('id_data_pagamento').value = hoje;
+
+            $('#baixaModal').modal('show');
+        });
+    });
+});
+</script>
+{% endblock %}
