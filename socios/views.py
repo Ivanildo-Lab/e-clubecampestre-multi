@@ -14,6 +14,10 @@ from core.models import Socio, Dependente, CategoriaSocio, Convenio
 from financeiro.models import Mensalidade
 from .forms import SocioForm, DependenteFormSet, CategoriaSocioForm, ConvenioForm
 
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML, CSS
+
 # --- Views de Sócio ---
 
 class SocioListView(LoginRequiredMixin, ListView):
@@ -257,3 +261,38 @@ class ConvenioDeleteActionView(LoginRequiredMixin, View):
         except Exception as e:
             messages.error(request, f'Não foi possível excluir o convênio "{convenio.nome}", pois ele pode estar em uso.')
         return redirect('socios:lista_convenios')
+
+
+# Adicione esta nova view no final do arquivo
+class SocioPDFView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        try:
+            # Busca o sócio e seus dependentes, garantindo que pertence à empresa do usuário
+            socio = get_object_or_404(Socio, pk=pk, empresa=request.user.empresa)
+            dependentes = socio.dependentes.all()
+            
+            # Contexto de dados para o template
+            context = {
+                'socio': socio,
+                'dependentes': dependentes,
+                'empresa': request.user.empresa,
+            }
+
+            # Renderiza o template HTML para uma string
+            html_string = render_to_string('socios/socio_pdf_template.html', context)
+            
+            # Gera o PDF a partir do HTML
+            html = HTML(string=html_string, base_url=request.build_absolute_uri())
+            pdf = html.write_pdf()
+
+            # Cria a resposta HTTP com o conteúdo do PDF
+            response = HttpResponse(pdf, content_type='application/pdf')
+            # Define o cabeçalho para ABRIR NO NAVEGADOR (inline)
+            response['Content-Disposition'] = f'inline; filename="ficha_{socio.nome.lower().replace(" ", "_")}.pdf"'
+            
+            return response
+
+        except Exception as e:
+            messages.error(request, f"Ocorreu um erro ao gerar o PDF: {e}")
+            return redirect('socios:lista_socios')
+        

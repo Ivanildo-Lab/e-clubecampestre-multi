@@ -22,20 +22,45 @@ class Caixa(models.Model):
         verbose_name_plural = "Caixas / Contas Bancárias"
         unique_together = ('empresa', 'nome')
 
+# Em financeiro/models.py
+
 class PlanoDeContas(models.Model):
-    """ O plano de contas da empresa. Ex: 'Receita de Mensalidades', 'Despesa com Salários' """
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name='planos_de_contas')
+    
+    # Novo campo para o código estruturado
+    codigo = models.CharField(max_length=20, verbose_name="Código")
+    
+    # Relacionamento pai-filho
+    parent = models.ForeignKey(
+        'self', 
+        on_delete=models.PROTECT, 
+        null=True, 
+        blank=True, 
+        related_name='children',
+        verbose_name="Conta Superior (Pai)"
+    )
+    
     TIPO_CHOICES = [('RECEITA', 'Receita'), ('DESPESA', 'Despesa')]
     tipo = models.CharField(max_length=7, choices=TIPO_CHOICES)
     nome = models.CharField(max_length=100, verbose_name="Nome da Conta")
     
+    # Novo campo para diferenciar contas agrupadoras das que recebem lançamentos
+    aceita_lancamentos = models.BooleanField(
+        default=True, 
+        verbose_name="Aceita Lançamentos?",
+        help_text="Marque se esta conta pode receber lançamentos diretos. Desmarque se for uma conta apenas para agrupar outras."
+    )
+    
     def __str__(self):
-        return f"{self.get_tipo_display()}: {self.nome}"
+        return f"{self.codigo} - {self.nome}"
 
     class Meta:
         verbose_name = "Plano de Contas"
         verbose_name_plural = "Planos de Contas"
-        unique_together = ('empresa', 'nome')
+        # O código deve ser único por empresa
+        unique_together = ('empresa', 'codigo')
+        # A lista será sempre ordenada pelo código, o que cria a hierarquia visual
+        ordering = ['codigo']
 
 
 # --- 2. MODELOS DE "CONTAS A PAGAR/RECEBER" ---

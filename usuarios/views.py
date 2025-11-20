@@ -18,6 +18,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
+from core.models import Empresa
 
 Usuario = get_user_model()
 
@@ -194,20 +195,13 @@ class UsuarioPermissionsView(generics.GenericAPIView):
 # ==============================================================================
 
 class SiteLoginView(LoginView):
-    """
-    View de login para o site web.
-    Força o redirecionamento para o dashboard após o sucesso.
-    """
     template_name = 'usuarios/login.html'
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        """
-        Força o redirecionamento para a rota 'home' (nosso dashboard),
-        ignorando qualquer parâmetro ?next= na URL.
-        """
         return reverse_lazy('home')
-
+       
+    
 def site_logout_view(request):
     """View de logout para o site web (não a API)."""
     logout(request)

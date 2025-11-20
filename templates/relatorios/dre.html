@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}{{ titulo_pagina }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-success">
+            <div class="box-header with-border"><h3 class="box-title">Demonstrativo de Resultados do Exercício (DRE)</h3></div>
+            <form method="GET" action="">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-4 form-group"><label>De:</label><input type="date" name="data_inicio" class="form-control" value="{{ data_inicio }}"></div>
+                        <div class="col-md-4 form-group"><label>Até:</label><input type="date" name="data_fim" class="form-control" value="{{ data_fim }}"></div>
+                        <div class="col-md-2"><label>&nbsp;</label><button type="submit" class="btn btn-success btn-flat btn-block">Gerar</button></div>
+                    </div>
+                </div>
+            </form>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>(+) Receitas</h4>
+                        <table class="table table-striped">
+                            {% for receita in receitas %}
+                            <tr><td>{{ receita.plano_de_contas__nome }}</td><td class="text-right">R$ {{ receita.total|floatformat:2 }}</td></tr>
+                            {% empty %}
+                            <tr><td>Nenhuma receita no período.</td></tr>
+                            {% endfor %}
+                            <tr class="info"><th>Total de Receitas</th><th class="text-right">R$ {{ total_receitas|floatformat:2 }}</th></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>(-) Despesas</h4>
+                        <table class="table table-striped">
+                            {% for despesa in despesas %}
+                            <tr><td>{{ despesa.plano_de_contas__nome }}</td><td class="text-right">R$ {{ despesa.total|floatformat:2 }}</td></tr>
+                            {% empty %}
+                            <tr><td>Nenhuma despesa no período.</td></tr>
+                            {% endfor %}
+                            <tr class="info"><th>Total de Despesas</th><th class="text-right">R$ {{ total_despesas|floatformat:2 }}</th></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="box-footer">
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-6">
+                        <table class="table">
+                            <tr class="{% if saldo_periodo >= 0 %}success{% else %}danger{% endif %}">
+                                <th style="font-size: 1.2em;">(=) Saldo do Período (Lucro/Prejuízo)</th>
+                                <th class="text-right" style="font-size: 1.2em;">R$ {{ saldo_periodo|floatformat:2 }}</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

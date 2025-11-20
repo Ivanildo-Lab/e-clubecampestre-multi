@@ -6,24 +6,58 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Login | e-Clube Campestre</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+  
   <link rel="stylesheet" href="{% static 'adminlte/bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'adminlte/bower_components/font-awesome/css/font-awesome.min.css' %}">
   <link rel="stylesheet" href="{% static 'adminlte/dist/css/AdminLTE.min.css' %}">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+  <!-- ESTILOS CUSTOMIZADOS PARA A PÁGINA DE LOGIN -->
+  <style>
+    body.login-page {
+        /* USA SEMPRE A IMAGEM ESTÁTICA PADRÃO DO SISTEMA */
+        background: url("{% static 'img/landing-bg.jpg' %}") no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+    }
+    body.login-page::after {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+    .login-box {
+        background: transparent; 
+    }
+    .login-logo a {
+        color: #ffffff;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    .login-box-body {
+        background: #fff;
+        border-radius: 4px;
+    }
+  </style>
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
   <div class="login-logo">
-    <a href="{% url 'landing_page' %}"><b>e-Clube</b> Campestre</a>
+    <a href="{% url 'landing_page' %}">
+        <b>e-Clube</b> Campestre
+    </a>
   </div>
   <div class="login-box-body">
     <p class="login-box-msg">Faça login para iniciar sua sessão</p>
 
     {% if form.errors %}
-      <div class="alert alert-danger alert-dismissible">
-          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-          <h4><i class="icon fa fa-ban"></i> Erro!</h4>
-          Usuário ou senha inválidos. Por favor, tente novamente.
+      <div class="alert alert-danger" style="margin-bottom: 20px;">
+          Usuário ou senha inválidos.
       </div>
     {% endif %}
 
@@ -44,12 +78,13 @@
       </div>
     </form>
     <br>
-    <a href="{% url 'landing_page' %}">Voltar para a página inicial</a><br>
+    <a href="{% url 'landing_page' %}" class="text-center">Voltar para a página inicial</a>
 
   </div>
 </div>
 
 <script src="{% static 'adminlte/bower_components/jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'adminlte/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
 </body>
 </html>

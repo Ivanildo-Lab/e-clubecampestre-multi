@@ -1,7 +1,6 @@
 # financeiro/forms.py
 
 from django import forms
-# A importação agora vem do lugar certo: o arquivo de modelos!
 from django_select2.forms import ModelSelect2Widget
 from .models import Conta, PlanoDeContas, Socio, Caixa, LancamentoCaixa,Mensalidade 
 
@@ -24,12 +23,32 @@ class MensalidadeForm(forms.ModelForm):
 class PlanoDeContasForm(forms.ModelForm):
     class Meta:
         model = PlanoDeContas
-        fields = ['nome', 'tipo']
+        fields = ['codigo', 'nome', 'tipo', 'parent', 'aceita_lancamentos']
+        widgets = {
+            'codigo': forms.TextInput(attrs={'placeholder': 'Ex: 1.100.001'}),
+            'nome': forms.TextInput(attrs={'placeholder': 'Ex: Receita de Mensalidades'}),
+        }
 
     def __init__(self, *args, **kwargs):
+        # Pega a empresa que a view vai nos passar
+        empresa = kwargs.pop('empresa', None)
         super().__init__(*args, **kwargs)
+
+        if empresa:
+            # Filtra o campo 'parent' para mostrar apenas contas da mesma empresa
+            # e que NÃO aceitam lançamentos (são contas sintéticas/agrupadoras).
+            self.fields['parent'].queryset = PlanoDeContas.objects.filter(
+                empresa=empresa,
+                aceita_lancamentos=False
+            )
+            self.fields['parent'].empty_label = "Nenhuma (Conta Principal)"
+
+        # Aplica a classe do Bootstrap a todos os campos
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
+            # Checkboxes são estilizados de forma diferente
+            if not isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs['class'] = 'form-control'
+
 
 
 class CaixaForm(forms.ModelForm):

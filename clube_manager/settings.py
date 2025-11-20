@@ -52,8 +52,7 @@ INSTALLED_APPS = [
     'socios', # Onde estão nossas views e urls de sócios.
     'usuarios', # Desativado por enquanto.
     'financeiro', # Desativado por enquanto.
-    # 'cobranca', # Desativado por enquanto.
-    # 'eventos', # Desativado por enquanto.
+     'relatorios', # Desativado por enquanto.
 ]
 
 MIDDLEWARE = [
@@ -157,6 +156,8 @@ LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
+
+USE_L10N = True 
 
 USE_TZ = True
 

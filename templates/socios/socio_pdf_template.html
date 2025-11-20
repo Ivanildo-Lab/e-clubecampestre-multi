@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ficha Cadastral - {{ socio.nome }}</title>
+    <style>
+        @page { size: A4; margin: 1.5cm; }
+        body { font-family: 'Helvetica', sans-serif; font-size: 11pt; color: #333; }
+        h1, h2, h3 { font-family: 'Arial', sans-serif; color: #004080; }
+        .header { text-align: center; border-bottom: 2px solid #004080; padding-bottom: 10px; }
+        .header img { max-height: 80px; max-width: 200px; }
+        .header h1 { margin: 0; font-size: 18pt; }
+        .section { margin-top: 1.5cm; }
+        .section h2 { font-size: 14pt; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px; }
+        .data-grid { width: 100%; border-collapse: collapse; }
+        .data-grid td { padding: 6px; vertical-align: top; }
+        .data-grid .label { font-weight: bold; width: 25%; }
+        .dependents-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .dependents-table th, .dependents-table td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+        .dependents-table th { background-color: #f2f2f2; }
+        .footer { text-align: center; font-size: 9pt; color: #777; position: fixed; bottom: 0; left: 0; right: 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        {% if empresa.logo %}
+            <img src="{{ empresa.logo.url }}">
+        {% endif %}
+        <h1>{{ empresa.nome }}</h1>
+        <p>Ficha Cadastral de Sócio</p>
+    </div>
+
+    <div class="section">
+        <h2>Dados do Titular</h2>
+        <table class="data-grid">
+            <tr><td class="label">Nome Completo:</td><td>{{ socio.nome }}</td></tr>
+            <tr><td class="label">Nº Registro:</td><td>{{ socio.num_registro }}</td></tr>
+            <tr><td class="label">CPF:</td><td>{{ socio.cpf }}</td></tr>
+            <tr><td class="label">Data de Nascimento:</td><td>{{ socio.data_nascimento|date:"d/m/Y" }}</td></tr>
+            <tr><td class="label">Data de Admissão:</td><td>{{ socio.data_admissao|date:"d/m/Y" }}</td></tr>
+            <tr><td class="label">Categoria:</td><td>{{ socio.categoria.nome }}</td></tr>
+            <tr><td class="label">Situação:</td><td>{{ socio.get_situacao_display }}</td></tr>
+            <tr><td class="label">Email:</td><td>{{ socio.email|default:"Não informado" }}</td></tr>
+            <tr><td class="label">Telefone:</td><td>{{ socio.tel_residencial|default:"Não informado" }}</td></tr>
+        </table>
+    </div>
+
+    {% if dependentes %}
+    <div class="section">
+        <h2>Dependentes</h2>
+        <table class="dependents-table">
+            <thead><tr><th>Nome</th><th>Parentesco</th><th>Data de Nascimento</th></tr></thead>
+            <tbody>
+            {% for dep in dependentes %}
+                <tr><td>{{ dep.nome }}</td><td>{{ dep.get_parentesco_display }}</td><td>{{ dep.data_nascimento|date:"d/m/Y" }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <p>Gerado em {% now "d/m/Y H:i" %} pelo Sistema e-Clube Campestre</p>
+    </div>
+</body>
+</html>

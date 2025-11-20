@@ -15,7 +15,6 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css">
-
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -29,8 +28,19 @@
       </span>
     </a>
     <nav class="navbar navbar-static-top" role="navigation">
-        <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button"><span class="sr-only">Toggle navigation</span></a>
-        <div class="navbar-custom-menu"><ul class="nav navbar-nav"><li class="dropdown user user-menu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="hidden-xs">{{ user.get_full_name|default:user.username }}</span></a><ul class="dropdown-menu"><li class="user-footer"><div class="pull-left"><a href="#" class="btn btn-default btn-flat">Perfil</a></div><div class="pull-right"><a href="{% url 'usuarios:site-logout' %}" class="btn btn-default btn-flat">Sair</a></div></li></ul></li></ul></div>
+      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button"><span class="sr-only">Toggle navigation</span></a>
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+          <li class="dropdown user user-menu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="hidden-xs">{{ user.get_full_name|default:user.username }}</span></a>
+            <ul class="dropdown-menu">
+              <li class="user-header" style="height: auto; min-height: 120px; padding: 15px;"><p>{{ user.get_full_name|default:user.username }}{% if user.empresa %}<small>{{ user.empresa.nome }}</small>{% endif %}<small>Membro desde {{ user.date_joined|date:"M. Y" }}</small></p></li>
+              <li class="user-body"><div class="row"><div class="col-xs-6 text-center"><a href="#">Meu Perfil</a></div><div class="col-xs-6 text-center"><a href="{% url 'ajuda' %}">Ajuda</a></div></div></li>
+              <li class="user-footer"><div class="pull-right"><a href="{% url 'usuarios:site-logout' %}" class="btn btn-danger btn-flat">Sair</a></div></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
     </nav>
   </header>
   
@@ -40,58 +50,29 @@
         <li class="header">NAVEGAÇÃO</li>
         <li {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}><a href="{% url 'home' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
         <li {% if request.resolver_match.app_name == 'socios' and 'categorias' not in request.path and 'convenios' not in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_socios' %}"><i class="fa fa-users"></i> <span>Sócios</span></a></li>
+        <li class="treeview {% if request.resolver_match.app_name == 'financeiro' %}active menu-open{% endif %}"><a href="#"><i class="fa fa-money"></i> <span>Financeiro</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a><ul class="treeview-menu"><li {% if 'mensalidades' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_mensalidades' %}"><i class="fa fa-calendar-check-o"></i> Mensalidades</a></li><li {% if 'contas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_contas' %}"><i class="fa fa-list-alt"></i> Contas</a></li><li {% if 'caixas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_caixas' %}"><i class="fa fa-bank"></i> Caixas e Contas</a></li><li {% if 'plano-de-contas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_plano_de_contas' %}"><i class="fa fa-book"></i> Plano de Contas</a></li><li {% if 'fluxo-de-caixa' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:fluxo_de_caixa' %}"><i class="fa fa-line-chart"></i> Fluxo de Caixa</a></li></ul></li>
         
-        <!-- MENU FINANCEIRO CORRIGIDO -->
-        <li class="treeview {% if request.resolver_match.app_name == 'financeiro' %}active menu-open{% endif %}">
-          <a href="#">
-            <i class="fa fa-money"></i> <span>Financeiro</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
+        <!-- MENU RELATÓRIOS CORRIGIDO -->
+        <li class="treeview {% if request.resolver_match.app_name == 'relatorios' %}active menu-open{% endif %}">
+          <a href="#"><i class="fa fa-bar-chart"></i> <span>Relatórios</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
           <ul class="treeview-menu">
-            <li {% if 'mensalidades' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_mensalidades' %}"><i class="fa fa-calendar-check-o"></i> Mensalidades</a></li>
-            <li {% if 'caixas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_caixas' %}"><i class="fa fa-bank"></i> Caixas e Contas</a></li>
-            <li {% if 'fluxo-de-caixa' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:fluxo_de_caixa' %}"><i class="fa fa-line-chart"></i> Fluxo de Caixa</a></li>
-            <li {% if 'plano-de-contas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_plano_de_contas' %}"><i class="fa fa-book"></i> Plano de Contas</a></li>
-            <li {% if 'contas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_contas' %}"><i class="fa fa-list-alt"></i> Contas a Pagar/Receber</a></li>
-            <li {% if 'caixas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_caixas' %}"><i class="fa fa-bank"></i> Caixas e Contas</a></li>
-
+            <li {% if 'inadimplencia' in request.path %}class="active"{% endif %}><a href="{% url 'relatorios:inadimplencia' %}"><i class="fa fa-user-times"></i> Inadimplência</a></li>
+            <li {% if 'contas' in request.path %}class="active"{% endif %}><a href="{% url 'relatorios:contas' %}"><i class="fa fa-exchange"></i> Contas a Pagar/Receber</a></li>
+            <li {% if 'dre' in request.path %}class="active"{% endif %}><a href="{% url 'relatorios:dre' %}"><i class="fa fa-calculator"></i> Demonstrativo (DRE)</a></li>
           </ul>
         </li>
 
-        <!-- MENU DE CADASTROS AUXILIARES CORRIGIDO -->
-        <li class="treeview {% if 'categorias' in request.path or 'convenios' in request.path %}active menu-open{% endif %}">
-          <a href="#">
-            <i class="fa fa-cogs"></i> <span>Cadastros Auxiliares</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
-          <ul class="treeview-menu">
-              <li {% if 'categorias' in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_categorias' %}"><i class="fa fa-circle-o"></i> Categorias de Sócios</a></li>
-              <li {% if 'convenios' in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_convenios' %}"><i class="fa fa-circle-o"></i> Convênios</a></li>
-          </ul>
-        </li>
+        <li class="treeview {% if 'categorias' in request.path or 'convenios' in request.path %}active menu-open{% endif %}"><a href="#"><i class="fa fa-cogs"></i> <span>Cadastros Auxiliares</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a><ul class="treeview-menu"><li {% if 'categorias' in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_categorias' %}"><i class="fa fa-circle-o"></i> Categorias de Sócios</a></li><li {% if 'convenios' in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_convenios' %}"><i class="fa fa-circle-o"></i> Convênios</a></li></ul></li>
       </ul>
     </section>
   </aside>
 
   <div class="content-wrapper">
     <section class="content-header">
-      <h1>{% block titulo_cabecalho %}Dashboard{% endblock %}<small>{% block subtitulo_cabecalho %}Visão Geral{% endblock %}</small></h1>
+      <h1>{% block titulo_cabecalho %}{% endblock %}<small>{% block subtitulo_cabecalho %}{% endblock %}</small></h1>
     </section>
-
     <section class="content container-fluid">
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            <h4><i class="icon fa {% if message.tags == 'success' %}fa-check{% elif message.tags == 'warning' %}fa-warning{% elif message.tags == 'error' %}fa-ban{% else %}fa-info{% endif %}"></i> {{ message.tags|title }}</h4>
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
+      {% if messages %}{% for message in messages %}<div class="alert alert-{{ message.tags }} alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><h4><i class="icon fa {% if message.tags == 'success' %}fa-check{% elif message.tags == 'warning' %}fa-warning{% elif message.tags == 'error' %}fa-ban{% else %}fa-info{% endif %}"></i>{{ message.tags|title }}</h4>{{ message }}</div>{% endfor %}{% endif %}
       {% block content %}{% endblock %}
     </section>
   </div>
@@ -103,8 +84,9 @@
 <script src="{% static 'adminlte/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'adminlte/dist/js/adminlte.min.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<!-- jQuery Mask Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
 {% block scripts %}{% endblock %}
-
 </body>
 </html>

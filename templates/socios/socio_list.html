@@ -102,8 +102,7 @@
                                 <span class="badge bg-light-blue">{{ socio.num_dependentes }}</span>
                             </td>
                             <td>
-                                <a href="#" class="btn btn-xs btn-primary"><i class="fa fa-eye"></i></a>
-                                <a href="{% url 'socios:editar_socio' socio.pk %}" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a>
+                                <a href="{% url 'socios:socio_pdf' socio.pk %}" class="btn btn-xs btn-primary" title="Gerar Ficha em PDF" target="_blank"><i class="fa fa-print"></i></a>                                <a href="{% url 'socios:editar_socio' socio.pk %}" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a>
                                 <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'socios:excluir_socio' socio.pk %}" data-nome="{{ socio.nome }}"><i class="fa fa-trash"></i></button>
                                 <form action="{% url 'socios:gerar_mensalidade_individual' socio.pk %}" method="post" style="display: inline;">
                                     {% csrf_token %}

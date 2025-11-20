@@ -18,12 +18,13 @@ class CaixaAdmin(admin.ModelAdmin):
     list_display = ('nome', 'empresa', 'saldo_inicial')
     list_filter = ('empresa',)
     search_fields = ('nome',)
-
+    
 @admin.register(PlanoDeContas)
 class PlanoDeContasAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'tipo', 'empresa')
-    list_filter = ('tipo', 'empresa')
-    search_fields = ('nome',)
+    list_display = ('codigo', 'nome', 'tipo', 'parent', 'aceita_lancamentos')
+    list_filter = ('tipo', 'empresa', 'aceita_lancamentos')
+    search_fields = ('codigo', 'nome')
+    ordering = ['codigo']
 
 @admin.register(Conta)
 class ContaAdmin(admin.ModelAdmin):

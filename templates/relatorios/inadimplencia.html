@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}{{ titulo_pagina }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-danger">
+            <div class="box-header with-border">
+                <h3 class="box-title">Relatório de Inadimplência Mensal</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'relatorios:inadimplencia_pdf' %}?mes={{ form.initial.mes }}&ano={{ form.initial.ano }}" 
+                    class="btn btn-danger btn-flat" 
+                    target="_blank">
+                        <i class="fa fa-file-pdf-o"></i> Gerar PDF
+                    </a>    
+                </div>
+            </div>
+            
+            <form method="GET" action="{% url 'relatorios:inadimplencia' %}">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-3 form-group">
+                            {{ form.mes.label_tag }}
+                            {{ form.mes }}
+                        </div>
+                        <div class="col-md-3 form-group">
+                            {{ form.ano.label_tag }}
+                            {{ form.ano }}
+                        </div>
+                        <div class="col-md-2">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-danger btn-flat btn-block">Gerar Relatório</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="box-header">
+                <h4 class="box-title">
+                    Inadimplentes de <strong>{{ mes_selecionado_nome }} de {{ ano_selecionado }}</strong>
+                </h4>
+            </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sócio Devedor</th>
+                            <th>Contato</th>
+                            <th>Status da Parcela</th>
+                            <th style="text-align: right;">Valor Devido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mensalidade in inadimplentes %}
+                        <tr>
+                            <td>{{ mensalidade.socio.nome }}</td>
+                            <td>{{ mensalidade.socio.tel_residencial|default:"Não informado" }}</td>
+                            <td>
+                                {% if mensalidade.status == 'ATRASADA' %}<span class="label label-danger">{{ mensalidade.get_status_display }}</span>
+                                {% else %}<span class="label label-warning">{{ mensalidade.get_status_display }}</span>{% endif %}
+                            </td>
+                            <td style="text-align: right;">R$ {{ mensalidade.valor|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center">Nenhuma inadimplência encontrada para o mês selecionado.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr style="border-top: 2px solid #333;">
+                            <th colspan="3" style="text-align: right;">Total Geral de Inadimplência para o Mês:</th>
+                            <th style="text-align: right;"><h4 class="text-red">R$ {{ total_geral_inadimplencia|floatformat:2 }}</h4></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

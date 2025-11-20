@@ -10,6 +10,8 @@ from django.urls import reverse_lazy
 
 from .models import Empresa, Socio, Dependente
 from financeiro.models import Mensalidade
+from .help_data import PARAMETROS_SISTEMA # Importa nossa lista de ajuda
+
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'index.html'
@@ -88,4 +90,16 @@ class LandingPageView(TemplateView):
             empresa_para_exibir = self.request.user.empresa
             
         context['empresa_logada'] = empresa_para_exibir
+        return context
+
+# No final de core/views.py
+from .help_data import PARAMETROS_SISTEMA # Importa nossa lista de ajuda
+
+class HelpView(LoginRequiredMixin, TemplateView):
+    template_name = 'core/ajuda.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = 'Ajuda e Parâmetros do Sistema'
+        context['parametros'] = PARAMETROS_SISTEMA
         return context

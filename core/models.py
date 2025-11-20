@@ -11,14 +11,14 @@ import uuid
 # Modelo de Empresa
 class Empresa(models.Model):
     nome = models.CharField(max_length=255, verbose_name="Nome da Empresa")
-    responsavel = models.CharField(max_length=150, blank=True, verbose_name="Responsável")
-    telefone = models.CharField(max_length=20, blank=True, verbose_name="Telefone")
-    endereco = models.CharField(max_length=255, blank=True, verbose_name="Endereço (Rua, Nº, Bairro)")
-    cidade = models.CharField(max_length=100, blank=True, verbose_name="Cidade")
-    estado = models.CharField(max_length=2, blank=True, verbose_name="UF")
+    responsavel = models.CharField(max_length=150, blank=True, verbose_name="Responsável",null=True)
+    telefone = models.CharField(max_length=20, blank=True, verbose_name="Telefone",null=True)
+    endereco = models.CharField(max_length=255, blank=True, verbose_name="Endereço (Rua, Nº, Bairro)",null=True)
+    cidade = models.CharField(max_length=100, blank=True, verbose_name="Cidade",null=True)
+    estado = models.CharField(max_length=2, blank=True, verbose_name="UF",null=True)
     imagem_hero = models.ImageField(upload_to='hero_images/', blank=True, null=True, verbose_name="Imagem de Fundo (Landing Page)")
     logo = models.ImageField(upload_to='logos_empresas/', blank=True, null=True, verbose_name="Logotipo")
-    observacoes = models.TextField(blank=True, verbose_name="Observações")
+    observacoes = models.TextField(blank=True, verbose_name="Observações",null=True)
 
     def __str__(self):
         return self.nome
@@ -57,8 +57,8 @@ class CategoriaSocio(models.Model):
 class Convenio(models.Model):
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE) 
     nome = models.CharField(max_length=150) # unique=True foi removido
-    empresa_contato = models.CharField(max_length=100, blank=True)
-    telefone_contato = models.CharField(max_length=20, blank=True)
+    empresa_contato = models.CharField(max_length=100, blank=True,null=True)
+    telefone_contato = models.CharField(max_length=20, blank=True,null=True)
 
     def __str__(self):
         return self.nome

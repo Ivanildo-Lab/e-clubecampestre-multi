@@ -4,7 +4,7 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE core_dependente; TRUNCATE TABLE financeiro_mensalidade; TRUNCATE TABLE financeiro_conta; TRUNCATE TABLE financeiro_lancamentocaixa;
-TRUNCATE TABLE core_socio; TRUNCATE TABLE core_categoriassocio; TRUNCATE TABLE core_convenio; TRUNCATE TABLE core_empresa;
+TRUNCATE TABLE core_socio; TRUNCATE TABLE core_categoriasocio; TRUNCATE TABLE core_convenio; TRUNCATE TABLE core_empresa;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 1. EMPRESAS
@@ -13,7 +13,7 @@ INSERT INTO `core_empresa` (`nome`, `responsavel`) VALUES
 ('CLUBE AMERICA', 'Ivanildo');
 
 -- 2. CATEGORIAS DE SÓCIO
-INSERT INTO core_categoriassocio (empresa_id, nome, valor_mensalidade, dia_vencimento) VALUES
+INSERT INTO core_categoriasocio (empresa_id, nome, valor_mensalidade, dia_vencimento) VALUES
 (1, 'Plano Ouro GEFICO', 250.00, 10),
 (1, 'Plano Prata GEFICO', 180.00, 15),
 (2, 'Sócio Campeão AMERICA', 300.00, 5),

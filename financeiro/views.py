@@ -160,7 +160,7 @@ class PlanoDeContasListView(LoginRequiredMixin, ListView):
     template_name = 'financeiro/plano_de_contas_list.html'
     context_object_name = 'planos_de_contas'
     def get_queryset(self):
-        return PlanoDeContas.objects.filter(empresa=self.request.user.empresa).order_by('nome')
+        return PlanoDeContas.objects.filter(empresa=self.request.user.empresa).order_by('codigo')
 
 class PlanoDeContasCreateView(LoginRequiredMixin, CreateView):
     model = PlanoDeContas

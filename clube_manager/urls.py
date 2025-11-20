@@ -5,7 +5,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
-from core.views import HomeView, LandingPageView
+from core.views import HomeView, LandingPageView, HelpView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -20,7 +20,9 @@ urlpatterns = [
     
     path('socios/', include('socios.urls')),
     path('financeiro/', include('financeiro.urls')),
-    path('select2/', include('django_select2.urls'))
+    path('relatorios/', include('relatorios.urls')),
+    path('select2/', include('django_select2.urls')),
+    path('ajuda/', login_required(HelpView.as_view()), name='ajuda'),
 ]
 
 # Configuração para servir arquivos de mídia e estáticos em desenvolvimento

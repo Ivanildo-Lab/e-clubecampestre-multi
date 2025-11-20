@@ -15,13 +15,32 @@
             <div class="box-body table-responsive no-padding">
                 <table class="table table-hover">
                     <tbody>
-                        <tr><th>Nome da Conta</th><th>Tipo</th><th>Ações</th></tr>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nome da Conta</th>
+                            <th>Tipo</th>
+                            <th>Aceita Lançamentos?</th>
+                            <th>Ações</th>
+                        </tr>
                         {% for conta in planos_de_contas %}
                         <tr>
-                            <td>{{ conta.nome }}</td>
+                            <td><strong>{{ conta.codigo }}</strong></td>
+                            <td>
+                                {% if conta.parent %}
+                                    <span style="padding-left: 20px;">└─</span>
+                                {% endif %}
+                                {{ conta.nome }}
+                            </td>
                             <td>
                                 {% if conta.tipo == 'RECEITA' %}<span class="label label-success">{{ conta.get_tipo_display }}</span>
                                 {% else %}<span class="label label-danger">{{ conta.get_tipo_display }}</span>{% endif %}
+                            </td>
+                            <td>
+                                {% if conta.aceita_lancamentos %}
+                                    <i class="fa fa-check-circle text-green" title="Sim"></i>
+                                {% else %}
+                                    <i class="fa fa-times-circle text-red" title="Não (Conta Sintética)"></i>
+                                {% endif %}
                             </td>
                             <td>
                                 <a href="{% url 'financeiro:editar_plano_de_contas' conta.pk %}" class="btn btn-xs btn-info" title="Editar"><i class="fa fa-pencil"></i></a>
@@ -29,7 +48,7 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="3" class="text-center">Nenhuma conta cadastrada no plano.</td></tr>
+                        <tr><td colspan="5" class="text-center">Nenhuma conta cadastrada no plano.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

@@ -2,7 +2,7 @@
 {% block titulo_pagina %}Formulário de Conta{% endblock %}
 {% block content %}
 <div class="row">
-    <div class="col-md-6 col-md-offset-3">
+    <div class="col-md-8 col-md-offset-2">
         <div class="box box-primary">
             <div class="box-header with-border">
                 <h3 class="box-title">{% if object %}Editar Conta{% else %}Adicionar Conta ao Plano{% endif %}</h3>
@@ -10,8 +10,20 @@
             <form role="form" method="post">
                 {% csrf_token %}
                 <div class="box-body">
-                    <div class="form-group">{{ form.nome.label_tag }} {{ form.nome }}</div>
+                    <div class="row">
+                        <div class="col-md-4 form-group">{{ form.codigo.label_tag }} {{ form.codigo }}</div>
+                        <div class="col-md-8 form-group">{{ form.nome.label_tag }} {{ form.nome }}</div>
+                    </div>
+                    <div class="form-group">{{ form.parent.label_tag }} {{ form.parent }}</div>
                     <div class="form-group">{{ form.tipo.label_tag }} {{ form.tipo }}</div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                {{ form.aceita_lancamentos }} {{ form.aceita_lancamentos.label }}
+                                <p class="help-block">{{ form.aceita_lancamentos.help_text }}</p>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <div class="box-footer">
                     <button type="submit" class="btn btn-primary">Salvar</button>
@@ -21,4 +33,16 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Garante que o script só rode depois que o jQuery for carregado
+    $(document).ready(function(){
+        // Aplica a máscara ao campo de input com o id 'id_codigo'
+        // A máscara '0.0.00.00.00' é flexível, permitindo códigos de vários níveis
+        // '0' é um dígito obrigatório
+        $('#id_codigo').mask('00.000.000', {reverse: true});
+    });
+</script>
 {% endblock %}
