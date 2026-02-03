@@ -20,6 +20,7 @@ urlpatterns = [
     
     path('socios/', include('socios.urls')),
     path('financeiro/', include('financeiro.urls')),
+    path('fornecedores/', include('fornecedores.urls')),
     path('relatorios/', include('relatorios.urls')),
     path('select2/', include('django_select2.urls')),
     path('ajuda/', login_required(HelpView.as_view()), name='ajuda'),

@@ -13,30 +13,61 @@ from decimal import Decimal
 
 # Importações de Modelos e Formulários
 from .models import Mensalidade, LancamentoCaixa, Caixa, PlanoDeContas, Conta
-from .forms import MensalidadeForm, PlanoDeContasForm, CaixaForm, ContaForm, LancamentoCaixaForm, BaixaMensalidadeForm, BaixaContaForm
-from core.models import CategoriaSocio, ConfiguracaoSistema
+from .forms import MensalidadeForm, PlanoDeContasForm, CaixaForm, ContaForm,GerarMensalidadesForm,LancamentoCaixaForm, BaixaMensalidadeForm, BaixaContaForm
+from core.models import CategoriaSocio, ConfiguracaoSistema, Convenio
+from django.views.generic import FormView
 
-class GerarMensalidadesEmMassaView(LoginRequiredMixin, View):
-    def post(self, request):
-        if not (request.user.is_superuser or request.user.nivel_acesso == 'ADMIN'):
-            messages.error(request, 'Você não tem permissão para executar esta ação.')
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
+
+class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
+    template_name = 'financeiro/gerar_mensalidades_form.html'
+    form_class = GerarMensalidadesForm
+    success_url = reverse_lazy('financeiro:lista_mensalidades')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['empresa'] = self.request.user.empresa
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = 'Geração de Mensalidades em Lote'
+        return context
+
+    def form_valid(self, form):
+        # Proteção de Permissão
+        if not (self.request.user.is_superuser or self.request.user.nivel_acesso == 'ADMIN'):
+            messages.error(self.request, 'Você não tem permissão para executar esta ação.')
             return redirect('financeiro:lista_mensalidades')
-        
-        empresa_atual = request.user.empresa
-        if not empresa_atual:
-            messages.error(request, 'Seu usuário não está associado a uma empresa.')
-            return redirect('financeiro:lista_mensalidades')
+
+        empresa_atual = self.request.user.empresa
+        convenio = form.cleaned_data.get('convenio')
+        periodo = form.cleaned_data.get('periodo')
+
+        meses_a_gerar = 1 if periodo == 'mes' else 12
+
         try:
-            num_criadas, num_ignoradas = Mensalidade.objects.gerar_mensalidades_para_ativos(empresa_id=empresa_atual.id)
+            num_criadas, num_ignoradas = Mensalidade.objects.gerar_mensalidades_para_ativos(
+                empresa_id=empresa_atual.id,
+                convenio_id=convenio.id if convenio else None, # Passa o ID do convênio se selecionado
+                meses_a_gerar=meses_a_gerar
+            )
+            
             if num_criadas > 0:
-                messages.success(request, f'{num_criadas} novas mensalidades foram geradas com sucesso.')
+                messages.success(self.request, f'{num_criadas} novas mensalidades foram geradas com sucesso.')
             else:
-                messages.info(request, 'Nenhuma nova mensalidade precisava ser gerada.')
+                messages.info(self.request, 'Nenhuma nova mensalidade precisava ser gerada para os filtros selecionados.')
+
             if num_ignoradas > 0:
-                messages.warning(request, f'{num_ignoradas} sócios foram ignorados.')
+                messages.warning(self.request, f'{num_ignoradas} sócios foram ignorados (categoria sem valor).')
+
         except Exception as e:
-            messages.error(request, f'Ocorreu um erro: {e}')
-        return redirect('financeiro:lista_mensalidades')
+            messages.error(self.request, f'Ocorreu um erro inesperado: {e}')
+            
+        return super().form_valid(form)
+
 
 class MensalidadeListView(LoginRequiredMixin, ListView):
     model = Mensalidade
@@ -47,32 +78,44 @@ class MensalidadeListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         Mensalidade.objects.atualizar_status_atrasadas()
         queryset = Mensalidade.objects.filter(socio__empresa=self.request.user.empresa)
+        
         search_query = self.request.GET.get('q')
         status = self.request.GET.get('status')
         categoria_id = self.request.GET.get('categoria')
+        convenio_id = self.request.GET.get('convenio')
+
         if search_query:
             queryset = queryset.filter(socio__nome__icontains=search_query)
         if status:
             queryset = queryset.filter(status=status)
         if categoria_id:
             queryset = queryset.filter(socio__categoria_id=categoria_id)
+        if convenio_id:
+            queryset = queryset.filter(socio__convenio_id=convenio_id)
+            
         return queryset.select_related('socio', 'socio__categoria').order_by('-data_vencimento')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         empresa_atual = self.request.user.empresa
+        
         context['titulo_pagina'] = 'Mensalidades'
         context['caixas_disponiveis'] = Caixa.objects.filter(empresa=empresa_atual)
         caixa_padrao_obj = ConfiguracaoSistema.objects.filter(empresa=empresa_atual, chave='CAIXA_PADRAO_ID').first()
         context['caixa_padrao_id'] = int(caixa_padrao_obj.valor) if caixa_padrao_obj else None
         taxa_juros_obj = ConfiguracaoSistema.objects.filter(empresa=empresa_atual, chave='TAXA_JUROS_MENSAL').first()
         context['taxa_juros'] = taxa_juros_obj.valor if taxa_juros_obj else '0.0'
+        
         context['categorias'] = CategoriaSocio.objects.filter(empresa=empresa_atual)
+        context['convenios'] = Convenio.objects.filter(empresa=empresa_atual) # Adicionado para o filtro
         context['situacao_choices'] = Mensalidade.StatusChoice.choices
+        
         context['search_query'] = self.request.GET.get('q', '')
         context['status_selecionado'] = self.request.GET.get('status', '')
         context['categoria_selecionada'] = self.request.GET.get('categoria', '')
+        context['convenio_selecionado'] = self.request.GET.get('convenio', '')
         return context
+
 
 class BaixarMensalidadeView(LoginRequiredMixin, View):
     def post(self, request, pk):
@@ -81,45 +124,56 @@ class BaixarMensalidadeView(LoginRequiredMixin, View):
         form = BaixaMensalidadeForm(request.POST, empresa=empresa_atual)
 
         if form.is_valid():
-            caixa = form.cleaned_data['caixa']
+            # Pega os dados do formulário. 'caixa' pode ser None.
+            caixa = form.cleaned_data.get('caixa')
             data_pagamento = form.cleaned_data['data_pagamento']
             valor_juros = form.cleaned_data.get('valor_juros') or Decimal('0.00')
 
             try:
-                plano_contas_mensalidade_id = int(ConfiguracaoSistema.objects.get(empresa=empresa_atual, chave='PLANO_CONTAS_MENSALIDADE_ID').valor)
-                plano_contas_mensalidade = PlanoDeContas.objects.get(id=plano_contas_mensalidade_id)
-                plano_contas_juros_id = int(ConfiguracaoSistema.objects.get(empresa=empresa_atual, chave='PLANO_CONTAS_JUROS_ID').valor)
-                plano_contas_juros = PlanoDeContas.objects.get(id=plano_contas_juros_id)
-
                 with transaction.atomic():
+                    # PASSO 1: Baixar a mensalidade (sempre acontece)
                     mensalidade.status = 'PAGA'
                     mensalidade.data_pagamento = data_pagamento
                     mensalidade.save()
 
-                    LancamentoCaixa.objects.create(
-                        empresa=empresa_atual, caixa=caixa, plano_de_contas=plano_contas_mensalidade,
-                        data_lancamento=data_pagamento, descricao=f"Pag. Mensalidade: {mensalidade.socio.nome} ({mensalidade.competencia.strftime('%m/%Y')})",
-                        valor=mensalidade.valor, mensalidade_origem=mensalidade
-                    )
+                    # PASSO 2: Lançar no caixa (SÓ SE UM CAIXA FOI SELECIONADO)
+                    if caixa:
+                        # Busca os planos de contas necessários
+                        plano_contas_mensalidade_id = int(ConfiguracaoSistema.objects.get(empresa=empresa_atual, chave='PLANO_CONTAS_MENSALIDADE_ID').valor)
+                        plano_contas_mensalidade = PlanoDeContas.objects.get(id=plano_contas_mensalidade_id)
+                        
+                        plano_contas_juros_id = int(ConfiguracaoSistema.objects.get(empresa=empresa_atual, chave='PLANO_CONTAS_JUROS_ID').valor)
+                        plano_contas_juros = PlanoDeContas.objects.get(id=plano_contas_juros_id)
 
-                    if valor_juros > 0:
+                        # Cria o Lançamento do valor principal
                         LancamentoCaixa.objects.create(
-                            empresa=empresa_atual, caixa=caixa, plano_de_contas=plano_contas_juros,
-                            data_lancamento=data_pagamento, descricao=f"Juros Mens.: {mensalidade.socio.nome} ({mensalidade.competencia.strftime('%m/%Y')})",
-                            valor=valor_juros,
-                            mensalidade_origem=mensalidade
+                            empresa=empresa_atual, caixa=caixa, plano_de_contas=plano_contas_mensalidade,
+                            data_lancamento=data_pagamento, descricao=f"Pag. Mensalidade: {mensalidade.socio.nome} ({mensalidade.competencia.strftime('%m/%Y')})",
+                            valor=mensalidade.valor, mensalidade_origem=mensalidade
                         )
-                
-                messages.success(request, f'Mensalidade de {mensalidade.socio.nome} baixada com sucesso!')
+
+                        # Se houver juros, cria um lançamento separado para eles
+                        if valor_juros > 0:
+                            LancamentoCaixa.objects.create(
+                                empresa=empresa_atual, caixa=caixa, plano_de_contas=plano_contas_juros,
+                                data_lancamento=data_pagamento, descricao=f"Juros Mens.: {mensalidade.socio.nome} ({mensalidade.competencia.strftime('%m/%Y')})",
+                                valor=valor_juros, mensalidade_origem=mensalidade
+                            )
+                        
+                        messages.success(request, f'Mensalidade de {mensalidade.socio.nome} baixada e lançada no caixa "{caixa.nome}" com sucesso!')
+                    
+                    else: # Se nenhum caixa foi selecionado
+                        messages.success(request, f'Mensalidade de {mensalidade.socio.nome} baixada com sucesso (sem lançamento no caixa).')
+
             except (ConfiguracaoSistema.DoesNotExist, PlanoDeContas.DoesNotExist):
-                messages.error(request, 'Erro de configuração! Verifique os parâmetros de Plano de Contas para Mensalidades e Juros.')
+                messages.error(request, 'Erro de configuração! Verifique os Parâmetros do Sistema para o financeiro.')
             except Exception as e:
                 messages.error(request, f"Ocorreu um erro ao baixar a mensalidade: {e}")
         else:
             messages.error(request, f"Dados inválidos. Por favor, verifique: {form.errors}")
         
         return redirect('financeiro:lista_mensalidades')
-
+    
 class MensalidadeUpdateView(LoginRequiredMixin, UpdateView):
     model = Mensalidade
     form_class = MensalidadeForm
@@ -411,4 +465,63 @@ class LancamentoCaixaDeleteView(LoginRequiredMixin, View):
             lancamento.delete()
             messages.success(request, 'O lançamento manual foi excluído com sucesso.')
         return redirect('financeiro:fluxo_de_caixa')
-    
+
+class MensalidadePDFView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        empresa_atual = request.user.empresa
+        queryset = Mensalidade.objects.filter(socio__empresa=empresa_atual)
+        
+        # Filtros
+        search_query = request.GET.get('q')
+        status = request.GET.get('status')
+        categoria_id = request.GET.get('categoria')
+        convenio_id = request.GET.get('convenio')
+        
+        # Filtros de data (se existirem na URL, assumindo que você pode querer filtrar por data no futuro)
+        # Se não tiver filtro de data na tela de mensalidades ainda, isso prepara o terreno.
+        data_inicio = request.GET.get('data_inicio')
+        data_fim = request.GET.get('data_fim')
+
+        if search_query: queryset = queryset.filter(socio__nome__icontains=search_query)
+        if status: queryset = queryset.filter(status=status)
+        if categoria_id: queryset = queryset.filter(socio__categoria_id=categoria_id)
+        if convenio_id: queryset = queryset.filter(socio__convenio_id=convenio_id)
+        
+        # Logica para filtro de data (opcional, caso adicione no futuro)
+        if data_inicio: queryset = queryset.filter(data_vencimento__gte=data_inicio)
+        if data_fim: queryset = queryset.filter(data_vencimento__lte=data_fim)
+
+        mensalidades = queryset.select_related('socio', 'socio__categoria').order_by('data_vencimento')
+        total_geral = mensalidades.aggregate(total=Sum('valor'))['total'] or 0
+
+        # --- BUSCANDO OS NOMES PARA O CABEÇALHO ---
+        categoria_nome = None
+        if categoria_id:
+            cat = CategoriaSocio.objects.filter(id=categoria_id).first()
+            if cat: categoria_nome = cat.nome
+
+        convenio_nome = None
+        if convenio_id:
+            conv = Convenio.objects.filter(id=convenio_id).first()
+            if conv: convenio_nome = conv.nome
+
+        context = {
+            'mensalidades': mensalidades,
+            'empresa': empresa_atual,
+            'total_geral': total_geral,
+            'data_emissao': timezone.now(),
+            # Dados para o cabeçalho dinâmico
+            'filtro_categoria': categoria_nome,
+            'filtro_convenio': convenio_nome,
+            'filtro_status': status,
+            'filtro_data_inicio': data_inicio,
+            'filtro_data_fim': data_fim,
+        }
+        
+        html_string = render_to_string('financeiro/mensalidade_pdf_template.html', context)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+        
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="relatorio_mensalidades.pdf"'
+        return response

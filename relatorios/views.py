@@ -81,32 +81,6 @@ class RelatorioInadimplenciaPDFView(LoginRequiredMixin, View):
         
         return response
 
-class RelatorioContasView(LoginRequiredMixin, TemplateView):
-    template_name = 'relatorios/contas.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        empresa_atual = self.request.user.empresa
-        form = FiltroContasForm(self.request.GET or None)
-        context['form'] = form
-        contas = Conta.objects.filter(empresa=empresa_atual).select_related('plano_de_contas')
-        if form.is_valid():
-            data_inicio = form.cleaned_data.get('data_inicio')
-            data_fim = form.cleaned_data.get('data_fim')
-            tipo = form.cleaned_data.get('tipo')
-            status = form.cleaned_data.get('status')
-            if data_inicio:
-                contas = contas.filter(data_vencimento__gte=data_inicio)
-            if data_fim:
-                contas = contas.filter(data_vencimento__lte=data_fim)
-            if tipo:
-                contas = contas.filter(plano_de_contas__tipo=tipo)
-            if status:
-                contas = contas.filter(status=status)
-        
-        context['contas'] = contas.order_by('data_vencimento')
-        context['titulo_pagina'] = 'Relatório de Contas a Pagar/Receber'
-        return context
 
 class RelatorioDREView(LoginRequiredMixin, TemplateView):
     template_name = 'relatorios/dre.html'
@@ -124,7 +98,7 @@ class RelatorioDREView(LoginRequiredMixin, TemplateView):
             data_lancamento__lte=data_fim_str
         )
 
-        # A CORREÇÃO ESTÁ AQUI: Calculamos os totais de forma segura primeiro
+        # Calculamos os totais de forma segura primeiro
         total_receitas = lancamentos.filter(valor__gt=0).aggregate(
             total=Coalesce(Sum('valor'), 0, output_field=DecimalField())
         )['total']
@@ -160,13 +134,48 @@ class RelatorioDREView(LoginRequiredMixin, TemplateView):
 
         return context
 
-# Adicione esta nova view no final de relatorios/views.py
+    
+class RelatorioContasView(LoginRequiredMixin, TemplateView):
+    template_name = 'relatorios/contas.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        empresa_atual = self.request.user.empresa
+        
+        form = FiltroContasForm(self.request.GET or None)
+        context['form'] = form
+        contas = Conta.objects.filter(empresa=empresa_atual).select_related('plano_de_contas')
+        
+        # Aplica filtros
+        if form.is_valid():
+            data_inicio = form.cleaned_data.get('data_inicio')
+            data_fim = form.cleaned_data.get('data_fim')
+            tipo = form.cleaned_data.get('tipo')
+            status = form.cleaned_data.get('status') # Filtro de status
+
+            if data_inicio: contas = contas.filter(data_vencimento__gte=data_inicio)
+            if data_fim: contas = contas.filter(data_vencimento__lte=data_fim)
+            if tipo: contas = contas.filter(plano_de_contas__tipo=tipo)
+            if status: contas = contas.filter(status=status) # Aplica filtro de status
+        
+        # --- CÁLCULO DOS TOTAIS ---
+        # Calcula separadamente para mostrar no rodapé
+        total_receitas = contas.filter(plano_de_contas__tipo='RECEITA').aggregate(total=Sum('valor'))['total'] or 0
+        total_despesas = contas.filter(plano_de_contas__tipo='DESPESA').aggregate(total=Sum('valor'))['total'] or 0
+        
+        context['contas'] = contas.order_by('data_vencimento')
+        context['total_receitas'] = total_receitas
+        context['total_despesas'] = total_despesas
+        context['saldo_final'] = total_receitas - total_despesas
+        context['filtro_tipo'] = self.request.GET.get('tipo', '') # Para saber qual rodapé mostrar
+        
+        context['titulo_pagina'] = 'Relatório de Contas a Pagar/Receber'
+        return context
 
 class RelatorioContasPDFView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         empresa_atual = request.user.empresa
         
-        # Usa o mesmo formulário e lógica de filtro da view principal
         form = FiltroContasForm(request.GET or None)
         contas = Conta.objects.filter(empresa=empresa_atual).select_related('plano_de_contas')
 
@@ -174,26 +183,34 @@ class RelatorioContasPDFView(LoginRequiredMixin, View):
             data_inicio = form.cleaned_data.get('data_inicio')
             data_fim = form.cleaned_data.get('data_fim')
             tipo = form.cleaned_data.get('tipo')
-            if data_inicio:
-                contas = contas.filter(data_vencimento__gte=data_inicio)
-            if data_fim:
-                contas = contas.filter(data_vencimento__lte=data_fim)
-            if tipo:
-                contas = contas.filter(plano_de_contas__tipo=tipo)
+            status = form.cleaned_data.get('status') # Filtro de status
 
-        # Prepara o contexto para o template do PDF
+            if data_inicio: contas = contas.filter(data_vencimento__gte=data_inicio)
+            if data_fim: contas = contas.filter(data_vencimento__lte=data_fim)
+            if tipo: contas = contas.filter(plano_de_contas__tipo=tipo)
+            if status: contas = contas.filter(status=status) # Aplica filtro de status
+
+        contas = contas.order_by('data_vencimento')
+        
+        # --- CÁLCULO DOS TOTAIS PARA O PDF ---
+        total_receitas = contas.filter(plano_de_contas__tipo='RECEITA').aggregate(total=Sum('valor'))['total'] or 0
+        total_despesas = contas.filter(plano_de_contas__tipo='DESPESA').aggregate(total=Sum('valor'))['total'] or 0
+
         context = {
-            'contas': contas.order_by('data_vencimento'),
+            'contas': contas,
             'empresa': empresa_atual,
-            'filtros': request.GET, # Passa os filtros para exibição no relatório
+            'filtros': request.GET,
+            'total_receitas': total_receitas,
+            'total_despesas': total_despesas,
+            'saldo_final': total_receitas - total_despesas,
+            'filtro_tipo': request.GET.get('tipo', ''),
             'data_emissao': timezone.now()
         }
         
-        # Renderiza e gera o PDF
         html_string = render_to_string('relatorios/contas_pdf_template.html', context)
         html = HTML(string=html_string, base_url=request.build_absolute_uri())
         pdf = html.write_pdf()
         
         response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = f'inline; filename="relatorio_contas.pdf"'
+        response['Content-Disposition'] = 'inline; filename="relatorio_contas.pdf"'
         return response

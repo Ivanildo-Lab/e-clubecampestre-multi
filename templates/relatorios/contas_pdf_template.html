@@ -4,33 +4,105 @@
     <meta charset="UTF-8">
     <title>Relatório de Contas a Pagar/Receber</title>
     <style>
-        @page { size: A4 landscape; margin: 1.5cm; }
-        body { font-family: 'Helvetica', sans-serif; font-size: 9pt; }
-        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .header img { max-height: 60px; }
-        .header h1 { margin: 0; font-size: 14pt; }
-        h2 { font-size: 12pt; text-align: center; margin: 20px 0; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
-        th { background-color: #f2f2f2; }
+        @page { size: A4 landscape; margin: 1cm; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 10pt; color: #333; }
+        
+        /* Cabeçalho */
+        .header { width: 100%; border-bottom: 2px solid #0056b3; padding-bottom: 10px; margin-bottom: 15px; }
+        .logo { max-height: 50px; }
+        .company-name { font-size: 16pt; font-weight: bold; color: #0056b3; margin: 0; }
+        .report-title { font-size: 14pt; margin: 5px 0 0 0; text-transform: uppercase; color: #555; }
+        
+        /* Caixa de Filtros */
+        .filters-box { background-color: #f4f6f9; border: 1px solid #ddd; padding: 8px; margin-bottom: 15px; font-size: 9pt; border-radius: 4px; }
+        .filter-item { display: inline-block; margin-right: 15px; }
+        .filter-label { font-weight: bold; color: #555; }
+
+        /* Tabela */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th { background-color: #004085; color: white; padding: 8px; text-align: left; font-weight: bold; font-size: 9pt; text-transform: uppercase; }
+        td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        /* Cores e Alinhamento */
         .text-right { text-align: right; }
-        .footer { text-align: right; font-size: 8pt; color: #777; position: fixed; bottom: 0; right: 0; }
+        .text-center { text-align: center; }
+        .text-green { color: #00a65a; }
+        .text-red { color: #dd4b39; }
+        
+        /* Badges (Status) */
+        .badge { padding: 2px 5px; border-radius: 3px; color: white; font-size: 8pt; font-weight: bold; text-transform: uppercase; display: inline-block; }
+        .bg-green { background-color: #00a65a; }
+        .bg-red { background-color: #dd4b39; }
+        .bg-yellow { background-color: #f39c12; }
+
+        /* Rodapé da Tabela */
+        tfoot td { background-color: #e8ebf0; font-size: 10pt; padding: 8px; }
+        .total-label { font-weight: bold; text-align: right; }
+        .total-value { font-weight: bold; text-align: right; font-size: 11pt; }
+        .border-top { border-top: 1px solid #999; }
+
+        /* Rodapé da Página */
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: right; font-size: 8pt; color: #999; border-top: 1px solid #ccc; padding-top: 5px; }
     </style>
 </head>
 <body>
+    <!-- Cabeçalho -->
     <div class="header">
-        {% if empresa.logo %}<img src="{{ empresa.logo.url }}">{% endif %}
-        <h1>{{ empresa.nome }}</h1>
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="border: none; width: 70%;">
+                    <div class="company-name">{{ empresa.nome }}</div>
+                    <div class="report-title">Relatório de Contas a Pagar/Receber</div>
+                </td>
+                <td style="border: none; text-align: right;">
+                    {% if empresa.logo %}
+                        <img src="{{ empresa.logo.url }}" class="logo">
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
     </div>
-    <h2>Relatório de Contas a Pagar/Receber</h2>
+
+    <!-- Filtros Aplicados -->
+    <div class="filters-box">
+        <span class="filter-item"><span class="filter-label">Filtros:</span></span>
+        
+        {% if filtros.tipo %}
+            <span class="filter-item">
+                <span class="filter-label">Tipo:</span> 
+                {% if filtros.tipo == 'RECEITA' %}A Receber{% else %}A Pagar{% endif %}
+            </span>
+        {% endif %}
+
+        {% if filtros.status %}
+            <span class="filter-item">
+                <span class="filter-label">Status:</span> 
+                {% if filtros.status == 'PAGA' %}Pagas{% elif filtros.status == 'PENDENTE' %}Pendentes{% elif filtros.status == 'VENCIDA' %}Vencidas{% else %}{{ filtros.status }}{% endif %}
+            </span>
+        {% endif %}
+
+        {% if filtros.data_inicio or filtros.data_fim %}
+            <span class="filter-item">
+                <span class="filter-label">Período:</span> 
+                {{ filtros.data_inicio|default:"Início"|date:"d/m/Y" }} até {{ filtros.data_fim|default:"Hoje"|date:"d/m/Y" }}
+            </span>
+        {% endif %}
+
+        {% if not filtros.tipo and not filtros.status and not filtros.data_inicio %}
+            <span class="filter-item"><i>Todos os registros</i></span>
+        {% endif %}
+    </div>
+
+    <!-- Tabela de Dados -->
     <table>
         <thead>
             <tr>
-                <th>Vencimento</th>
-                <th>Descrição</th>
-                <th>Tipo</th>
-                <th>Status</th>
-                <th class="text-right">Valor</th>
+                <th style="width: 15%;">Vencimento</th>
+                <th style="width: 35%;">Descrição</th>
+                <th style="width: 20%;">Plano de Contas</th>
+                <th style="width: 15%;" class="text-center">Status</th>
+                <th style="width: 15%;" class="text-right">Valor</th>
             </tr>
         </thead>
         <tbody>
@@ -38,15 +110,64 @@
             <tr>
                 <td>{{ conta.data_vencimento|date:"d/m/Y" }}</td>
                 <td>{{ conta.descricao }}</td>
-                <td>{{ conta.plano_de_contas.get_tipo_display }}</td>
-                <td>{{ conta.get_status_display }}</td>
-                <td class="text-right">R$ {{ conta.valor|floatformat:2 }}</td>
+                <td>
+                    <span style="font-size: 8pt; color: #777;">{{ conta.plano_de_contas.get_tipo_display }}</span><br>
+                    {{ conta.plano_de_contas.nome }}
+                </td>
+                <td class="text-center">
+                    {% if conta.status == 'PAGA' %}
+                        <span class="badge bg-green">Paga</span>
+                    {% elif conta.status == 'VENCIDA' %}
+                        <span class="badge bg-red">Vencida</span>
+                    {% else %}
+                        <span class="badge bg-yellow">Pendente</span>
+                    {% endif %}
+                </td>
+                <td class="text-right">
+                    {% if conta.plano_de_contas.tipo == 'RECEITA' %}
+                        <span class="text-green">+ R$ {{ conta.valor|floatformat:2 }}</span>
+                    {% else %}
+                        <span class="text-red">- R$ {{ conta.valor|floatformat:2 }}</span>
+                    {% endif %}
+                </td>
             </tr>
             {% empty %}
-            <tr><td colspan="5" style="text-align: center;">Nenhuma conta encontrada.</td></tr>
+            <tr><td colspan="5" class="text-center" style="padding: 20px;">Nenhuma conta encontrada.</td></tr>
             {% endfor %}
         </tbody>
+        
+        <!-- RODAPÉ DINÂMICO (IGUAL À TELA) -->
+        <tfoot>
+            {% if filtro_tipo == 'RECEITA' %}
+                <tr>
+                    <td colspan="4" class="total-label">TOTAL A RECEBER:</td>
+                    <td class="total-value text-green">R$ {{ total_receitas|floatformat:2 }}</td>
+                </tr>
+            {% elif filtro_tipo == 'DESPESA' %}
+                <tr>
+                    <td colspan="4" class="total-label">TOTAL A PAGAR:</td>
+                    <td class="total-value text-red">R$ {{ total_despesas|floatformat:2 }}</td>
+                </tr>
+            {% else %}
+                <!-- Resumo Geral -->
+                <tr>
+                    <td colspan="4" class="total-label border-top">Total Receitas:</td>
+                    <td class="total-value text-green border-top">R$ {{ total_receitas|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="total-label">Total Despesas:</td>
+                    <td class="total-value text-red">R$ {{ total_despesas|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="total-label" style="font-size: 12pt; color: #000;">SALDO PREVISTO:</td>
+                    <td class="total-value" style="font-size: 12pt; color: {% if saldo_final >= 0 %}#00a65a{% else %}#dd4b39{% endif %};">
+                        R$ {{ saldo_final|floatformat:2 }}
+                    </td>
+                </tr>
+            {% endif %}
+        </tfoot>
     </table>
-    <div class="footer">Gerado em: {{ data_emissao|date:"d/m/Y H:i" }}</div>
+
+    <div class="footer">Gerado em: {{ data_emissao|date:"d/m/Y H:i" }} | Sistema e-Clube Campestre</div>
 </body>
 </html>

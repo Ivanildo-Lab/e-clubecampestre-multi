@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'usuarios', # Desativado por enquanto.
     'financeiro', # Desativado por enquanto.
      'relatorios', # Desativado por enquanto.
+     'fornecedores',
 ]
 
 MIDDLEWARE = [

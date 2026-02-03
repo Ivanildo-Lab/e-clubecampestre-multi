@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}{{ titulo_pagina }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="box box-success">
+            <div class="box-header with-border">
+                <h3 class="box-title">Geração de Mensalidades em Lote</h3>
+            </div>
+            <form role="form" method="post" onsubmit="return confirm('Você confirma a geração das mensalidades com as opções selecionadas?');">
+                {% csrf_token %}
+                <div class="box-body">
+                    <p class="lead">Use esta ferramenta para criar as cobranças de mensalidade para os sócios ativos.</p>
+                    <div class="form-group">
+                        {{ form.convenio.label_tag }}
+                        {{ form.convenio }}
+                        <p class="help-block">Deixe em branco para gerar para todos os convênios.</p>
+                    </div>
+                    <div class="form-group">
+                        <label>{{ form.periodo.label }}</label>
+                        <div class="radio">
+                            {% for radio in form.periodo %}
+                            <label style="margin-right: 20px;">
+                                {{ radio.tag }} {{ radio.choice_label }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fa fa-refresh"></i> Iniciar Geração
+                    </button>
+                    <a href="{% url 'financeiro:lista_mensalidades' %}" class="btn btn-default btn-lg">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

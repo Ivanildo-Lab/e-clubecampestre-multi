@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Fornecedores{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Gestão de Fornecedores</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'fornecedores:adicionar_fornecedor' %}" class="btn btn-primary btn-flat">
+                        <i class="fa fa-plus"></i> Adicionar Fornecedor
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Busca -->
+            <form method="GET">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-4 pull-right">
+                            <div class="input-group">
+                                <input type="text" name="q" class="form-control" placeholder="Buscar por nome ou CNPJ..." value="{{ search_query }}">
+                                <span class="input-group-btn">
+                                    <button type="submit" class="btn btn-info btn-flat">Buscar</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <thead>
+                        <tr><th>Nome / Razão Social</th><th>Nome Fantasia</th><th>CNPJ/CPF</th><th>Telefone</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for f in fornecedores %}
+                        <tr>
+                            <td>{{ f.nome }}</td>
+                            <td>{{ f.nome_fantasia|default:"--" }}</td>
+                            <td>{{ f.cpf_cnpj|default:"--" }}</td>
+                            <td>{{ f.telefone|default:"--" }}</td>
+                            <td>
+                                <a href="{% url 'fornecedores:editar_fornecedor' f.pk %}" class="btn btn-xs btn-info" title="Editar"><i class="fa fa-pencil"></i></a>
+                                <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'fornecedores:excluir_fornecedor' f.pk %}" data-nome="{{ f.nome }}"><i class="fa fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center">Nenhum fornecedor encontrado.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- Paginação (pode copiar dos outros templates se precisar) -->
+        </div>
+    </div>
+</div>
+{% include 'partials/modal_delete.html' %}
+{% endblock %}
+{% block scripts %}{% include 'partials/modal_delete_script.js' %}{% endblock %}

@@ -4,37 +4,60 @@
     <meta charset="UTF-8">
     <title>Relatório de Inadimplência</title>
     <style>
-        @page { size: A4; margin: 1.5cm; }
-        body { font-family: 'Helvetica', sans-serif; font-size: 10pt; color: #333; }
-        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .header img { max-height: 70px; max-width: 180px; }
-        .header h1 { margin: 0; font-size: 16pt; }
-        h2 { font-size: 14pt; color: #333; text-align: center; margin: 20px 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; font-size: 11pt; }
-        .total-row { font-weight: bold; background-color: #f2f2f2; }
+        @page { size: A4 portrait; margin: 1cm; } /* Retrato para lista de nomes */
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 10pt; color: #333; }
+        
+        .header { width: 100%; border-bottom: 2px solid #dd4b39; /* Vermelho para alerta */ padding-bottom: 10px; margin-bottom: 15px; }
+        .logo { max-height: 50px; }
+        .company-name { font-size: 16pt; font-weight: bold; color: #dd4b39; margin: 0; }
+        .report-title { font-size: 14pt; margin: 5px 0 0 0; text-transform: uppercase; color: #555; }
+        
+        .filters-box { background-color: #fff5f5; border: 1px solid #f8caca; padding: 10px; margin-bottom: 15px; font-size: 11pt; border-radius: 4px; text-align: center; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th { background-color: #dd4b39; color: white; padding: 8px; text-align: left; font-weight: bold; font-size: 9pt; text-transform: uppercase; }
+        td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
         .text-right { text-align: right; }
-        .footer { text-align: right; font-size: 8pt; color: #777; position: fixed; bottom: 0; right: 0; }
+        .text-center { text-align: center; }
+        
+        .badge { padding: 3px 6px; border-radius: 4px; color: white; font-size: 8pt; font-weight: bold; text-transform: uppercase; }
+        .bg-red { background-color: #dd4b39; }
+        .bg-yellow { background-color: #f39c12; }
+
+        .total-row td { background-color: #fff5f5; border-top: 2px solid #dd4b39; font-size: 12pt; font-weight: bold; padding: 10px; color: #dd4b39; }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: right; font-size: 8pt; color: #999; border-top: 1px solid #ccc; padding-top: 5px; }
     </style>
 </head>
 <body>
     <div class="header">
-        {% if empresa.logo %}
-            <img src="{{ empresa.logo.url }}">
-        {% endif %}
-        <h1>{{ empresa.nome }}</h1>
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="border: none; width: 70%;">
+                    <div class="company-name">{{ empresa.nome }}</div>
+                    <div class="report-title">Relatório de Inadimplência</div>
+                </td>
+                <td style="border: none; text-align: right;">
+                    {% if empresa.logo %}
+                        <img src="{{ empresa.logo.url }}" class="logo">
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
     </div>
 
-    <h2>Relatório de Inadimplência - {{ mes_referencia }}</h2>
+    <div class="filters-box">
+        Referência: <strong>{{ mes_referencia }}</strong>
+    </div>
 
     <table>
         <thead>
             <tr>
-                <th>Sócio</th>
-                <th>Contato</th>
-                <th>Status</th>
-                <th class="text-right">Valor Devido</th>
+                <th style="width: 40%;">Sócio</th>
+                <th style="width: 25%;">Contato</th>
+                <th style="width: 15%;" class="text-center">Status</th>
+                <th style="width: 20%;" class="text-right">Valor Devido</th>
             </tr>
         </thead>
         <tbody>
@@ -42,23 +65,29 @@
             <tr>
                 <td>{{ mensalidade.socio.nome }}</td>
                 <td>{{ mensalidade.socio.tel_residencial|default:"--" }}</td>
-                <td>{{ mensalidade.get_status_display }}</td>
+                <td class="text-center">
+                    {% if mensalidade.status == 'ATRASADA' %}
+                        <span class="badge bg-red">Atrasada</span>
+                    {% else %}
+                        <span class="badge bg-yellow">Pendente</span>
+                    {% endif %}
+                </td>
                 <td class="text-right">R$ {{ mensalidade.valor|floatformat:2 }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="4" style="text-align: center;">Nenhuma inadimplência encontrada para este período.</td></tr>
+            <tr><td colspan="4" class="text-center" style="padding: 20px;">Nenhuma inadimplência encontrada para este período.</td></tr>
             {% endfor %}
         </tbody>
         <tfoot>
             <tr class="total-row">
-                <td colspan="3" class="text-right">Total Geral Inadimplente:</td>
+                <td colspan="3" class="text-right">TOTAL INADIMPLENTE:</td>
                 <td class="text-right">R$ {{ total_geral|floatformat:2 }}</td>
             </tr>
         </tfoot>
     </table>
 
     <div class="footer">
-        Gerado em: {{ data_emissao|date:"d/m/Y H:i" }}
+        Gerado em: {{ data_emissao|date:"d/m/Y H:i" }} | Sistema e-Clube Campestre
     </div>
 </body>
 </html>

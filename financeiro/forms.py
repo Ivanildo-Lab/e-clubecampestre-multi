@@ -2,8 +2,9 @@
 
 from django import forms
 from django_select2.forms import ModelSelect2Widget
-from .models import Conta, PlanoDeContas, Socio, Caixa, LancamentoCaixa,Mensalidade 
-
+from .models import Conta, PlanoDeContas, Socio, Caixa, LancamentoCaixa,Mensalidade
+from core.models import Convenio
+from fornecedores.models import Fornecedor
 
 class MensalidadeForm(forms.ModelForm):
     class Meta:
@@ -80,6 +81,16 @@ class ContaForm(forms.ModelForm):
             }
         )
     )
+    fornecedor = forms.ModelChoiceField(
+        queryset=Fornecedor.objects.all(),
+        label="Fornecedor (Opcional)",
+        required=False,
+        widget=ModelSelect2Widget(
+            model=Fornecedor,
+            search_fields=['nome__icontains', 'nome_fantasia__icontains'],
+            attrs={'data-placeholder': 'Buscar Fornecedor...', 'data-width': '100%'}
+        )
+    )
         
     socio = forms.ModelChoiceField(
         queryset=Socio.objects.all(),
@@ -97,9 +108,9 @@ class ContaForm(forms.ModelForm):
     
     class Meta:
         model = Conta
-        fields = ['descricao', 'plano_de_contas', 'valor', 'data_vencimento', 'status', 'socio']
+        fields = ['descricao', 'plano_de_contas', 'fornecedor', 'valor', 'data_vencimento', 'status', 'socio'] 
         widgets = {
-            'data_vencimento': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
+        'data_vencimento': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -110,6 +121,7 @@ class ContaForm(forms.ModelForm):
             # A view ainda controla o queryset inicial para segurança
             self.fields['plano_de_contas'].queryset = PlanoDeContas.objects.filter(empresa=empresa)
             self.fields['socio'].queryset = Socio.objects.filter(empresa=empresa)
+            self.fields['fornecedor'].queryset = Fornecedor.objects.filter(empresa=empresa)            
         
         for field_name, field in self.fields.items():
             # Evita adicionar 'form-control' aos widgets do Select2
@@ -215,14 +227,53 @@ class LancamentoCaixaForm(forms.ModelForm):
         self.instance.valor = self.cleaned_data['valor']
         return super().save(commit)
 
+# Em financeiro/forms.py
+
 class BaixaMensalidadeForm(forms.Form):
-    caixa = forms.ModelChoiceField(queryset=Caixa.objects.all(), label="Confirmar no Caixa / Conta")
+    caixa = forms.ModelChoiceField(
+        queryset=Caixa.objects.all(),
+        label="Confirmar no Caixa / Conta",
+        required=False,  # <-- TORNA O CAMPO OPCIONAL
+        empty_label="-- Não lançar no caixa (Apenas baixar) --" # <-- TEXTO MAIS CLARO
+    )
     data_pagamento = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="Data do Pagamento")
-    # Campo para juros, que será calculado automaticamente mas pode ser editado pelo admin
     valor_juros = forms.DecimalField(max_digits=10, decimal_places=2, required=False, label="Juros / Multa (R$)")
 
     def __init__(self, *args, **kwargs):
         empresa = kwargs.pop('empresa', None)
         super().__init__(*args, **kwargs)
         if empresa:
-            self.fields['caixa'].queryset = Caixa.objects.filter(empresa=empresa)        
+            self.fields['caixa'].queryset = Caixa.objects.filter(empresa=empresa)
+
+
+
+class GerarMensalidadesForm(forms.Form):
+    PERIODO_CHOICES = [
+        ('mes', 'Apenas para o Mês Atual'),
+        ('ano', 'Para os Próximos 12 Meses'),
+    ]
+
+    convenio = forms.ModelChoiceField(
+        queryset=Convenio.objects.all(),
+        label="Gerar para o Convênio",
+        required=False, # Torna o filtro opcional
+        empty_label="Todos os Convênios"
+    )
+    
+    periodo = forms.ChoiceField(
+        choices=PERIODO_CHOICES,
+        label="Período de Geração",
+        widget=forms.RadioSelect, # Fica mais intuitivo com botões de rádio
+        initial='mes'
+    )
+
+    def __init__(self, *args, **kwargs):
+        empresa = kwargs.pop('empresa', None)
+        super().__init__(*args, **kwargs)
+
+        if empresa:
+            self.fields['convenio'].queryset = Convenio.objects.filter(empresa=empresa)
+        
+        # Adiciona a classe do Bootstrap
+        self.fields['convenio'].widget.attrs.update({'class': 'form-control'})
+

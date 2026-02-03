@@ -9,25 +9,38 @@
 <div class="row">
     <div class="col-xs-12">
         <div class="box box-primary">
-            <div class="box-header with-border">
-                <h3 class="box-title">Filtros de Mensalidades</h3>
+        <div class="box-header with-border">
+            <h3 class="box-title">Filtros e Ações</h3>
+            <div class="box-tools pull-right">
+                <!-- BOTÃO DE GERAR PDF -->
+                <a href="{% url 'financeiro:mensalidades_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-danger btn-flat" target="_blank">
+                    <i class="fa fa-file-pdf-o"></i> Gerar PDF
+                </a>
+                
                 {% if user.is_superuser or user.nivel_acesso == 'ADMIN' %}
-                <div class="box-tools pull-right">
-                    <form action="{% url 'financeiro:gerar_mensalidades_massa' %}" method="post" onsubmit="return confirm('Confirmar a geração das mensalidades anuais para todos os sócios ativos?');" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success btn-flat">
-                            <i class="fa fa-refresh"></i> Gerar Mensalidades Anuais
-                        </button>
-                    </form>
-                </div>
+                <a href="{% url 'financeiro:gerar_mensalidades_massa' %}" class="btn btn-success btn-flat" style="margin-left: 15px;">
+                    <i class="fa fa-refresh"></i> Gerar Mensalidades
+                </a>
                 {% endif %}
             </div>
+        </div>
             
             <form method="GET" action="{% url 'financeiro:lista_mensalidades' %}">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-3"><div class="form-group"><label>Status</label><select name="status" class="form-control"><option value="">Todos</option>{% for value, display in situacao_choices %}<option value="{{ value }}" {% if value == status_selecionado %}selected{% endif %}>{{ display }}</option>{% endfor %}</select></div></div>
                         <div class="col-md-3"><div class="form-group"><label>Categoria do Sócio</label><select name="categoria" class="form-control"><option value="">Todas</option>{% for cat in categorias %}<option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == categoria_selecionada %}selected{% endif %}>{{ cat.nome }}</option>{% endfor %}</select></div></div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Convênio</label>
+                                <select name="convenio" class="form-control">
+                                    <option value="">Todos</option>
+                                    {% for conv in convenios %}
+                                        <option value="{{ conv.id }}" {% if conv.id|stringformat:"s" == convenio_selecionado %}selected{% endif %}>{{ conv.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-md-4"><label>Buscar por Sócio</label><input type="text" name="q" class="form-control" placeholder="Digite o nome do sócio..." value="{{ search_query }}"></div>
                         <div class="col-md-2"><label>&nbsp;</label><div class="btn-group" style="display: flex;"><button type="submit" class="btn btn-info btn-flat" style="flex-grow: 1;">Filtrar</button><a href="{% url 'financeiro:lista_mensalidades' %}" class="btn btn-default btn-flat" title="Limpar Filtros"><i class="fa fa-eraser"></i></a></div></div>
                     </div>
@@ -51,13 +64,12 @@
                             </td>
                             <td>{{ mensalidade.data_pagamento|date:"d/m/Y"|default:"--" }}</td>
                             <td>
-                                <!-- BOTÃO "BAIXAR" QUE ACIONA O MODAL -->
                                 {% if mensalidade.status != 'PAGA' %}
                                 <button class="btn btn-xs btn-success js-baixa-mensalidade-btn"
                                         data-url="{% url 'financeiro:baixar_mensalidade' mensalidade.pk %}"
                                         data-socio="{{ mensalidade.socio.nome }}"
                                         data-competencia="{{ mensalidade.competencia|date:'m/Y' }}"
-                                        data-valor="{{ mensalidade.valor }}"
+                                        data-valor="{{ mensalidade.valor|stringformat:'f' }}"
                                         data-vencimento="{{ mensalidade.data_vencimento|date:'Y-m-d' }}"
                                         title="Baixar Mensalidade">
                                     <i class="fa fa-check"></i>
@@ -83,16 +95,22 @@
             
             <div class="box-footer clearfix">
                 <ul class="pagination pagination-sm no-margin pull-right">
-                    {% if page_obj.has_previous %}{# ... (código da paginação) ... #}{% endif %}
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">&laquo; Primeira</a></li>
+                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">&lsaquo; Anterior</a></li>
+                    {% endif %}
                     <li class="disabled"><a>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.</a></li>
-                    {% if page_obj.has_next %}{# ... (código da paginação) ... #}{% endif %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">Próxima &rsaquo;</a></li>
+                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">Última &raquo;</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal de Baixa de MENSALIDADE -->
+<!-- Modal de Baixa de MENSALIDADE (VERSÃO CORRIGIDA) -->
 <div class="modal fade" id="baixaMensalidadeModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -104,9 +122,20 @@
                     <p><strong>Competência:</strong> <span id="mensalidadeCompetenciaModal"></span></p>
                     <p><strong>Valor Principal:</strong> R$ <span id="mensalidadeValorModal"></span></p>
                     <hr>
-                    <div class="form-group"><label>Confirmar no Caixa / Conta:</label><select name="caixa" class="form-control" required>{% for caixa in caixas_disponiveis %}<option value="{{ caixa.id }}" {% if caixa.id == caixa_padrao_id %}selected{% endif %}>{{ caixa.nome }}</option>{% endfor %}</select></div>
-                    <div class="form-group"><label>Data do Pagamento:</label><input type="date" name="data_pagamento" class="form-control" required></div>
-                    <div class="form-group"><label>Juros / Multa (R$):</label><input type="number" step="0.01" name="valor_juros" class="form-control" value="0.00"></div>
+                    
+                    <!-- RENDERIZA OS CAMPOS DIRETAMENTE DO FORMULÁRIO DO DJANGO -->
+                    <div class="form-group">
+                        {{ baixa_form.caixa.label_tag }}
+                        {{ baixa_form.caixa }}
+                    </div>
+                    <div class="form-group">
+                        {{ baixa_form.data_pagamento.label_tag }}
+                        {{ baixa_form.data_pagamento }}
+                    </div>
+                    <div class="form-group">
+                        {{ baixa_form.valor_juros.label_tag }}
+                        {{ baixa_form.valor_juros }}
+                    </div>
                 </div>
                 <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-success">Confirmar Pagamento</button></div>
             </form>
@@ -123,8 +152,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const baixaButtons = document.querySelectorAll('.js-baixa-mensalidade-btn');
     const hoje = new Date().toISOString().slice(0, 10);
-
-    // Pega a taxa de juros do backend e prepara para o cálculo
     const taxaJurosMensal = parseFloat("{{ taxa_juros|default:'0.0' }}".replace(',', '.'));
     const taxaDiaria = (taxaJurosMensal / 100) / 30;
 
@@ -132,28 +159,28 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const form = document.getElementById('baixaMensalidadeForm');
             form.action = this.dataset.url;
+            
             document.getElementById('mensalidadeSocioModal').textContent = this.dataset.socio;
             document.getElementById('mensalidadeCompetenciaModal').textContent = this.dataset.competencia;
-            document.getElementById('mensalidadeValorModal').textContent = this.dataset.valor;
-            form.querySelector('[name=data_pagamento]').value = hoje;
-
-            // --- INÍCIO DA LÓGICA DE CÁLCULO DE JUROS ---
-            const dataVencimento = new Date(this.dataset.vencimento + 'T12:00:00'); // Adiciona T12 para evitar problemas de fuso horário
+            document.getElementById('mensalidadeValorModal').textContent = parseFloat(this.dataset.valor).toFixed(2);
+            
+            form.querySelector('#id_data_pagamento').value = hoje;
+            
+            const dataVencimento = new Date(this.dataset.vencimento + 'T12:00:00');
             const dataHoje = new Date(hoje + 'T12:00:00');
             let juros = 0;
-            
-            // Só calcula juros se a data de hoje for POSTERIOR ao vencimento
             if (dataHoje > dataVencimento) {
                 const diffTime = Math.abs(dataHoje - dataVencimento);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 const valorPrincipal = parseFloat(this.dataset.valor);
-                
                 juros = (valorPrincipal * taxaDiaria * diffDays).toFixed(2);
             }
+            form.querySelector('#id_valor_juros').value = juros;
             
-            // Preenche o campo de juros no formulário do modal
-            form.querySelector('[name=valor_juros]').value = juros;
-            // --- FIM DA LÓGICA DE CÁLCULO DE JUROS ---
+            const caixaPadraoId = "{{ caixa_padrao_id }}";
+            if (caixaPadraoId) {
+                form.querySelector('#id_caixa').value = caixaPadraoId;
+            }
             
             $('#baixaMensalidadeModal').modal('show');
         });

@@ -71,7 +71,7 @@ class MensalidadeManager(models.Manager):
         hoje = timezone.now().date()
         mensalidades_vencidas = self.get_queryset().filter(status='PENDENTE', data_vencimento__lt=hoje)
         return mensalidades_vencidas.update(status='ATRASADA')
-    def gerar_mensalidades_para_ativos(self, empresa_id, meses_a_gerar=12):
+    def gerar_mensalidades_para_ativos(self, empresa_id, convenio_id=None, meses_a_gerar=12):
         """
         Lógica para gerar mensalidades para os próximos X meses para uma empresa.
         Retorna uma tupla: (num_criadas, num_ignoradas)
@@ -81,6 +81,10 @@ class MensalidadeManager(models.Manager):
             empresa_id=empresa_id,
             situacao=Socio.Situacao.ATIVO
         ).select_related('categoria')
+
+          #Filtra por convênio, se um ID for fornecido
+        if convenio_id:
+            socios_ativos = socios_ativos.filter(convenio_id=convenio_id)
 
         if not socios_ativos.exists():
             return (0, 0)
@@ -164,6 +168,8 @@ class Conta(models.Model):
     data_vencimento = models.DateField()
     data_pagamento = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=10, choices=StatusChoice.choices, default=StatusChoice.PENDENTE)
+    fornecedor = models.ForeignKey('fornecedores.Fornecedor', on_delete=models.SET_NULL, blank=True, null=True, help_text="Opcional. Use para contas a pagar.")
+
     def __str__(self):
         return f"{self.plano_de_contas.get_tipo_display()}: {self.descricao}"
     class Meta:
