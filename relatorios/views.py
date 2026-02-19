@@ -152,12 +152,14 @@ class RelatorioContasView(LoginRequiredMixin, TemplateView):
             data_fim = form.cleaned_data.get('data_fim')
             tipo = form.cleaned_data.get('tipo')
             status = form.cleaned_data.get('status') # Filtro de status
+            fornecedor = form.cleaned_data.get('fornecedor')
 
             if data_inicio: contas = contas.filter(data_vencimento__gte=data_inicio)
             if data_fim: contas = contas.filter(data_vencimento__lte=data_fim)
             if tipo: contas = contas.filter(plano_de_contas__tipo=tipo)
             if status: contas = contas.filter(status=status) # Aplica filtro de status
-        
+            if fornecedor: contas = contas.filter(fornecedor=fornecedor) 
+
         # --- CÁLCULO DOS TOTAIS ---
         # Calcula separadamente para mostrar no rodapé
         total_receitas = contas.filter(plano_de_contas__tipo='RECEITA').aggregate(total=Sum('valor'))['total'] or 0
@@ -176,23 +178,32 @@ class RelatorioContasPDFView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         empresa_atual = request.user.empresa
         
-        form = FiltroContasForm(request.GET or None)
-        contas = Conta.objects.filter(empresa=empresa_atual).select_related('plano_de_contas')
+        # Filtros básicos
+        form = FiltroContasForm(request.GET or None, empresa=empresa_atual)
+        contas = Conta.objects.filter(empresa=empresa_atual).select_related('plano_de_contas', 'fornecedor')
+
+        # Variáveis para o cabeçalho do PDF
+        filtro_fornecedor_nome = None
 
         if form.is_valid():
             data_inicio = form.cleaned_data.get('data_inicio')
             data_fim = form.cleaned_data.get('data_fim')
             tipo = form.cleaned_data.get('tipo')
-            status = form.cleaned_data.get('status') # Filtro de status
+            status = form.cleaned_data.get('status')
+            fornecedor = form.cleaned_data.get('fornecedor') # Pega o objeto Fornecedor
 
             if data_inicio: contas = contas.filter(data_vencimento__gte=data_inicio)
             if data_fim: contas = contas.filter(data_vencimento__lte=data_fim)
             if tipo: contas = contas.filter(plano_de_contas__tipo=tipo)
-            if status: contas = contas.filter(status=status) # Aplica filtro de status
+            if status: contas = contas.filter(status=status)
+            
+            if fornecedor: 
+                contas = contas.filter(fornecedor=fornecedor)
+                # Captura o nome para exibir no PDF
+                filtro_fornecedor_nome = fornecedor.nome 
 
         contas = contas.order_by('data_vencimento')
         
-        # --- CÁLCULO DOS TOTAIS PARA O PDF ---
         total_receitas = contas.filter(plano_de_contas__tipo='RECEITA').aggregate(total=Sum('valor'))['total'] or 0
         total_despesas = contas.filter(plano_de_contas__tipo='DESPESA').aggregate(total=Sum('valor'))['total'] or 0
 
@@ -200,6 +211,7 @@ class RelatorioContasPDFView(LoginRequiredMixin, View):
             'contas': contas,
             'empresa': empresa_atual,
             'filtros': request.GET,
+            'filtro_fornecedor_nome': filtro_fornecedor_nome, # Enviamos o nome aqui
             'total_receitas': total_receitas,
             'total_despesas': total_despesas,
             'saldo_final': total_receitas - total_despesas,

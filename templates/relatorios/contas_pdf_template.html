@@ -92,6 +92,13 @@
         {% if not filtros.tipo and not filtros.status and not filtros.data_inicio %}
             <span class="filter-item"><i>Todos os registros</i></span>
         {% endif %}
+        
+        {% if filtro_fornecedor_nome %}
+            <span class="filter-item">
+                <span class="filter-label">Fornecedor:</span> {{ filtro_fornecedor_nome }}
+            </span>
+        {% endif %}
+
     </div>
 
     <!-- Tabela de Dados -->

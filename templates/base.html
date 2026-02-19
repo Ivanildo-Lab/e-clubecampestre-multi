@@ -48,10 +48,8 @@
           </a>
           <ul class="treeview-menu">
             <li {% if 'mensalidades' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_mensalidades' %}"><i class="fa fa-calendar-check-o"></i> Mensalidades</a></li>
-            <li {% if 'contas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_contas' %}"><i class="fa fa-list-alt"></i> Contas a Pagar/Receber</a></li>
-            <li {% if 'caixas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_caixas' %}"><i class="fa fa-bank"></i> Caixas e Contas</a></li>
+            <li {% if 'contas' in request.path %}class="active"{% endif %}><a href="{% url 'relatorios:contas' %}"><i class="fa fa-list-alt"></i> Contas a Pagar/Receber</a></li>            <li {% if 'caixas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_caixas' %}"><i class="fa fa-bank"></i> Caixas e Contas</a></li>
             <li {% if 'fluxo-de-caixa' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:fluxo_de_caixa' %}"><i class="fa fa-line-chart"></i> Fluxo de Caixa</a></li>
-            <!-- LINK DE FORNECEDORES ADICIONADO AQUI -->
             <li {% if request.resolver_match.app_name == 'fornecedores' %}class="active"{% endif %}><a href="{% url 'fornecedores:lista_fornecedores' %}"><i class="fa fa-truck"></i> Fornecedores</a></li>
             <li {% if 'plano-de-contas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_plano_de_contas' %}"><i class="fa fa-book"></i> Plano de Contas</a></li>
           </ul>
@@ -61,7 +59,6 @@
           <a href="#"><i class="fa fa-bar-chart"></i> <span>Relatórios</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
           <ul class="treeview-menu">
             <li {% if 'inadimplencia' in request.path %}class="active"{% endif %}><a href="{% url 'relatorios:inadimplencia' %}"><i class="fa fa-user-times"></i> Inadimplência</a></li>
-            <li {% if 'contas' in request.path %}class="active"{% endif %}><a href="{% url 'relatorios:contas' %}"><i class="fa fa-exchange"></i> Contas a Pagar/Receber</a></li>
             <li {% if 'dre' in request.path %}class="active"{% endif %}><a href="{% url 'relatorios:dre' %}"><i class="fa fa-calculator"></i> Demonstrativo (DRE)</a></li>
           </ul>
         </li>
