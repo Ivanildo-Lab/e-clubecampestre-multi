@@ -5920,3 +5920,166 @@ Forbidden (CSRF token from POST incorrect.): /usuarios/login/
 "GET /static/django_select2/django_select2.js HTTP/1.1" 200 2561
 "GET /static/admin/js/vendor/select2/select2.full.min.js HTTP/1.1" 200 79212
 "GET /dashboard/ HTTP/1.1" 200 9743
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 3378
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'endif'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader_tags.py", line 134, in render
+    compiled_parent = self.get_parent(context)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader_tags.py", line 131, in get_parent
+    return self.find_template(parent, context)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader_tags.py", line 109, in find_template
+    template, origin = context.template.engine.find_template(
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        template_name,
+        ^^^^^^^^^^^^^^
+        skip=history,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 512, in parse
+    self.invalid_block_tag(token, command, parse_until)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\template\base.py", line 567, in invalid_block_tag
+    raise self.error(
+    ...<8 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 88: 'endif', expected 'endblock'. Did you forget to register or load this tag?
+"GET /dashboard/ HTTP/1.1" 500 244134
+"GET /dashboard/ HTTP/1.1" 200 10723
+"GET /core/configuracoes/ HTTP/1.1" 200 10404
+Internal Server Error: /core/configuracoes/1/editar/
+Traceback (most recent call last):
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\edit.py", line 202, in get
+    return super().get(request, *args, **kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\edit.py", line 142, in get
+    return self.render_to_response(self.get_context_data())
+                                   ~~~~~~~~~~~~~~~~~~~~~^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py", line 163, in get_context_data
+    context['titulo_cabecalho'] = f"Editando: {self.object.get_chave_display() or self.object.chave}"
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ConfiguracaoSistema' object has no attribute 'get_chave_display'
+"GET /core/configuracoes/1/editar/ HTTP/1.1" 500 97987
+Internal Server Error: /core/configuracoes/4/editar/
+Traceback (most recent call last):
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\edit.py", line 202, in get
+    return super().get(request, *args, **kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\edit.py", line 142, in get
+    return self.render_to_response(self.get_context_data())
+                                   ~~~~~~~~~~~~~~~~~~~~~^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py", line 163, in get_context_data
+    context['titulo_cabecalho'] = f"Editando: {self.object.get_chave_display() or self.object.chave}"
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ConfiguracaoSistema' object has no attribute 'get_chave_display'
+"GET /core/configuracoes/4/editar/ HTTP/1.1" 500 97999
+Internal Server Error: /core/configuracoes/3/editar/
+Traceback (most recent call last):
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\edit.py", line 202, in get
+    return super().get(request, *args, **kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\venv\Lib\site-packages\django\views\generic\edit.py", line 142, in get
+    return self.render_to_response(self.get_context_data())
+                                   ~~~~~~~~~~~~~~~~~~~~~^^
+  File "F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py", line 163, in get_context_data
+    context['titulo_cabecalho'] = f"Editando: {self.object.get_chave_display() or self.object.chave}"
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ConfiguracaoSistema' object has no attribute 'get_chave_display'
+"GET /core/configuracoes/3/editar/ HTTP/1.1" 500 98011
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\core\views.py changed, reloading.
+Watching for file changes with StatReloader

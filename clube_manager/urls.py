@@ -13,9 +13,8 @@ urlpatterns = [
     # --- ROTAS PRINCIPAIS DO SITE ---
     path('dashboard/', login_required(HomeView.as_view()), name='home'),
     path('', LandingPageView.as_view(), name='landing_page'),
-
+    path('core/', include('core.urls')),
     # --- ROTAS DOS APPS ---
-    # ESTA LINHA CONECTA O MAPA MESTRE AO MAPA DO BAIRRO 'usuarios'
     path('usuarios/', include('usuarios.urls')),
     
     path('socios/', include('socios.urls')),

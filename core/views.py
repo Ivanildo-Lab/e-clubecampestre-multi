@@ -103,3 +103,65 @@ class HelpView(LoginRequiredMixin, TemplateView):
         context['titulo_pagina'] = 'Ajuda e Parâmetros do Sistema'
         context['parametros'] = PARAMETROS_SISTEMA
         return context
+
+# Adicione estes imports no topo
+from django.views.generic import ListView, UpdateView
+from .forms import ConfiguracaoSistemaForm
+from .models import ConfiguracaoSistema
+
+# ... (suas outras views: HomeView, LandingPageView, HelpView) ...
+
+class ConfiguracaoListView(LoginRequiredMixin, ListView):
+    model = ConfiguracaoSistema
+    template_name = 'core/configuracao_list.html'
+    context_object_name = 'configuracoes'
+
+    def get_queryset(self):
+        empresa_atual = self.request.user.empresa
+        
+        # --- AUTO-INICIALIZAÇÃO DE PARÂMETROS ---
+        # Lista de chaves obrigatórias que o sistema precisa
+        chaves_padrao = [
+            ('CAIXA_PADRAO_ID', 'ID do Caixa Padrão (Numérico)'),
+            ('TAXA_JUROS_MENSAL', 'Taxa de Juros Mensal (%)'),
+            ('PLANO_CONTAS_MENSALIDADE_ID', 'ID Plano de Contas (Receita Mensalidade)'),
+            ('PLANO_CONTAS_JUROS_ID', 'ID Plano de Contas (Receita Juros)'),
+        ]
+
+        for chave, descricao_padrao in chaves_padrao:
+            # Se não existe, cria com valor vazio
+            obj, created = ConfiguracaoSistema.objects.get_or_create(
+                empresa=empresa_atual,
+                chave=chave,
+                defaults={
+                    'valor': '0',
+                    'descricao': descricao_padrao
+                }
+            )
+        
+        return ConfiguracaoSistema.objects.filter(empresa=empresa_atual)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = 'Configurações do Sistema'
+        return context
+
+class ConfiguracaoUpdateView(LoginRequiredMixin, UpdateView):
+    model = ConfiguracaoSistema
+    form_class = ConfiguracaoSistemaForm
+    template_name = 'core/configuracao_form.html'
+    success_url = reverse_lazy('configuracoes_list')
+
+    def get_queryset(self):
+        return ConfiguracaoSistema.objects.filter(empresa=self.request.user.empresa)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = 'Editar Configuração'
+        
+        # --- A CORREÇÃO ESTÁ AQUI ---
+        # Removido .get_chave_display(). Usamos .chave diretamente.
+        context['titulo_cabecalho'] = f"Editando: {self.object.chave}"
+        
+        return context
+    

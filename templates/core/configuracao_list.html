@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Configurações{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-warning">
+            <div class="box-header with-border">
+                <h3 class="box-title">Parâmetros do Sistema</h3>
+            </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Valor Atual</th>
+                            <th>Descrição</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for config in configuracoes %}
+                        <tr>
+                            <!-- CORREÇÃO AQUI: Usamos {{ config.chave }} e {{ config.descricao }} -->
+                            <td>
+                                <strong>{{ config.chave }}</strong>
+                            </td>
+                            <td><span class="badge bg-blue" style="font-size: 1em;">{{ config.valor }}</span></td>
+                            <td>{{ config.descricao }}</td>
+                            <td>
+                                <a href="{% url 'editar_configuracao' config.pk %}" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i> Editar</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="box-footer">
+                <p class="text-muted"><i class="fa fa-info-circle"></i> Estes parâmetros controlam o comportamento automático do sistema financeiro.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
