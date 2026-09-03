@@ -44,6 +44,18 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
+                                <label>Convênio</label>
+                                <select name="convenio" class="form-control">
+                                    <option value="">Todos</option>
+                                    <option value="none" {% if convenio_selecionado == 'none' %}selected{% endif %}>Sem convênio</option>
+                                    {% for conv in convenios %}
+                                        <option value="{{ conv.id }}" {% if conv.id|stringformat:"s" == convenio_selecionado %}selected{% endif %}>{{ conv.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
                                 <label>Status</label>
                                 <select name="status" class="form-control">
                                     <option value="">Todos</option>
@@ -53,11 +65,11 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label>Buscar por Dependente</label>
                             <input type="text" name="busca_dep" class="form-control" placeholder="Nome do dependente..." value="{{ busca_dep }}">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <label>Buscar por Nome, CPF ou Registro</label>
                             <input type="text" name="q" class="form-control" placeholder="Digite para buscar..." value="{{ search_query }}">
                         </div>
@@ -128,8 +140,8 @@
             <div class="box-footer clearfix">
                 <ul class="pagination pagination-sm no-margin pull-right">
                     {% if page_obj.has_previous %}
-                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">&laquo; Primeira</a></li>
-                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">&lsaquo; Anterior</a></li>
+                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&convenio={{ convenio_selecionado }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">&laquo; Primeira</a></li>
+                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&convenio={{ convenio_selecionado }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">&lsaquo; Anterior</a></li>
                     {% endif %}
 
                     <li class="disabled">
@@ -137,8 +149,8 @@
                     </li>
 
                     {% if page_obj.has_next %}
-                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">Próxima &rsaquo;</a></li>
-                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">Última &raquo;</a></li>
+                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&convenio={{ convenio_selecionado }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">Próxima &rsaquo;</a></li>
+                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&convenio={{ convenio_selecionado }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">Última &raquo;</a></li>
                     {% endif %}
                 </ul>
             </div>

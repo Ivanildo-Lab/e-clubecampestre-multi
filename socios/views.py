@@ -31,12 +31,18 @@ class SocioListView(LoginRequiredMixin, ListView):
         
         search_query = self.request.GET.get('q')
         categoria_id = self.request.GET.get('categoria')
+        convenio_id = self.request.GET.get('convenio')
         status = self.request.GET.get('status')
         busca_dep = self.request.GET.get('busca_dep')
         if search_query:
             queryset = queryset.filter(Q(nome__icontains=search_query) | Q(cpf__icontains=search_query) | Q(num_registro__icontains=search_query))
         if categoria_id:
             queryset = queryset.filter(categoria_id=categoria_id)
+        if convenio_id:
+            if convenio_id == 'none':
+                queryset = queryset.filter(convenio__isnull=True)
+            else:
+                queryset = queryset.filter(convenio_id=convenio_id)
         if status:
             queryset = queryset.filter(situacao=status)
         if busca_dep:
@@ -52,9 +58,11 @@ class SocioListView(LoginRequiredMixin, ListView):
         context['total_dependentes'] = Dependente.objects.filter(socio_titular__in=todos_socios).count()
         context['total_titulares'] = context['total_socios']
         context['categorias'] = CategoriaSocio.objects.filter(empresa=empresa_atual)
+        context['convenios'] = Convenio.objects.filter(empresa=empresa_atual).order_by('nome')
         context['situacao_choices'] = Socio.Situacao.choices
         context['search_query'] = self.request.GET.get('q', '')
         context['categoria_selecionada'] = self.request.GET.get('categoria', '')
+        context['convenio_selecionado'] = self.request.GET.get('convenio', '')
         context['status_selecionado'] = self.request.GET.get('status', '')
         context['busca_dep'] = self.request.GET.get('busca_dep', '')
         for socio in context['socios']:
