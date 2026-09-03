@@ -14,6 +14,26 @@
                     <div class="form-group">{{ form.nome.label_tag }} {{ form.nome }}</div>
                     <div class="form-group">{{ form.empresa_contato.label_tag }} {{ form.empresa_contato }}</div>
                     <div class="form-group">{{ form.telefone_contato.label_tag }} {{ form.telefone_contato }}</div>
+                    <hr>
+                    <p class="text-muted"><i class="fa fa-money"></i> Valores para geração automática de mensalidades</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">{{ form.valor_mensalidade.label_tag }}
+                                <div class="input-group">
+                                    <span class="input-group-addon">R$</span>
+                                    {{ form.valor_mensalidade }}
+                                </div>
+                                {% if form.valor_mensalidade.errors %}<span class="text-red">{{ form.valor_mensalidade.errors }}</span>{% endif %}
+                                <p class="help-block">Se 0, usa o valor da categoria do sócio.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">{{ form.dia_vencimento.label_tag }} {{ form.dia_vencimento }}
+                                {% if form.dia_vencimento.errors %}<span class="text-red">{{ form.dia_vencimento.errors }}</span>{% endif %}
+                                <p class="help-block">0 = usa o dia da categoria.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="box-footer">
                     <button type="submit" class="btn btn-primary">Salvar Convênio</button>

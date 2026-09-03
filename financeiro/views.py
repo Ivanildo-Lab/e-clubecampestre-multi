@@ -116,16 +116,16 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
             ).exists()
 
             if not ja_existe:
-                # Exibe valor/dia usados
+                # Exibe valor/dia usados - armazena como string/iso para sessão JSON-serializable
                 convenio_nome = socio.convenio.nome if socio.convenio else "-"
                 socios_preview.append({
                     'socio_id': socio.id,
                     'socio_nome': socio.nome,
                     'categoria': socio.categoria.nome,
                     'convenio': convenio_nome,
-                    'valor': valor,
-                    'competencia': competencia,
-                    'vencimento': vencimento,
+                    'valor': str(valor),
+                    'competencia': competencia.isoformat(),
+                    'vencimento': vencimento.isoformat(),
                 })
 
         if not socios_preview:
@@ -211,9 +211,9 @@ class GerarMensalidadePorSocioView(LoginRequiredMixin, FormView):
                 'socio_nome': socio.nome,
                 'categoria': socio.categoria.nome,
                 'convenio': socio.convenio.nome if socio.convenio else '-',
-                'valor': valor,
-                'competencia': competencia,
-                'vencimento': vencimento,
+                'valor': str(valor),
+                'competencia': competencia.isoformat(),
+                'vencimento': vencimento.isoformat(),
             })
 
         if not socios_preview:
@@ -242,9 +242,36 @@ class PreviewGerarMensalidadesView(LoginRequiredMixin, View):
             messages.error(request, 'Dados de preview nao encontrados. Por favor, faca o processo novamente.')
             return redirect('financeiro:gerar_mensalidades_massa')
 
+        # Converte valores de sessão (JSON-serializáveis) para tipos usáveis no template
+        socios = []
+        for item in preview_data.get('socios', []):
+            # competencia/vencimento podem estar como isoformat string
+            comp = item.get('competencia')
+            venc = item.get('vencimento')
+            try:
+                if isinstance(comp, str):
+                    comp = datetime.date.fromisoformat(comp)
+            except:
+                pass
+            try:
+                if isinstance(venc, str):
+                    venc = datetime.date.fromisoformat(venc)
+            except:
+                pass
+            # valor pode estar como string
+            socios.append({
+                'socio_id': item.get('socio_id'),
+                'socio_nome': item.get('socio_nome'),
+                'categoria': item.get('categoria'),
+                'convenio': item.get('convenio'),
+                'valor': item.get('valor'),
+                'competencia': comp,
+                'vencimento': venc,
+            })
+
         context = {
             'titulo_pagina': 'Geracao de Mensalidades - Passo 2: Confirmar',
-            'socios_preview': preview_data['socios'],
+            'socios_preview': socios,
             'meses_a_gerar': preview_data['meses_a_gerar'],
             'origem': preview_data.get('origem', 'convenio'),
             'convenio_id': preview_data.get('convenio_id'),
