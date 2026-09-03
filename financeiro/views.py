@@ -132,7 +132,7 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
             messages.info(self.request, 'Nenhuma nova mensalidade precisava ser gerada para os filtros selecionados.')
             return redirect('financeiro:lista_mensalidades')
 
-        request.session['preview_geracao'] = {
+        self.request.session['preview_geracao'] = {
             'origem': origem,
             'convenio_id': convenio.id if convenio else None,
             'categoria_id': categoria.id if categoria else None,
