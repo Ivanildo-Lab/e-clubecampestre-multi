@@ -11,12 +11,31 @@
             <form role="form" method="post" onsubmit="return confirm('Você confirma a geração das mensalidades com as opções selecionadas?');">
                 {% csrf_token %}
                 <div class="box-body">
-                    <p class="lead">Use esta ferramenta para criar as cobranças de mensalidade para os sócios ativos.</p>
+                    <p class="lead">Escolha se a mensalidade será gerada por <strong>Categoria</strong> ou por <strong>Convênio</strong>. O valor e o vencimento virão do cadastro escolhido.</p>
+                    
                     <div class="form-group">
+                        <label>{{ form.origem.label }}</label>
+                        <div id="origemRadios">
+                            {% for radio in form.origem %}
+                            <label class="radio-inline" style="margin-right: 20px;">
+                                {{ radio.tag }} {{ radio.choice_label }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="groupCategoria">
+                        {{ form.categoria.label_tag }}
+                        {{ form.categoria }}
+                        <p class="help-block">Se escolher Categoria, o valor/dia virão do cadastro da categoria. Deixe em branco para todos.</p>
+                    </div>
+
+                    <div class="form-group" id="groupConvenio">
                         {{ form.convenio.label_tag }}
                         {{ form.convenio }}
-                        <p class="help-block">Deixe em branco para gerar para todos os convênios.</p>
+                        <p class="help-block">Se escolher Convênio, o valor/dia virão do convênio (se 0, usa categoria do sócio). Deixe em branco para todos.</p>
                     </div>
+
                     <div class="form-group">
                         <label>{{ form.periodo.label }}</label>
                         <div class="radio">
@@ -26,6 +45,10 @@
                             </label>
                             {% endfor %}
                         </div>
+                    </div>
+
+                    <div class="callout callout-info">
+                        <strong>Novidade:</strong> Cadastre <code>Valor Mensalidade</code> e <code>Dia Vencimento</code> no <a href="{% url 'socios:lista_convenios' %}">Cadastro de Convênios</a> para que a geração por convênio use esses valores. Se o convênio tiver valor 0, o sistema usa o valor da categoria do sócio como fallback.
                     </div>
                 </div>
                 <div class="box-footer">
@@ -38,4 +61,19 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function toggleOrigem() {
+        const origem = document.querySelector('input[name="origem"]:checked');
+        const val = origem ? origem.value : 'convenio';
+        document.getElementById('groupCategoria').style.display = (val === 'categoria') ? 'block' : 'none';
+        document.getElementById('groupConvenio').style.display = (val === 'convenio') ? 'block' : 'none';
+    }
+    document.querySelectorAll('input[name="origem"]').forEach(el => el.addEventListener('change', toggleOrigem));
+    toggleOrigem();
+});
+</script>
 {% endblock %}

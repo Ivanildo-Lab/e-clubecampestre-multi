@@ -36,12 +36,51 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
         context['titulo_pagina'] = 'Geracao de Mensalidades - Passo 1'
         return context
 
+    def _get_valor_vencimento(self, socio, origem, convenio_selecionado, categoria_selecionada):
+        # Retorna (valor, dia) conforme origem e seleção
+        valor = Decimal('0.00')
+        dia = 10
+        if origem == 'convenio':
+            if convenio_selecionado:
+                valor = convenio_selecionado.valor_mensalidade
+                dia = convenio_selecionado.dia_vencimento or socio.categoria.dia_vencimento
+                if valor <= 0 and socio.convenio and socio.convenio.valor_mensalidade > 0:
+                    valor = socio.convenio.valor_mensalidade
+                    dia = socio.convenio.dia_vencimento or dia
+                if valor <= 0:
+                    valor = socio.categoria.valor_mensalidade
+                    dia = socio.categoria.dia_vencimento
+            else:
+                # Todos os convênios: prioriza convênio do sócio, senão categoria
+                if socio.convenio and socio.convenio.valor_mensalidade > 0:
+                    valor = socio.convenio.valor_mensalidade
+                    dia = socio.convenio.dia_vencimento or socio.categoria.dia_vencimento
+                else:
+                    valor = socio.categoria.valor_mensalidade
+                    dia = socio.categoria.dia_vencimento
+        else:  # categoria
+            if categoria_selecionada:
+                valor = categoria_selecionada.valor_mensalidade
+                dia = categoria_selecionada.dia_vencimento
+            else:
+                valor = socio.categoria.valor_mensalidade
+                dia = socio.categoria.dia_vencimento
+            # Fallback para convênio do sócio se categoria valor 0
+            if valor <= 0 and socio.convenio and socio.convenio.valor_mensalidade > 0:
+                valor = socio.convenio.valor_mensalidade
+                dia = socio.convenio.dia_vencimento or dia
+        if dia == 0:
+            dia = socio.categoria.dia_vencimento or 10
+        return valor, dia
+
     def form_valid(self, form):
         if not (self.request.user.is_superuser or self.request.user.nivel_acesso == 'ADMIN'):
             messages.error(self.request, 'Voce nao tem permissao para executar esta acao.')
             return redirect('financeiro:lista_mensalidades')
 
         empresa_atual = self.request.user.empresa
+        origem = form.cleaned_data.get('origem')
+        categoria = form.cleaned_data.get('categoria')
         convenio = form.cleaned_data.get('convenio')
         periodo = form.cleaned_data.get('periodo')
         meses_a_gerar = 1 if periodo == 'mes' else 12
@@ -49,22 +88,21 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
         socios_ativos = Socio.objects.filter(
             empresa_id=empresa_atual.id,
             situacao=Socio.Situacao.ATIVO
-        ).select_related('categoria')
+        ).select_related('categoria', 'convenio')
 
-        if convenio:
+        if origem == 'convenio' and convenio:
             socios_ativos = socios_ativos.filter(convenio_id=convenio.id)
+        elif origem == 'categoria' and categoria:
+            socios_ativos = socios_ativos.filter(categoria_id=categoria.id)
 
         import datetime
         hoje = datetime.date.today()
         socios_preview = []
 
         for socio in socios_ativos:
-            valor = socio.categoria.valor_mensalidade
-            dia_vencimento = socio.categoria.dia_vencimento
-
-            if valor <= 0:
+            valor, dia_vencimento = self._get_valor_vencimento(socio, origem, convenio, categoria)
+            if valor is None or valor <= 0:
                 continue
-
             competencia = hoje.replace(day=1)
             try:
                 vencimento = competencia.replace(day=dia_vencimento)
@@ -78,10 +116,13 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
             ).exists()
 
             if not ja_existe:
+                # Exibe valor/dia usados
+                convenio_nome = socio.convenio.nome if socio.convenio else "-"
                 socios_preview.append({
                     'socio_id': socio.id,
                     'socio_nome': socio.nome,
                     'categoria': socio.categoria.nome,
+                    'convenio': convenio_nome,
                     'valor': valor,
                     'competencia': competencia,
                     'vencimento': vencimento,
@@ -92,7 +133,9 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
             return redirect('financeiro:lista_mensalidades')
 
         request.session['preview_geracao'] = {
+            'origem': origem,
             'convenio_id': convenio.id if convenio else None,
+            'categoria_id': categoria.id if categoria else None,
             'meses_a_gerar': meses_a_gerar,
             'socios': socios_preview,
         }
@@ -115,7 +158,9 @@ class PreviewGerarMensalidadesView(LoginRequiredMixin, View):
             'titulo_pagina': 'Geracao de Mensalidades - Passo 2: Confirmar',
             'socios_preview': preview_data['socios'],
             'meses_a_gerar': preview_data['meses_a_gerar'],
-            'convenio_id': preview_data['convenio_id'],
+            'origem': preview_data.get('origem', 'convenio'),
+            'convenio_id': preview_data.get('convenio_id'),
+            'categoria_id': preview_data.get('categoria_id'),
         }
         return render(request, 'financeiro/preview_gerar_mensalidades.html', context)
 
@@ -129,6 +174,8 @@ class ConfirmarGeracaoMensalidadesView(LoginRequiredMixin, View):
         empresa_atual = request.user.empresa
         meses_a_gerar = int(request.POST.get('meses_a_gerar', 1))
         convenio_id = request.POST.get('convenio_id')
+        categoria_id = request.POST.get('categoria_id')
+        origem = request.POST.get('origem', 'convenio')
 
         socios_ids = request.POST.getlist('socios_selecionados')
         valores = request.POST.getlist('valores')
@@ -137,6 +184,22 @@ class ConfirmarGeracaoMensalidadesView(LoginRequiredMixin, View):
         hoje = datetime.date.today()
         mensalidades_para_criar = []
         num_ignoradas = 0
+
+        # Recupera objetos selecionados para recalcular dia se valor não editado
+        convenio_sel = None
+        categoria_sel = None
+        if convenio_id:
+            try:
+                from core.models import Convenio
+                convenio_sel = Convenio.objects.get(id=convenio_id, empresa=empresa_atual)
+            except:
+                pass
+        if categoria_id:
+            try:
+                from core.models import CategoriaSocio
+                categoria_sel = CategoriaSocio.objects.get(id=categoria_id, empresa=empresa_atual)
+            except:
+                pass
 
         for i in range(meses_a_gerar):
             ano_competencia = hoje.year + (hoje.month + i - 1) // 12
@@ -153,9 +216,24 @@ class ConfirmarGeracaoMensalidadesView(LoginRequiredMixin, View):
                 if socio_id in socios_com_mensalidade:
                     continue
 
-                socio = Socio.objects.select_related('categoria').get(id=socio_id)
-                valor = Decimal(valores[idx]) if idx < len(valores) else socio.categoria.valor_mensalidade
-                dia_vencimento = socio.categoria.dia_vencimento
+                socio = Socio.objects.select_related('categoria', 'convenio').get(id=socio_id)
+                # Valor vem do preview editável; dia vem da origem selecionada
+                valor = Decimal(valores[idx]) if idx < len(valores) else Decimal('0')
+                # Determina dia conforme origem
+                if origem == 'convenio':
+                    if convenio_sel and convenio_sel.dia_vencimento:
+                        dia_vencimento = convenio_sel.dia_vencimento
+                    elif socio.convenio and socio.convenio.dia_vencimento:
+                        dia_vencimento = socio.convenio.dia_vencimento
+                    else:
+                        dia_vencimento = socio.categoria.dia_vencimento
+                else:
+                    if categoria_sel and categoria_sel.dia_vencimento:
+                        dia_vencimento = categoria_sel.dia_vencimento
+                    else:
+                        dia_vencimento = socio.categoria.dia_vencimento
+                if dia_vencimento == 0:
+                    dia_vencimento = 10
 
                 if valor <= 0:
                     num_ignoradas += 1

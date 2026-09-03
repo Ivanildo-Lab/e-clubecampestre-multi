@@ -73,10 +73,12 @@ class CategoriaSocioForm(forms.ModelForm):
 class ConvenioForm(forms.ModelForm):
     class Meta:
         model = Convenio
-        fields = ['nome', 'empresa_contato', 'telefone_contato']
+        fields = ['nome', 'empresa_contato', 'telefone_contato', 'valor_mensalidade', 'dia_vencimento']
         widgets = {
             'empresa_contato': forms.TextInput(attrs={'placeholder': 'Nome do contato na empresa'}),
             'telefone_contato': forms.TextInput(attrs={'placeholder': '(XX) XXXXX-XXXX'}),
+            'valor_mensalidade': forms.NumberInput(attrs={'step': '0.01', 'min': '0', 'placeholder': '0.00'}),
+            'dia_vencimento': forms.NumberInput(attrs={'min': '0', 'max': '31', 'placeholder': '10'}),
         }
 
     def __init__(self, *args, **kwargs):

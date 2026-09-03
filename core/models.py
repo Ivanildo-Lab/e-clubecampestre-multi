@@ -59,6 +59,16 @@ class Convenio(models.Model):
     nome = models.CharField(max_length=150) # unique=True foi removido
     empresa_contato = models.CharField(max_length=100, blank=True,null=True)
     telefone_contato = models.CharField(max_length=20, blank=True,null=True)
+    valor_mensalidade = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.00,
+        verbose_name="Valor da Mensalidade (Convênio)",
+        help_text="Valor cobrado dos sócios deste convênio. Se 0, usa o valor da categoria."
+    )
+    dia_vencimento = models.PositiveIntegerField(
+        default=10,
+        verbose_name="Dia do Vencimento",
+        help_text="Dia do mês em que vence (ex: 10). Se 0, usa o da categoria."
+    )
 
     def __str__(self):
         return self.nome

@@ -3,7 +3,7 @@
 from django import forms
 from django_select2.forms import ModelSelect2Widget
 from .models import Conta, PlanoDeContas, Socio, Caixa, LancamentoCaixa,Mensalidade
-from core.models import Convenio
+from core.models import Convenio, CategoriaSocio
 from fornecedores.models import Fornecedor
 
 class MensalidadeForm(forms.ModelForm):
@@ -256,32 +256,53 @@ class BaixaMensalidadeForm(forms.Form):
 
 
 class GerarMensalidadesForm(forms.Form):
+    ORIGEM_CHOICES = [
+        ('categoria', 'Por Categoria'),
+        ('convenio', 'Por Convênio'),
+    ]
     PERIODO_CHOICES = [
         ('mes', 'Apenas para o Mês Atual'),
         ('ano', 'Para os Próximos 12 Meses'),
     ]
 
+    origem = forms.ChoiceField(
+        choices=ORIGEM_CHOICES,
+        label="Gerar por",
+        widget=forms.RadioSelect,
+        initial='convenio'
+    )
+    categoria = forms.ModelChoiceField(
+        queryset=CategoriaSocio.objects.all(),
+        label="Categoria",
+        required=False,
+        empty_label="Todas as Categorias"
+    )
     convenio = forms.ModelChoiceField(
         queryset=Convenio.objects.all(),
-        label="Gerar para o Convênio",
-        required=False, # Torna o filtro opcional
+        label="Convênio",
+        required=False,
         empty_label="Todos os Convênios"
     )
-    
     periodo = forms.ChoiceField(
         choices=PERIODO_CHOICES,
         label="Período de Geração",
-        widget=forms.RadioSelect, # Fica mais intuitivo com botões de rádio
+        widget=forms.RadioSelect,
         initial='mes'
     )
 
     def __init__(self, *args, **kwargs):
         empresa = kwargs.pop('empresa', None)
         super().__init__(*args, **kwargs)
-
         if empresa:
+            self.fields['categoria'].queryset = CategoriaSocio.objects.filter(empresa=empresa)
             self.fields['convenio'].queryset = Convenio.objects.filter(empresa=empresa)
-        
-        # Adiciona a classe do Bootstrap
+        self.fields['categoria'].widget.attrs.update({'class': 'form-control'})
         self.fields['convenio'].widget.attrs.update({'class': 'form-control'})
 
+    def clean(self):
+        cleaned = super().clean()
+        origem = cleaned.get('origem')
+        categoria = cleaned.get('categoria')
+        convenio = cleaned.get('convenio')
+        # Validação cruzada não obrigatória - pode gerar para todos se vazio, mas se origem específica exige seleção? Mantemos opcional.
+        return cleaned
