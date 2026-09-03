@@ -6328,3 +6328,573 @@ Traceback (most recent call last):
            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
 django.db.utils.OperationalError: no such table: django_session
 "GET / HTTP/1.1" 500 206328
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\settings.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 3233
+- Broken pipe from ('127.0.0.1', 62539)
+"GET / HTTP/1.1" 200 3233
+"GET /static/adminlte/bower_components/font-awesome/css/font-awesome.min.css HTTP/1.1" 200 31000
+"GET /static/adminlte/bower_components/bootstrap/dist/css/bootstrap.min.css HTTP/1.1" 200 121457
+"GET /static/adminlte/bower_components/jquery/dist/jquery.min.js HTTP/1.1" 200 88145
+"GET /static/adminlte/bower_components/bootstrap/dist/js/bootstrap.min.js HTTP/1.1" 200 39680
+"GET /static/adminlte/bower_components/font-awesome/fonts/fontawesome-webfont.woff2?v=4.7.0 HTTP/1.1" 200 77160
+"GET /static/img/landing-bg.jpg HTTP/1.1" 200 1845113
+"GET /static/img/favicon.png HTTP/1.1" 304 0
+"GET /usuarios/login/ HTTP/1.1" 200 3076
+"GET /static/adminlte/dist/css/AdminLTE.min.css HTTP/1.1" 200 106548
+"GET /static/adminlte/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2 HTTP/1.1" 200 18028
+"POST /usuarios/login/ HTTP/1.1" 200 3202
+"POST /usuarios/login/ HTTP/1.1" 200 3202
+"POST /usuarios/login/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 11961
+"GET /static/adminlte/dist/css/skins/_all-skins.min.css HTTP/1.1" 200 41635
+"GET /static/adminlte/bower_components/Ionicons/css/ionicons.min.css HTTP/1.1" 200 51284
+"GET /static/adminlte/dist/js/adminlte.min.js HTTP/1.1" 200 13611
+"GET /dashboard/ HTTP/1.1" 200 11961
+"GET /socios/ HTTP/1.1" 200 19495
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 20890
+"GET /relatorios/contas/ HTTP/1.1" 200 14536
+"GET /static/admin/css/vendor/select2/select2.min.css HTTP/1.1" 200 14966
+"GET /static/django_select2/django_select2.css HTTP/1.1" 200 54
+"GET /static/admin/js/vendor/select2/i18n/pt-BR.js HTTP/1.1" 200 876
+"GET /static/django_select2/django_select2.js HTTP/1.1" 200 2561
+"GET /static/admin/js/vendor/select2/select2.full.min.js HTTP/1.1" 200 79212
+"GET /relatorios/contas/ HTTP/1.1" 200 14536
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 20890
+"GET /relatorios/contas/ HTTP/1.1" 200 14536
+"GET /financeiro/caixas/ HTTP/1.1" 200 10432
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 13892
+"GET /financeiro/caixas/ HTTP/1.1" 200 10432
+"GET /financeiro/caixas/adicionar/ HTTP/1.1" 200 8611
+"GET /financeiro/caixas/adicionar/ HTTP/1.1" 200 8611
+"POST /financeiro/caixas/adicionar/ HTTP/1.1" 302 0
+"GET /financeiro/caixas/ HTTP/1.1" 200 11238
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 14071
+Not Found: /financeiro/admin
+"GET /financeiro/admin HTTP/1.1" 404 10774
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 4112
+"GET /admin/ HTTP/1.1" 200 15561
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+"GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+"GET /static/admin/css/base.css HTTP/1.1" 200 22120
+"GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+"GET /static/admin/css/responsive.css HTTP/1.1" 200 16565
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+"GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+"GET /admin/core/configuracaosistema/ HTTP/1.1" 200 20295
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+"GET /static/admin/css/changelists.css HTTP/1.1" 200 6878
+"GET /static/admin/js/core.js HTTP/1.1" 200 6208
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+"GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+"GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+"GET /static/admin/img/search.svg HTTP/1.1" 200 458
+"GET /static/admin/js/filters.js HTTP/1.1" 200 978
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+"GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+"GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+"GET /admin/usuarios/usuario/ HTTP/1.1" 200 19138
+"GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+"GET /admin/core/configuracaosistema/ HTTP/1.1" 200 20295
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/financeiro/caixa/ HTTP/1.1" 200 16926
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/financeiro/caixa/2/change/ HTTP/1.1" 200 17183
+"GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+"GET /static/admin/css/forms.css HTTP/1.1" 200 8525
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+"GET /static/admin/css/widgets.css HTTP/1.1" 200 11991
+"GET /admin/core/configuracaosistema/ HTTP/1.1" 200 20295
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/configuracaosistema/1/change/ HTTP/1.1" 200 17854
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"POST /admin/core/configuracaosistema/1/change/ HTTP/1.1" 302 0
+"GET /admin/core/configuracaosistema/ HTTP/1.1" 200 20537
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET / HTTP/1.1" 200 3378
+"GET /dashboard/ HTTP/1.1" 200 11961
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 13761
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 20890
+"GET /financeiro/mensalidades/25/editar/ HTTP/1.1" 200 9038
+"POST /financeiro/mensalidades/25/editar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 20890
+"GET /financeiro/mensalidades/gerar-em-massa/ HTTP/1.1" 200 9492
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\financeiro\views.py changed, reloading.
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\financeiro\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\financeiro\models.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\financeiro\forms.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\financeiro\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\settings.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\urls.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\financeiro\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\financeiro\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\financeiro\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\financeiro\urls.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\financeiro\urls.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\settings.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\clube_manager\urls.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /admin/ HTTP/1.1" 302 0
+"GET /admin/login/?next=/admin/ HTTP/1.1" 200 4209
+- Broken pipe from ('127.0.0.1', 59704)
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 22792
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 22792
+"GET /formas-de-pagamento/ HTTP/1.1" 200 17658
+"GET /formas-de-pagamento/1/editar/ HTTP/1.1" 200 9352
+"GET /formas-de-pagamento/ HTTP/1.1" 200 17658
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 22792
+"POST /financeiro/mensalidades/25/baixar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 23148
+"GET /admin/ HTTP/1.1" 200 19686
+"GET /static/admin/css/base.css HTTP/1.1" 304 0
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+"GET /static/admin/js/theme.js HTTP/1.1" 304 0
+"GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+"GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+"GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+"GET /admin/core/configuracaosistema/ HTTP/1.1" 200 23240
+"GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+"GET /static/admin/js/core.js HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+"GET /static/admin/img/search.svg HTTP/1.1" 304 0
+"GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+"GET /static/admin/js/actions.js HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+"GET /static/admin/js/filters.js HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 304 0
+"GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+"GET / HTTP/1.1" 200 3378
+"GET /dashboard/ HTTP/1.1" 200 12681
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 22792
+"POST /financeiro/mensalidades/25/baixar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 23148
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 22792
+"POST /financeiro/mensalidades/25/baixar/ HTTP/1.1" 302 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 22532
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 15188
+"GET /estoque/ HTTP/1.1" 200 14426
+"GET /estoque/categorias/ HTTP/1.1" 200 11345
+"GET /estoque/categorias/adicionar/ HTTP/1.1" 200 9319
+"POST /estoque/categorias/adicionar/ HTTP/1.1" 302 0
+"GET /estoque/categorias/ HTTP/1.1" 200 12309
+"GET /estoque/ HTTP/1.1" 200 14545
+"GET /estoque/adicionar/ HTTP/1.1" 200 13460
+"POST /estoque/adicionar/ HTTP/1.1" 302 0
+"GET /estoque/ HTTP/1.1" 200 16183
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 11607
+"GET /estoque/movimentacoes/adicionar/ HTTP/1.1" 200 10956
+"POST /estoque/movimentacoes/adicionar/ HTTP/1.1" 302 0
+"POST /estoque/movimentacoes/adicionar/ HTTP/1.1" 302 0
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 12931
+"GET /estoque/ HTTP/1.1" 200 15706
+"GET /estoque/ HTTP/1.1" 200 15706
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 12589
+"GET /estoque/movimentacoes/adicionar/ HTTP/1.1" 200 10957
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\estoque\models.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\estoque\forms.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\estoque\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\estoque\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 3233
+- Broken pipe from ('127.0.0.1', 56258)
+"GET /estoque/movimentacoes/adicionar/ HTTP/1.1" 200 13424
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 13369
+"GET /estoque/movimentacoes/adicionar/ HTTP/1.1" 200 13424
+"GET /fornecedores/ HTTP/1.1" 200 12535
+"GET /fornecedores/adicionar/ HTTP/1.1" 200 11473
+"POST /fornecedores/adicionar/ HTTP/1.1" 302 0
+"GET /fornecedores/ HTTP/1.1" 200 13409
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 13369
+"GET /estoque/movimentacoes/adicionar/ HTTP/1.1" 200 13477
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 13369
+"GET /estoque/ HTTP/1.1" 200 16235
+"GET /estoque/adicionar/ HTTP/1.1" 200 13989
+"POST /estoque/adicionar/ HTTP/1.1" 200 14069
+"POST /estoque/adicionar/ HTTP/1.1" 200 14069
+"GET /estoque/ HTTP/1.1" 200 16235
+"GET /estoque/ HTTP/1.1" 200 16235
+"GET /estoque/adicionar/ HTTP/1.1" 200 13989
+"POST /estoque/adicionar/ HTTP/1.1" 200 14069
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\estoque\models.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\estoque\forms.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\estoque\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 3233
+- Broken pipe from ('127.0.0.1', 49897)
+"GET /estoque/ HTTP/1.1" 200 16235
+"GET /estoque/adicionar/ HTTP/1.1" 200 13989
+"POST /estoque/adicionar/ HTTP/1.1" 302 0
+"GET /estoque/ HTTP/1.1" 200 17991
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 13480
+"GET /estoque/movimentacoes/adicionar/ HTTP/1.1" 200 13537
+"POST /estoque/movimentacoes/adicionar/ HTTP/1.1" 302 0
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 14480
+"GET /estoque/ HTTP/1.1" 200 17515
+"GET /estoque/4/editar/ HTTP/1.1" 200 14008
+"POST /estoque/4/editar/ HTTP/1.1" 302 0
+"GET /estoque/ HTTP/1.1" 200 17830
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 22667
+"GET /financeiro/plano-de-contas/ HTTP/1.1" 200 16471
+"GET /financeiro/plano-de-contas/11/editar/ HTTP/1.1" 200 11879
+"POST /financeiro/plano-de-contas/11/editar/ HTTP/1.1" 302 0
+"GET /financeiro/plano-de-contas/ HTTP/1.1" 200 16901
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 14141
+"GET /estoque/movimentacoes/adicionar/ HTTP/1.1" 200 13539
+"POST /estoque/movimentacoes/adicionar/ HTTP/1.1" 302 0
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 15115
+"GET /socios/ HTTP/1.1" 200 20760
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /socios/ HTTP/1.1" 302 0
+Not Found: /accounts/login/
+"GET /accounts/login/?next=/socios/ HTTP/1.1" 404 4452
+- Broken pipe from ('127.0.0.1', 58704)
+"GET / HTTP/1.1" 200 3233
+- Broken pipe from ('127.0.0.1', 58680)
+"GET /socios/ HTTP/1.1" 200 20735
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\socios\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 3233
+- Broken pipe from ('127.0.0.1', 64525)
+"GET /socios/ HTTP/1.1" 200 20429
+"GET /socios/1/editar/ HTTP/1.1" 200 22032
+"GET /static/img/avatar-placeholder.png HTTP/1.1" 200 2246
+"GET /socios/ HTTP/1.1" 200 20429
+"GET /socios/?categoria=&status=&busca_dep=marcos&q= HTTP/1.1" 200 17844
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 3378
+"GET / HTTP/1.1" 200 3233
+- Broken pipe from ('127.0.0.1', 61003)
+"GET /dashboard/ HTTP/1.1" 200 12825
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 22148
+"GET /relatorios/contas/ HTTP/1.1" 200 15266
+"GET /static/admin/css/vendor/select2/select2.min.css HTTP/1.1" 304 0
+"GET /static/django_select2/django_select2.css HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/select2/select2.full.min.js HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/select2/i18n/pt-BR.js HTTP/1.1" 304 0
+"GET /static/django_select2/django_select2.js HTTP/1.1" 304 0
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 22148
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 14495
+"GET /financeiro/plano-de-contas/ HTTP/1.1" 200 16069
+"GET /formas-de-pagamento/ HTTP/1.1" 200 17668
+"GET /estoque/ HTTP/1.1" 200 16996
+"GET /estoque/pdf/? HTTP/1.1" 200 11680
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 4426
+"GET /estoque/categorias/ HTTP/1.1" 200 11990
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 14256
+"GET /financeiro/mensalidades/ HTTP/1.1" 200 22148
+"GET /relatorios/contas/ HTTP/1.1" 200 15266
+"GET /financeiro/caixas/ HTTP/1.1" 200 11649
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 14495
+"GET /financeiro/plano-de-contas/ HTTP/1.1" 200 16069
+"GET /fornecedores/ HTTP/1.1" 200 12572
+"GET /socios/ HTTP/1.1" 200 20429
+"GET /socios/convenios/ HTTP/1.1" 200 11391
+"GET /socios/ HTTP/1.1" 200 20429
+"GET /socios/ HTTP/1.1" 200 20393
+"GET /socios/convenios/ HTTP/1.1" 200 11391
+"GET /socios/categorias/ HTTP/1.1" 200 12652
+"GET /fornecedores/ HTTP/1.1" 200 12572
+"GET /socios/categorias/ HTTP/1.1" 200 12652
+"GET /socios/categorias/1/editar/ HTTP/1.1" 200 9902
+"POST /socios/categorias/1/editar/ HTTP/1.1" 302 0
+"GET /socios/categorias/ HTTP/1.1" 200 12638
+"GET /socios/categorias/2/editar/ HTTP/1.1" 200 9903
+"POST /socios/categorias/2/editar/ HTTP/1.1" 302 0
+"GET /socios/categorias/ HTTP/1.1" 200 12624
+"GET /socios/convenios/ HTTP/1.1" 200 11391
+"GET /socios/convenios/1/editar/ HTTP/1.1" 200 9263
+"POST /socios/convenios/1/editar/ HTTP/1.1" 302 0
+"GET /socios/convenios/ HTTP/1.1" 200 11377
+"GET /estoque/ HTTP/1.1" 200 16996
+"GET /estoque/categorias/ HTTP/1.1" 200 11990
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 14256
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\estoque\views.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\estoque\urls.py changed, reloading.
+Watching for file changes with StatReloader
+F:\HD 1tb\Dados\Projetos\Desnvolvimento com IA\e-clubecampestre\estoque\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 3233
+- Broken pipe from ('127.0.0.1', 50647)
+"GET /estoque/ HTTP/1.1" 200 16996
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 14474
+"GET /estoque/movimentacoes/pdf/?tipo=&produto=&q= HTTP/1.1" 200 13338
+Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "C:\Users\ivcos\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+"GET / HTTP/1.1" 200 3233
+- Broken pipe from ('127.0.0.1', 51515)
+"GET /vendas/nova/ HTTP/1.1" 302 0
+Not Found: /accounts/login/
+"GET /accounts/login/?next=/vendas/nova/ HTTP/1.1" 404 4607
+"GET /vendas/ HTTP/1.1" 302 0
+Not Found: /accounts/login/
+"GET /accounts/login/?next=/vendas/ HTTP/1.1" 404 4602
+- Broken pipe from ('127.0.0.1', 51517)
+"GET / HTTP/1.1" 200 3378
+"GET /dashboard/ HTTP/1.1" 200 13313
+"GET /vendas/nova/ HTTP/1.1" 200 25570
+"POST /vendas/nova/ HTTP/1.1" 302 0
+"GET /vendas/nova/ HTTP/1.1" 200 25932
+"GET /vendas/nova/ HTTP/1.1" 200 25570
+"POST /vendas/nova/ HTTP/1.1" 302 0
+"GET /vendas/4/ HTTP/1.1" 200 13400
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 15916
+"GET /formas-de-pagamento/ HTTP/1.1" 200 18183
+"GET /formas-de-pagamento/2/editar/ HTTP/1.1" 200 9882
+"GET /vendas/nova/ HTTP/1.1" 200 25566
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 15916
+"GET /financeiro/plano-de-contas/ HTTP/1.1" 200 16584
+"GET /financeiro/plano-de-contas/adicionar/ HTTP/1.1" 200 11844
+"POST /financeiro/plano-de-contas/adicionar/ HTTP/1.1" 302 0
+"GET /financeiro/plano-de-contas/ HTTP/1.1" 200 18160
+"GET /financeiro/plano-de-contas/12/editar/ HTTP/1.1" 200 11943
+"POST /financeiro/plano-de-contas/12/editar/ HTTP/1.1" 302 0
+"GET /financeiro/plano-de-contas/ HTTP/1.1" 200 18150
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 15923
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 16208
+"GET /financeiro/fluxo-de-caixa/pdf/?caixa=2&data_inicio=2026-08-27&data_fim=2026-08-27 HTTP/1.1" 200 12855
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 4576
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 16208
+"GET /financeiro/caixas/ HTTP/1.1" 200 12164
+"GET /relatorios/contas/ HTTP/1.1" 200 15781
+"GET /static/admin/css/vendor/select2/select2.min.css HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/select2/select2.full.min.js HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/select2/i18n/pt-BR.js HTTP/1.1" 304 0
+"GET /static/django_select2/django_select2.css HTTP/1.1" 200 54
+"GET /static/django_select2/django_select2.js HTTP/1.1" 200 2484
+"GET /financeiro/plano-de-contas/ HTTP/1.1" 200 17837
+"GET /estoque/ HTTP/1.1" 200 17510
+"GET /estoque/categorias/ HTTP/1.1" 200 12505
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 22675
+"GET /financeiro/caixas/ HTTP/1.1" 200 12164
+"GET /financeiro/fluxo-de-caixa/ HTTP/1.1" 200 16208
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 22675
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 22675
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 22675
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 22675
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 22675
+"GET /estoque/categorias/ HTTP/1.1" 200 12505
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 22675
+"GET /estoque/movimentacoes/ HTTP/1.1" 200 22675
+"GET / HTTP/1.1" 200 3378
+"GET /dashboard/ HTTP/1.1" 200 13313
+"GET / HTTP/1.1" 200 3233
+"GET /static/adminlte/bower_components/font-awesome/css/font-awesome.min.css HTTP/1.1" 200 31000
+"GET /static/adminlte/bower_components/bootstrap/dist/css/bootstrap.min.css HTTP/1.1" 200 121457
+"GET /static/adminlte/bower_components/bootstrap/dist/js/bootstrap.min.js HTTP/1.1" 200 39680
+"GET /static/adminlte/bower_components/jquery/dist/jquery.min.js HTTP/1.1" 200 88145
+"GET /static/adminlte/bower_components/font-awesome/fonts/fontawesome-webfont.woff2?v=4.7.0 HTTP/1.1" 200 77160
+"GET /static/img/landing-bg.jpg HTTP/1.1" 200 1845113
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 3233
+"GET /static/adminlte/bower_components/font-awesome/css/font-awesome.min.css HTTP/1.1" 200 31000
+"GET /static/adminlte/bower_components/bootstrap/dist/css/bootstrap.min.css HTTP/1.1" 200 121457
+"GET /static/adminlte/bower_components/bootstrap/dist/js/bootstrap.min.js HTTP/1.1" 200 39680
+"GET /static/adminlte/bower_components/font-awesome/fonts/fontawesome-webfont.woff2?v=4.7.0 HTTP/1.1" 200 77160
+"GET /static/adminlte/bower_components/jquery/dist/jquery.min.js HTTP/1.1" 200 88145
+"GET /static/img/landing-bg.jpg HTTP/1.1" 200 1845113
+"GET /static/img/favicon.png HTTP/1.1" 304 0
+"GET /usuarios/login/ HTTP/1.1" 200 3076
+"GET /static/adminlte/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2 HTTP/1.1" 200 18028
+"GET /static/adminlte/dist/css/AdminLTE.min.css HTTP/1.1" 200 106548
+"POST /usuarios/login/ HTTP/1.1" 200 3202
+"POST /usuarios/login/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 13315
+"GET /static/adminlte/bower_components/Ionicons/css/ionicons.min.css HTTP/1.1" 200 51284
+"GET /static/adminlte/dist/css/skins/_all-skins.min.css HTTP/1.1" 200 41635
+"GET /static/adminlte/dist/js/adminlte.min.js HTTP/1.1" 200 13611
+"GET /socios/ HTTP/1.1" 200 42495
+"GET /socios/581/pdf/ HTTP/1.1" 200 15259
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 4576
+"GET /admin HTTP/1.1" 301 0
+"GET /admin/ HTTP/1.1" 200 21373
+"GET /static/admin/css/base.css HTTP/1.1" 200 22120
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+"GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+"GET /static/admin/css/responsive.css HTTP/1.1" 200 16565
+"GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+"GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+"GET /admin/core/empresa/ HTTP/1.1" 200 21074
+"GET /static/admin/css/changelists.css HTTP/1.1" 200 6878
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+"GET /static/admin/js/core.js HTTP/1.1" 200 6208
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+"GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+"GET /static/admin/img/search.svg HTTP/1.1" 200 458
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+"GET /static/admin/js/filters.js HTTP/1.1" 200 978
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+"GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+"GET /admin/core/empresa/3/change/ HTTP/1.1" 200 24545
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/css/forms.css HTTP/1.1" 200 8525
+"GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+"GET /static/admin/css/widgets.css HTTP/1.1" 200 11991
+"GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+"GET /admin/core/empresa/ HTTP/1.1" 200 21074
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/empresa/2/change/ HTTP/1.1" 200 24419
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/empresa/ HTTP/1.1" 200 21074
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/empresa/1/change/ HTTP/1.1" 200 24391
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/socio/ HTTP/1.1" 200 71700
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+"GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+"GET /admin/core/socio/ HTTP/1.1" 200 19017
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/socio/ HTTP/1.1" 200 19017
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET / HTTP/1.1" 200 3378
+"GET /dashboard/ HTTP/1.1" 200 11968
+"GET /socios/ HTTP/1.1" 200 15713
+"GET /socios/ HTTP/1.1" 200 15713
+"GET /admin/ HTTP/1.1" 200 21373
+"GET /admin/core/socio/ HTTP/1.1" 200 19017
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/categoriasocio/ HTTP/1.1" 200 18257
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/categoriasocio/ HTTP/1.1" 200 18257
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/categoriasocio/ HTTP/1.1" 200 18257
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/empresa/ HTTP/1.1" 200 21074
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/empresa/1/change/ HTTP/1.1" 200 24391
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/socio/ HTTP/1.1" 200 71156
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET /admin/core/socio/ HTTP/1.1" 200 71156
+"GET /admin/jsi18n/ HTTP/1.1" 200 8158
+"GET / HTTP/1.1" 200 3378
+"GET /dashboard/ HTTP/1.1" 200 17381
+"GET /socios/ HTTP/1.1" 200 42248
+"GET /socios/5/pdf/ HTTP/1.1" 200 15120
+"GET /socios/5/pdf/ HTTP/1.1" 200 29583
+"GET /socios/5/editar/ HTTP/1.1" 200 28100
+"GET /static/img/avatar-placeholder.png HTTP/1.1" 200 2246
+"POST /socios/5/editar/ HTTP/1.1" 302 0
+"GET /socios/ HTTP/1.1" 200 42184
+"GET /media/fotos_socios/foto01_bpIpqaW.jpeg HTTP/1.1" 200 7034
+"GET /media/fotos_socios/foto01_bpIpqaW.jpeg HTTP/1.1" 200 7034
+"GET /socios/5/pdf/ HTTP/1.1" 200 36470
+"GET /socios/569/pdf/ HTTP/1.1" 200 28793
+"GET /socios/ HTTP/1.1" 200 42184
+"GET /media/fotos_socios/foto01_bpIpqaW.jpeg HTTP/1.1" 304 0
+"GET /socios/?categoria=&status=&busca_dep=THIAGO+JOAQUIM&q= HTTP/1.1" 200 16437
+"GET /socios/?categoria=&status=&busca_dep=TIAGO+JOAQUIM&q= HTTP/1.1" 200 18815
+"GET /socios/?categoria=&status=&busca_dep=&q=NELMA HTTP/1.1" 200 16428
+"GET /socios/ HTTP/1.1" 200 42184
+"GET /socios/?categoria=&status=&busca_dep=&q=NELMA HTTP/1.1" 200 16428
+"GET /socios/?categoria=&status=&busca_dep=&q=ADRIANO+DE+FATIMA HTTP/1.1" 200 18818
+"GET /socios/596/pdf/ HTTP/1.1" 200 27349
+"GET /relatorios/contas/ HTTP/1.1" 200 15781
+"GET /static/admin/css/vendor/select2/select2.min.css HTTP/1.1" 200 14966
+"GET /static/django_select2/django_select2.css HTTP/1.1" 200 54
+"GET /static/admin/js/vendor/select2/select2.full.min.js HTTP/1.1" 200 79212
+"GET /static/admin/js/vendor/select2/i18n/pt-BR.js HTTP/1.1" 200 876
+"GET /static/django_select2/django_select2.js HTTP/1.1" 200 2484
+"GET / HTTP/1.1" 200 3378
+"GET / HTTP/1.1" 200 3378
+"GET / HTTP/1.1" 200 3378
+"GET / HTTP/1.1" 200 3378
+Watching for file changes with StatReloader
+Not Found: /financeiro/parcelas/
+"GET /financeiro/parcelas/?status=aberta&cliente=r+c+lopes&venc_inicio=&venc_fim=&pag_inicio=&pag_fim= HTTP/1.1" 404 12257
+"GET / HTTP/1.1" 200 3233
+"GET /usuarios/login/ HTTP/1.1" 200 3076
+"POST /usuarios/login/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 17379
+"GET /socios/ HTTP/1.1" 200 42184
+"GET /media/fotos_socios/foto01_bpIpqaW.jpeg HTTP/1.1" 304 0
+"GET /socios/5/editar/ HTTP/1.1" 200 28322
