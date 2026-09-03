@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load brl %}
 {% block titulo_pagina %}Histórico de Vendas{% endblock %}
 {% block titulo_cabecalho %}Vendas{% endblock %}
 {% block subtitulo_cabecalho %}Histórico{% endblock %}
@@ -8,6 +9,9 @@
     <div class="box-header with-border">
         <h3 class="box-title">Vendas</h3>
         <div class="box-tools pull-right">
+            <a href="{% url 'vendas:historico_pdf' %}?q={{ search_query }}&status={{ status_filtro }}&tipo={{ tipo_filtro }}&data_inicio={{ data_inicio }}&data_fim={{ data_fim }}" target="_blank" class="btn btn-danger btn-flat" style="margin-right:6px;">
+                <i class="fa fa-file-pdf-o"></i> PDF
+            </a>
             <a href="{% url 'vendas:pdv' %}" class="btn btn-success btn-flat"><i class="fa fa-plus"></i> Nova Venda</a>
         </div>
     </div>
@@ -85,7 +89,7 @@
                             Conta do sócio
                         {% endif %}
                     </td>
-                    <td style="text-align:right;"><strong>R$ {{ v.valor_total|floatformat:2 }}</strong></td>
+                    <td style="text-align:right;"><strong>R$ {{ v.valor_total|brl }}</strong></td>
                     <td>
                         {% if v.status == 'CONCLUIDA' %}<span class="label label-success">Concluída</span>
                         {% else %}<span class="label label-danger">Cancelada</span>{% endif %}

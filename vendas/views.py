@@ -7,7 +7,12 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Sum, DecimalField
+from django.db.models.functions import Coalesce
+from django.utils import timezone
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
 from django.urls import reverse_lazy
 
 from .models import Venda, ItemVenda
@@ -294,3 +299,53 @@ class VendaCancelarView(LoginRequiredMixin, View):
         except Exception as e:
             messages.error(request, f'Erro ao cancelar venda: {e}')
         return redirect('vendas:detalhe', pk=venda.pk)
+
+
+class VendaHistoricoPDFView(LoginRequiredMixin, View):
+    def get(self, request):
+        empresa = request.user.empresa
+        qs = Venda.objects.filter(empresa=empresa).select_related('socio', 'caixa', 'forma_pagamento', 'usuario')
+        q = request.GET.get('q')
+        status = request.GET.get('status')
+        tipo = request.GET.get('tipo')
+        data_inicio = request.GET.get('data_inicio')
+        data_fim = request.GET.get('data_fim')
+        if q:
+            qs = qs.filter(Q(observacao__icontains=q) | Q(socio__nome__icontains=q) | Q(id__icontains=q))
+        if status:
+            qs = qs.filter(status=status)
+        if tipo:
+            qs = qs.filter(tipo=tipo)
+        if data_inicio:
+            qs = qs.filter(data_venda__date__gte=data_inicio)
+        if data_fim:
+            qs = qs.filter(data_venda__date__lte=data_fim)
+        vendas = qs.order_by('-data_venda').prefetch_related('itens')
+
+        total_geral = qs.aggregate(total=Coalesce(Sum('valor_total'), 0, output_field=DecimalField()))['total'] or 0
+        total_qtd = qs.count()
+        total_concluidas = qs.filter(status='CONCLUIDA').count()
+        total_canceladas = qs.filter(status='CANCELADA').count()
+
+        context = {
+            'vendas': vendas,
+            'empresa': empresa,
+            'total_geral': total_geral,
+            'total_qtd': total_qtd,
+            'total_concluidas': total_concluidas,
+            'total_canceladas': total_canceladas,
+            'search_query': q or '',
+            'status_filtro': status or '',
+            'tipo_filtro': tipo or '',
+            'data_inicio': data_inicio or '',
+            'data_fim': data_fim or '',
+            'status_choices': Venda.StatusChoices.choices,
+            'tipo_choices': Venda.TipoChoices.choices,
+            'data_emissao': timezone.now(),
+        }
+        html_string = render_to_string('vendas/venda_historico_pdf.html', context)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="historico_vendas.pdf"'
+        return response

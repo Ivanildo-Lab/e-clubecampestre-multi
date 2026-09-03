@@ -1,14 +1,27 @@
+{% load brl %}
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>Relatorio de Estoque</title>
     <style>
-        @page { size: landscape A4; margin: 1.5cm; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 10px; color: #333; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #3c8dbc; padding-bottom: 10px; }
-        .header h1 { margin: 0; font-size: 18px; color: #3c8dbc; }
-        .header p { margin: 5px 0 0; color: #666; font-size: 11px; }
+        @page { size: landscape A4; margin: 1.2cm; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 10px; color: #2c3e50; margin:0; }
+        .header {
+            background: linear-gradient(135deg, #004080 0%, #0066cc 55%, #0099e6 100%);
+            color: white; padding: 12px 14px; border-radius: 8px; margin-bottom: 12px; position: relative; overflow: hidden;
+        }
+        .header::after { content:""; position:absolute; right:-30px; top:-30px; width:130px; height:130px; background: rgba(255,255,255,0.08); border-radius:50%; }
+        .header-table { width:100%; border-collapse:collapse; }
+        .header-table td { border:none; padding:0; vertical-align:middle; }
+        .company-name { font-size:13pt; font-weight:800; color:white; margin:0; }
+        .company-sub { font-size:7pt; opacity:0.9; margin:2px 0 0 0; color:white; }
+        .report-title { font-size:11pt; font-weight:800; margin:6px 0 0 0; text-transform: uppercase; color:white; }
+        .report-sub { font-size:7pt; opacity:0.9; margin:2px 0 0 0; color:white; }
+        .logo { max-height:40px; background:white; padding:3px 6px; border-radius:6px; }
+        .badge-report { background:white; color:#004080; padding:3px 8px; border-radius:12px; font-size:7pt; font-weight:800; text-transform:uppercase; }
+        .watermark { position: fixed; top:45%; left:50%; transform: translate(-50%,-50%) rotate(-30deg); font-size:58pt; color: rgba(0,64,128,0.04); font-weight:900; letter-spacing:6px; z-index:-1; }
+        .footer { position: fixed; bottom:0; left:0; right:0; text-align:right; font-size:7pt; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:5px; background:white; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background-color: #3c8dbc; color: white; padding: 8px 5px; text-align: left; font-size: 10px; }
         td { padding: 6px 5px; border-bottom: 1px solid #ddd; font-size: 9px; }
@@ -19,10 +32,22 @@
     </style>
 </head>
 <body>
+    <div class="watermark">{{ empresa.nome|upper }}</div>
     <div class="header">
-        <h1>Relatorio de Estoque</h1>
-        <p>{{ empresa.nome }}</p>
-        <p>Data de Emissao: {{ data_emissao|date:"d/m/Y H:i" }}</p>
+        <table class="header-table">
+            <tr>
+                <td style="width:70%;">
+                    <div class="company-name">{{ empresa.nome }}</div>
+                    <div class="company-sub">{% if empresa.cidade %}{{ empresa.cidade }}{% if empresa.estado %} - {{ empresa.estado }}{% endif %} | {% endif %}Sistema e-Clube Campestre</div>
+                    <div class="report-title">Relatório de Estoque</div>
+                    <div class="report-sub">Posição atual • Gerado em {{ data_emissao|date:"d/m/Y H:i" }}</div>
+                </td>
+                <td style="width:30%; text-align:right;">
+                    {% if empresa.logo %}<img src="{{ empresa.logo.url }}" class="logo">{% else %}<span class="badge-report">ESTOQUE</span>{% endif %}
+                    <div style="margin-top:6px;"><span class="badge-report">{{ produtos|length }} produto(s)</span></div>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <table>
@@ -49,11 +74,11 @@
                 <td>{{ produto.codigo_barras|default:"--" }}</td>
                 <td>{{ produto.get_unidade_display }}</td>
                 <td>{{ produto.fornecedor_ultimo|default:"--" }}</td>
-                <td>R$ {{ produto.preco_custo|floatformat:2 }}</td>
-                <td>R$ {{ produto.preco_venda|floatformat:2 }}</td>
+                <td>R$ {{ produto.preco_custo|brl }}</td>
+                <td>R$ {{ produto.preco_venda|brl }}</td>
                 <td>{{ produto.estoque_atual }}</td>
                 <td>{{ produto.estoque_minimo }}</td>
-                <td>R$ {{ produto.valor_estoque|floatformat:2 }}</td>
+                <td>R$ {{ produto.valor_estoque|brl }}</td>
                 <td>
                     {% if produto.estoque_baixo %}
                         <span class="badge-baixo">ESTOQUE BAIXO</span>
@@ -66,8 +91,9 @@
         </tbody>
     </table>
 
-    <div class="total">
-        Total de Produtos: {{ produtos|length }} | Valor Total em Estoque: R$ {{ total_valor_estoque|floatformat:2 }}
+    <div class="total" style="background: linear-gradient(135deg, #e0e7ff, #f0f9ff); border:1px solid #c7d2fe; border-radius:6px; text-align:center;">
+        Total de Produtos: <strong>{{ produtos|length }}</strong> &nbsp;|&nbsp; Valor Total em Estoque: <strong>R$ {{ total_valor_estoque|brl }}</strong>
     </div>
+    <div class="footer">Gerado em {{ data_emissao|date:"d/m/Y H:i" }} &nbsp;|&nbsp; {{ empresa.nome }} — Sistema e-Clube Campestre &nbsp;|&nbsp; Relatório de Estoque</div>
 </body>
 </html>

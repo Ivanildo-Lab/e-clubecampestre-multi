@@ -1,3 +1,4 @@
+{% load brl %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,10 +6,20 @@
     <title>Relatorio Fluxo de Caixa</title>
     <style>
         @page { size: A4 landscape; margin: 1cm; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9pt; color: #333; }
-        .header { width: 100%; border-bottom: 2px solid #0056b3; padding-bottom: 10px; margin-bottom: 12px; }
-        .company-name { font-size: 14pt; font-weight: bold; color: #0056b3; margin: 0; }
-        .report-title { font-size: 12pt; margin: 4px 0 0 0; text-transform: uppercase; color: #555; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9pt; color: #2c3e50; margin:0; }
+        .header {
+            background: linear-gradient(135deg, #004080 0%, #0066cc 55%, #0099e6 100%);
+            color: white; padding: 14px 16px; border-radius: 8px; margin-bottom: 12px; position: relative; overflow: hidden;
+        }
+        .header::after { content:""; position:absolute; right:-30px; top:-30px; width:140px; height:140px; background: rgba(255,255,255,0.08); border-radius:50%; }
+        .header-table { width:100%; border-collapse:collapse; }
+        .header-table td { border:none; padding:0; vertical-align:middle; }
+        .company-name { font-size:13pt; font-weight:800; color:white; margin:0; letter-spacing:0.5px; }
+        .company-sub { font-size:7pt; opacity:0.9; margin:2px 0 0 0; color:white; }
+        .report-title { font-size:12pt; font-weight:800; margin:6px 0 0 0; text-transform: uppercase; color:white; }
+        .report-sub { font-size:7pt; opacity:0.9; margin:2px 0 0 0; color:white; }
+        .logo { max-height:44px; background:white; padding:3px 6px; border-radius:6px; }
+        .badge-report { background:white; color:#004080; padding:4px 10px; border-radius:14px; font-size:7pt; font-weight:800; text-transform:uppercase; }
         .filters-box { background-color: #f4f6f9; border: 1px solid #ddd; padding: 8px; margin-bottom: 12px; font-size: 8.5pt; border-radius: 4px; }
         .filter-item { display: inline-block; margin-right: 15px; }
         .filter-label { font-weight: bold; color: #555; }
@@ -29,21 +40,25 @@
         .badge { padding: 2px 6px; border-radius: 3px; color: white; font-size: 7pt; font-weight: bold; }
         .bg-green { background-color: #00a65a; color: white; }
         .bg-red { background-color: #dd4b39; color: white; }
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: right; font-size: 7pt; color: #999; border-top: 1px solid #ccc; padding-top: 4px; }
-        .total-row td { background-color: #e8ebf0; border-top: 2px solid #004085; font-weight: bold; padding: 8px; }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: right; font-size: 7pt; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 5px; background:white; }
+        .total-row td { background-color: #e0e7ff; border-top: 2px solid #004080; font-weight: bold; padding: 8px; }
+        .watermark { position: fixed; top:45%; left:50%; transform: translate(-50%,-50%) rotate(-30deg); font-size:64pt; color: rgba(0,64,128,0.04); font-weight:900; letter-spacing:6px; z-index:-1; }
     </style>
 </head>
 <body>
+    <div class="watermark">{{ empresa.nome|upper }}</div>
     <div class="header">
-        <table style="width: 100%; border: none;">
+        <table class="header-table">
             <tr>
-                <td style="border: none; width: 70%;">
+                <td style="width:70%;">
                     <div class="company-name">{{ empresa.nome }}</div>
-                    <div class="report-title">Relatorio Fluxo de Caixa / Extrato</div>
-                    {% if caixa_obj %}<div style="font-size: 9pt; color: #666;">Caixa: <strong>{{ caixa_obj.nome }}</strong></div>{% endif %}
+                    <div class="company-sub">{% if empresa.cidade %}{{ empresa.cidade }}{% if empresa.estado %} - {{ empresa.estado }}{% endif %} | {% endif %}Sistema e-Clube Campestre</div>
+                    <div class="report-title">Fluxo de Caixa / Extrato</div>
+                    <div class="report-sub">{% if caixa_obj %}Caixa: {{ caixa_obj.nome }} &bull; {% endif %}Período {{ data_inicio|date:"d/m/Y" }} até {{ data_fim|date:"d/m/Y" }} &bull; Gerado em {{ data_emissao|date:"d/m/Y H:i" }}</div>
                 </td>
-                <td style="border: none; text-align: right;">
-                    {% if empresa.logo %}<img src="{{ empresa.logo.url }}" style="max-height: 45px;">{% endif %}
+                <td style="width:30%; text-align:right;">
+                    {% if empresa.logo %}<img src="{{ empresa.logo.url }}" class="logo">{% else %}<span class="badge-report">CAIXA</span>{% endif %}
+                    <div style="margin-top:6px;"><span class="badge-report">{{ lancamentos|length }} lançamento(s)</span></div>
                 </td>
             </tr>
         </table>
@@ -59,19 +74,19 @@
     <div class="summary-row">
         <div class="summary-box">
             <span class="label">Saldo Inicial</span>
-            <span class="value">R$ {{ saldo_inicial|floatformat:2 }}</span>
+            <span class="value">R$ {{ saldo_inicial|brl }}</span>
         </div>
         <div class="summary-box">
             <span class="label">Total Entradas</span>
-            <span class="value text-green">R$ {{ total_entradas|floatformat:2 }}</span>
+            <span class="value text-green">R$ {{ total_entradas|brl }}</span>
         </div>
         <div class="summary-box">
             <span class="label">Total Saidas</span>
-            <span class="value text-red">R$ {{ total_saidas_abs|floatformat:2 }}</span>
+            <span class="value text-red">R$ {{ total_saidas_abs|brl }}</span>
         </div>
         <div class="summary-box" style="{% if saldo_final < 0 %}border-color:#dd4b39;{% endif %}">
             <span class="label">Saldo Final</span>
-            <span class="value {% if saldo_final < 0 %}text-red{% else %}text-blue{% endif %}">R$ {{ saldo_final|floatformat:2 }}</span>
+            <span class="value {% if saldo_final < 0 %}text-red{% else %}text-blue{% endif %}">R$ {{ saldo_final|brl }}</span>
         </div>
     </div>
 
@@ -93,8 +108,8 @@
                 <td>{{ lanc.plano_de_contas.nome|default:"--" }}<br><small style="color:#777; font-size:7pt;">{{ lanc.plano_de_contas.codigo|default:"" }}</small></td>
                 <td>{{ lanc.descricao }}</td>
                 <td class="text-right">
-                    {% if lanc.valor > 0 %}<span class="text-green">+ R$ {{ lanc.valor|floatformat:2 }}</span>
-                    {% else %}<span class="text-red">- R$ {{ lanc.valor|floatformat:"-2" }}</span>{% endif %}
+                    {% if lanc.valor > 0 %}<span class="text-green">+ R$ {{ lanc.valor|brl }}</span>
+                    {% else %}<span class="text-red">- R$ {{ lanc.valor|brl }}</span>{% endif %}
                 </td>
             </tr>
             {% empty %}
@@ -105,7 +120,7 @@
         <tfoot>
             <tr class="total-row">
                 <td colspan="4" class="text-right">Saldo Final do Periodo:</td>
-                <td class="text-right">R$ {{ saldo_final|floatformat:2 }}</td>
+                <td class="text-right">R$ {{ saldo_final|brl }}</td>
             </tr>
         </tfoot>
         {% endif %}
