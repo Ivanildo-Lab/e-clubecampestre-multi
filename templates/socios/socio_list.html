@@ -31,7 +31,7 @@
             <form method="GET" action="{% url 'socios:lista_socios' %}">
                 <div class="box-body">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group">
                                 <label>Categoria</label>
                                 <select name="categoria" class="form-control">
@@ -42,17 +42,20 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group">
                                 <label>Status</label>
                                 <select name="status" class="form-control">
                                     <option value="">Todos</option>
-                                    <!-- CORRIGIDO: Agora usa a variável da view -->
                                     {% for value, display in situacao_choices %}
                                         <option value="{{ value }}" {% if value == status_selecionado %}selected{% endif %}>{{ display }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Buscar por Dependente</label>
+                            <input type="text" name="busca_dep" class="form-control" placeholder="Nome do dependente..." value="{{ busca_dep }}">
                         </div>
                         <div class="col-md-4">
                             <label>Buscar por Nome, CPF ou Registro</label>
@@ -124,8 +127,8 @@
             <div class="box-footer clearfix">
                 <ul class="pagination pagination-sm no-margin pull-right">
                     {% if page_obj.has_previous %}
-                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">&laquo; Primeira</a></li>
-                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">&lsaquo; Anterior</a></li>
+                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">&laquo; Primeira</a></li>
+                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">&lsaquo; Anterior</a></li>
                     {% endif %}
 
                     <li class="disabled">
@@ -133,8 +136,8 @@
                     </li>
 
                     {% if page_obj.has_next %}
-                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">Próxima &rsaquo;</a></li>
-                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">Última &raquo;</a></li>
+                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">Próxima &rsaquo;</a></li>
+                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}">Última &raquo;</a></li>
                     {% endif %}
                 </ul>
             </div>

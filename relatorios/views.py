@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
 import datetime
+from decimal import Decimal
 
 # Importações de Modelos e Formulários
 from financeiro.models import Mensalidade, Conta, LancamentoCaixa
@@ -225,4 +226,169 @@ class RelatorioContasPDFView(LoginRequiredMixin, View):
         
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'inline; filename="relatorio_contas.pdf"'
+        return response
+
+
+class RelatorioContasSinteticoView(LoginRequiredMixin, TemplateView):
+    template_name = 'relatorios/contas_sintetico.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        empresa_atual = self.request.user.empresa
+        form = FiltroContasForm(self.request.GET or None, empresa=empresa_atual)
+        context['form'] = form
+
+        # Form sintético: força tipo RECEITA e status aberto por padrão
+        data_inicio = self.request.GET.get('data_inicio')
+        data_fim = self.request.GET.get('data_fim')
+        status = self.request.GET.get('status')
+
+        # Base querysets - apenas RECEITA com sócio vinculado
+        contas_qs = Conta.objects.filter(
+            empresa=empresa_atual,
+            plano_de_contas__tipo='RECEITA',
+            socio__isnull=False
+        )
+        mensal_qs = Mensalidade.objects.filter(socio__empresa=empresa_atual)
+
+        # Status: se não informado, usa apenas aberto/atrasado
+        if status:
+            contas_qs = contas_qs.filter(status=status)
+            mensal_qs = mensal_qs.filter(status=status)
+        else:
+            contas_qs = contas_qs.filter(status__in=['PENDENTE', 'VENCIDA'])
+            mensal_qs = mensal_qs.filter(status__in=['PENDENTE', 'ATRASADA'])
+
+        if data_inicio:
+            contas_qs = contas_qs.filter(data_vencimento__gte=data_inicio)
+            mensal_qs = mensal_qs.filter(data_vencimento__gte=data_inicio)
+        if data_fim:
+            contas_qs = contas_qs.filter(data_vencimento__lte=data_fim)
+            mensal_qs = mensal_qs.filter(data_vencimento__lte=data_fim)
+
+        # Agregação por sócio - Contas
+        from collections import defaultdict
+        totais = defaultdict(lambda: {'nome': '', 'num_registro': '', 'total_contas': Decimal('0.00'), 'total_mensal': Decimal('0.00'), 'qtd': 0})
+
+        contas_agg = contas_qs.values('socio__id', 'socio__nome', 'socio__num_registro').annotate(total=Sum('valor'), qtd=Count('id')).order_by('socio__nome')
+        for row in contas_agg:
+            sid = row['socio__id']
+            totais[sid]['nome'] = row['socio__nome']
+            totais[sid]['num_registro'] = row['socio__num_registro']
+            totais[sid]['total_contas'] = row['total'] or Decimal('0.00')
+            totais[sid]['qtd'] = row['qtd']
+
+        mensal_agg = mensal_qs.values('socio__id', 'socio__nome', 'socio__num_registro').annotate(total=Sum('valor'), qtd=Count('id')).order_by('socio__nome')
+        for row in mensal_agg:
+            sid = row['socio__id']
+            if sid not in totais:
+                totais[sid]['nome'] = row['socio__nome']
+                totais[sid]['num_registro'] = row['socio__num_registro']
+            totais[sid]['total_mensal'] = row['total'] or Decimal('0.00')
+            # soma qtd
+            totais[sid]['qtd'] = totais[sid].get('qtd', 0) + row['qtd']
+
+        # Monta lista sintética
+        sintetico = []
+        for sid, data in totais.items():
+            total = (data['total_contas'] or 0) + (data['total_mensal'] or 0)
+            if total > 0:
+                sintetico.append({
+                    'socio_id': sid,
+                    'nome': data['nome'],
+                    'num_registro': data['num_registro'],
+                    'total_contas': data['total_contas'],
+                    'total_mensal': data['total_mensal'],
+                    'total': total,
+                    'qtd': data['qtd'],
+                })
+        sintetico.sort(key=lambda x: x['nome'])
+
+        total_geral = sum((x['total'] for x in sintetico), Decimal('0.00'))
+        total_qtd = sum((x['qtd'] for x in sintetico), 0)
+
+        context['sintetico'] = sintetico
+        context['total_geral'] = total_geral
+        context['total_qtd'] = total_qtd
+        context['data_inicio'] = data_inicio or ''
+        context['data_fim'] = data_fim or ''
+        context['status_filtro'] = status or ''
+        context['titulo_pagina'] = 'Contas a Receber - Sintético por Sócio'
+        return context
+
+
+class RelatorioContasSinteticoPDFView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        empresa_atual = request.user.empresa
+        data_inicio = request.GET.get('data_inicio')
+        data_fim = request.GET.get('data_fim')
+        status = request.GET.get('status')
+
+        contas_qs = Conta.objects.filter(empresa=empresa_atual, plano_de_contas__tipo='RECEITA', socio__isnull=False)
+        mensal_qs = Mensalidade.objects.filter(socio__empresa=empresa_atual)
+
+        if status:
+            contas_qs = contas_qs.filter(status=status)
+            mensal_qs = mensal_qs.filter(status=status)
+        else:
+            contas_qs = contas_qs.filter(status__in=['PENDENTE', 'VENCIDA'])
+            mensal_qs = mensal_qs.filter(status__in=['PENDENTE', 'ATRASADA'])
+
+        if data_inicio:
+            contas_qs = contas_qs.filter(data_vencimento__gte=data_inicio)
+            mensal_qs = mensal_qs.filter(data_vencimento__gte=data_inicio)
+        if data_fim:
+            contas_qs = contas_qs.filter(data_vencimento__lte=data_fim)
+            mensal_qs = mensal_qs.filter(data_vencimento__lte=data_fim)
+
+        from collections import defaultdict
+        totais = defaultdict(lambda: {'nome': '', 'num_registro': '', 'total_contas': Decimal('0.00'), 'total_mensal': Decimal('0.00'), 'qtd': 0})
+        contas_agg = contas_qs.values('socio__id', 'socio__nome', 'socio__num_registro').annotate(total=Sum('valor'), qtd=Count('id'))
+        for row in contas_agg:
+            sid = row['socio__id']
+            totais[sid]['nome'] = row['socio__nome']
+            totais[sid]['num_registro'] = row['socio__num_registro']
+            totais[sid]['total_contas'] = row['total'] or Decimal('0.00')
+            totais[sid]['qtd'] = row['qtd']
+        mensal_agg = mensal_qs.values('socio__id', 'socio__nome', 'socio__num_registro').annotate(total=Sum('valor'), qtd=Count('id'))
+        for row in mensal_agg:
+            sid = row['socio__id']
+            if sid not in totais:
+                totais[sid]['nome'] = row['socio__nome']
+                totais[sid]['num_registro'] = row['socio__num_registro']
+            totais[sid]['total_mensal'] = row['total'] or Decimal('0.00')
+            totais[sid]['qtd'] = totais[sid].get('qtd', 0) + row['qtd']
+
+        sintetico = []
+        for sid, data in totais.items():
+            total = (data['total_contas'] or 0) + (data['total_mensal'] or 0)
+            if total > 0:
+                sintetico.append({
+                    'socio_id': sid,
+                    'nome': data['nome'],
+                    'num_registro': data['num_registro'],
+                    'total_contas': data['total_contas'],
+                    'total_mensal': data['total_mensal'],
+                    'total': total,
+                    'qtd': data['qtd'],
+                })
+        sintetico.sort(key=lambda x: x['nome'])
+        total_geral = sum((x['total'] for x in sintetico), Decimal('0.00'))
+        total_qtd = sum((x['qtd'] for x in sintetico), 0)
+
+        context = {
+            'sintetico': sintetico,
+            'empresa': empresa_atual,
+            'data_inicio': data_inicio,
+            'data_fim': data_fim,
+            'status_filtro': status or '',
+            'total_geral': total_geral,
+            'total_qtd': total_qtd,
+            'data_emissao': timezone.now(),
+        }
+        html_string = render_to_string('relatorios/contas_sintetico_pdf_template.html', context)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="relatorio_contas_sintetico.pdf"'
         return response

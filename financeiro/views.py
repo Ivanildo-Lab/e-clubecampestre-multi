@@ -4,7 +4,7 @@ from django.views.generic import ListView, View, UpdateView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Sum, DecimalField
 from django.db.models.functions import Coalesce
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib import messages
 from django.utils import timezone
 from django.urls import reverse_lazy
@@ -14,7 +14,7 @@ from decimal import Decimal
 # Importações de Modelos e Formulários
 from .models import Mensalidade, LancamentoCaixa, Caixa, PlanoDeContas, Conta
 from .forms import MensalidadeForm, PlanoDeContasForm, CaixaForm, ContaForm,GerarMensalidadesForm,LancamentoCaixaForm, BaixaMensalidadeForm, BaixaContaForm
-from core.models import CategoriaSocio, ConfiguracaoSistema, Convenio
+from core.models import CategoriaSocio, ConfiguracaoSistema, Convenio, Socio
 from django.views.generic import FormView
 
 from django.http import HttpResponse
@@ -33,40 +33,163 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = 'Geração de Mensalidades em Lote'
+        context['titulo_pagina'] = 'Geracao de Mensalidades - Passo 1'
         return context
 
     def form_valid(self, form):
-        # Proteção de Permissão
         if not (self.request.user.is_superuser or self.request.user.nivel_acesso == 'ADMIN'):
-            messages.error(self.request, 'Você não tem permissão para executar esta ação.')
+            messages.error(self.request, 'Voce nao tem permissao para executar esta acao.')
             return redirect('financeiro:lista_mensalidades')
 
         empresa_atual = self.request.user.empresa
         convenio = form.cleaned_data.get('convenio')
         periodo = form.cleaned_data.get('periodo')
-
         meses_a_gerar = 1 if periodo == 'mes' else 12
 
-        try:
-            num_criadas, num_ignoradas = Mensalidade.objects.gerar_mensalidades_para_ativos(
-                empresa_id=empresa_atual.id,
-                convenio_id=convenio.id if convenio else None, # Passa o ID do convênio se selecionado
-                meses_a_gerar=meses_a_gerar
-            )
-            
-            if num_criadas > 0:
-                messages.success(self.request, f'{num_criadas} novas mensalidades foram geradas com sucesso.')
-            else:
-                messages.info(self.request, 'Nenhuma nova mensalidade precisava ser gerada para os filtros selecionados.')
+        socios_ativos = Socio.objects.filter(
+            empresa_id=empresa_atual.id,
+            situacao=Socio.Situacao.ATIVO
+        ).select_related('categoria')
 
-            if num_ignoradas > 0:
-                messages.warning(self.request, f'{num_ignoradas} sócios foram ignorados (categoria sem valor).')
+        if convenio:
+            socios_ativos = socios_ativos.filter(convenio_id=convenio.id)
 
-        except Exception as e:
-            messages.error(self.request, f'Ocorreu um erro inesperado: {e}')
-            
-        return super().form_valid(form)
+        import datetime
+        hoje = datetime.date.today()
+        socios_preview = []
+
+        for socio in socios_ativos:
+            valor = socio.categoria.valor_mensalidade
+            dia_vencimento = socio.categoria.dia_vencimento
+
+            if valor <= 0:
+                continue
+
+            competencia = hoje.replace(day=1)
+            try:
+                vencimento = competencia.replace(day=dia_vencimento)
+            except ValueError:
+                import calendar
+                ultimo_dia = calendar.monthrange(competencia.year, competencia.month)[1]
+                vencimento = competencia.replace(day=ultimo_dia)
+
+            ja_existe = Mensalidade.objects.filter(
+                socio=socio, competencia=competencia
+            ).exists()
+
+            if not ja_existe:
+                socios_preview.append({
+                    'socio_id': socio.id,
+                    'socio_nome': socio.nome,
+                    'categoria': socio.categoria.nome,
+                    'valor': valor,
+                    'competencia': competencia,
+                    'vencimento': vencimento,
+                })
+
+        if not socios_preview:
+            messages.info(self.request, 'Nenhuma nova mensalidade precisava ser gerada para os filtros selecionados.')
+            return redirect('financeiro:lista_mensalidades')
+
+        request.session['preview_geracao'] = {
+            'convenio_id': convenio.id if convenio else None,
+            'meses_a_gerar': meses_a_gerar,
+            'socios': socios_preview,
+        }
+
+        return redirect('financeiro:preview_geracao_mensalidades')
+
+
+class PreviewGerarMensalidadesView(LoginRequiredMixin, View):
+    def get(self, request):
+        if not (request.user.is_superuser or request.user.nivel_acesso == 'ADMIN'):
+            messages.error(request, 'Voce nao tem permissao para executar esta acao.')
+            return redirect('financeiro:lista_mensalidades')
+
+        preview_data = request.session.get('preview_geracao')
+        if not preview_data:
+            messages.error(request, 'Dados de preview nao encontrados. Por favor, faca o processo novamente.')
+            return redirect('financeiro:gerar_mensalidades_massa')
+
+        context = {
+            'titulo_pagina': 'Geracao de Mensalidades - Passo 2: Confirmar',
+            'socios_preview': preview_data['socios'],
+            'meses_a_gerar': preview_data['meses_a_gerar'],
+            'convenio_id': preview_data['convenio_id'],
+        }
+        return render(request, 'financeiro/preview_gerar_mensalidades.html', context)
+
+
+class ConfirmarGeracaoMensalidadesView(LoginRequiredMixin, View):
+    def post(self, request):
+        if not (request.user.is_superuser or request.user.nivel_acesso == 'ADMIN'):
+            messages.error(request, 'Voce nao tem permissao para executar esta acao.')
+            return redirect('financeiro:lista_mensalidades')
+
+        empresa_atual = request.user.empresa
+        meses_a_gerar = int(request.POST.get('meses_a_gerar', 1))
+        convenio_id = request.POST.get('convenio_id')
+
+        socios_ids = request.POST.getlist('socios_selecionados')
+        valores = request.POST.getlist('valores')
+
+        import datetime
+        hoje = datetime.date.today()
+        mensalidades_para_criar = []
+        num_ignoradas = 0
+
+        for i in range(meses_a_gerar):
+            ano_competencia = hoje.year + (hoje.month + i - 1) // 12
+            mes_competencia = (hoje.month + i - 1) % 12 + 1
+            competencia = hoje.replace(day=1).replace(year=ano_competencia, month=mes_competencia)
+
+            socios_com_mensalidade = Mensalidade.objects.filter(
+                socio__empresa_id=empresa_atual.id,
+                competencia=competencia
+            ).values_list('socio_id', flat=True)
+
+            for idx, socio_id in enumerate(socios_ids):
+                socio_id = int(socio_id)
+                if socio_id in socios_com_mensalidade:
+                    continue
+
+                socio = Socio.objects.select_related('categoria').get(id=socio_id)
+                valor = Decimal(valores[idx]) if idx < len(valores) else socio.categoria.valor_mensalidade
+                dia_vencimento = socio.categoria.dia_vencimento
+
+                if valor <= 0:
+                    num_ignoradas += 1
+                    continue
+
+                try:
+                    vencimento = competencia.replace(day=dia_vencimento)
+                except ValueError:
+                    import calendar
+                    ultimo_dia = calendar.monthrange(competencia.year, competencia.month)[1]
+                    vencimento = competencia.replace(day=ultimo_dia)
+
+                mensalidades_para_criar.append(Mensalidade(
+                    socio=socio, competencia=competencia, valor=valor, data_vencimento=vencimento
+                ))
+
+        if mensalidades_para_criar:
+            from django.db import transaction
+            with transaction.atomic():
+                Mensalidade.objects.bulk_create(mensalidades_para_criar)
+
+        if 'preview_geracao' in request.session:
+            del request.session['preview_geracao']
+
+        num_criadas = len(mensalidades_para_criar)
+        if num_criadas > 0:
+            messages.success(request, f'{num_criadas} novas mensalidades foram geradas com sucesso.')
+        else:
+            messages.info(request, 'Nenhuma nova mensalidade foi gerada.')
+
+        if num_ignoradas > 0:
+            messages.warning(request, f'{num_ignoradas} socios foram ignorados (valor zero).')
+
+        return redirect('financeiro:lista_mensalidades')
 
 
 class MensalidadeListView(LoginRequiredMixin, ListView):
@@ -114,6 +237,7 @@ class MensalidadeListView(LoginRequiredMixin, ListView):
         context['status_selecionado'] = self.request.GET.get('status', '')
         context['categoria_selecionada'] = self.request.GET.get('categoria', '')
         context['convenio_selecionado'] = self.request.GET.get('convenio', '')
+        context['baixa_form'] = BaixaMensalidadeForm(empresa=empresa_atual)
         return context
 
 
@@ -124,16 +248,16 @@ class BaixarMensalidadeView(LoginRequiredMixin, View):
         form = BaixaMensalidadeForm(request.POST, empresa=empresa_atual)
 
         if form.is_valid():
-            # Pega os dados do formulário. 'caixa' pode ser None.
             caixa = form.cleaned_data.get('caixa')
+            forma_pagamento = form.cleaned_data.get('forma_pagamento')
             data_pagamento = form.cleaned_data['data_pagamento']
             valor_juros = form.cleaned_data.get('valor_juros') or Decimal('0.00')
 
             try:
                 with transaction.atomic():
-                    # PASSO 1: Baixar a mensalidade (sempre acontece)
                     mensalidade.status = 'PAGA'
                     mensalidade.data_pagamento = data_pagamento
+                    mensalidade.forma_pagamento = forma_pagamento
                     mensalidade.save()
 
                     # PASSO 2: Lançar no caixa (SÓ SE UM CAIXA FOI SELECIONADO)
@@ -524,4 +648,73 @@ class MensalidadePDFView(LoginRequiredMixin, View):
         
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'inline; filename="relatorio_mensalidades.pdf"'
+        return response
+
+class FluxoDeCaixaPDFView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        empresa_atual = request.user.empresa
+        # Reaproveita exatamente a mesma lógica de filtro da FluxoDeCaixaView
+        hoje_str = timezone.now().strftime('%Y-%m-%d')
+        caixa_padrao_obj = ConfiguracaoSistema.objects.filter(empresa=empresa_atual, chave='CAIXA_PADRAO_ID').first()
+        caixa_padrao_id = caixa_padrao_obj.valor if caixa_padrao_obj else None
+        caixa_selecionado = request.GET.get('caixa', caixa_padrao_id)
+        data_inicio = request.GET.get('data_inicio', hoje_str)
+        data_fim = request.GET.get('data_fim', hoje_str)
+
+        queryset = LancamentoCaixa.objects.filter(empresa=empresa_atual)
+        if caixa_selecionado:
+            queryset = queryset.filter(caixa_id=caixa_selecionado)
+        if data_inicio:
+            queryset = queryset.filter(data_lancamento__gte=data_inicio)
+        if data_fim:
+            queryset = queryset.filter(data_lancamento__lte=data_fim)
+
+        lancamentos = queryset.select_related('caixa', 'plano_de_contas').order_by('data_lancamento', 'id')
+
+        # Calculos idênticos ao FluxoDeCaixaView
+        saldo_inicial = 0
+        total_entradas = 0
+        total_saidas_negativo = 0
+        caixa_obj = None
+        if caixa_selecionado:
+            try:
+                caixa_obj = Caixa.objects.get(id=caixa_selecionado, empresa=empresa_atual)
+                saldo_inicial = caixa_obj.saldo_inicial
+                lancamentos_anteriores_qs = LancamentoCaixa.objects.filter(caixa=caixa_obj)
+                if data_inicio:
+                    lancamentos_anteriores_qs = lancamentos_anteriores_qs.filter(data_lancamento__lt=data_inicio)
+                lancamentos_anteriores = lancamentos_anteriores_qs.aggregate(total=Coalesce(Sum('valor'), 0, output_field=DecimalField()))['total']
+                saldo_inicial += lancamentos_anteriores
+                total_entradas = lancamentos.filter(valor__gt=0).aggregate(total=Coalesce(Sum('valor'), 0, output_field=DecimalField()))['total'] or 0
+                total_saidas_negativo = lancamentos.filter(valor__lt=0).aggregate(total=Coalesce(Sum('valor'), 0, output_field=DecimalField()))['total'] or 0
+            except Caixa.DoesNotExist:
+                caixa_obj = None
+                pass
+        else:
+            # Sem caixa selecionado, calcula totais do queryset geral
+            total_entradas = lancamentos.filter(valor__gt=0).aggregate(total=Coalesce(Sum('valor'), 0, output_field=DecimalField()))['total'] or 0
+            total_saidas_negativo = lancamentos.filter(valor__lt=0).aggregate(total=Coalesce(Sum('valor'), 0, output_field=DecimalField()))['total'] or 0
+
+        saldo_final = saldo_inicial + total_entradas + total_saidas_negativo
+
+        context = {
+            'lancamentos': lancamentos,
+            'empresa': empresa_atual,
+            'caixa_obj': caixa_obj,
+            'caixa_selecionado_id': caixa_selecionado,
+            'data_inicio': data_inicio,
+            'data_fim': data_fim,
+            'saldo_inicial': saldo_inicial,
+            'total_entradas': total_entradas,
+            'total_saidas_abs': abs(total_saidas_negativo),
+            'saldo_final': saldo_final,
+            'data_emissao': timezone.now(),
+        }
+
+        html_string = render_to_string('financeiro/fluxo_caixa_pdf_template.html', context)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="relatorio_fluxo_caixa.pdf"'
         return response

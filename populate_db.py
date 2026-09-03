@@ -8,313 +8,196 @@ import django
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-# Configurar ambiente Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'clube_manager.settings')
-sys.path.append('/home/z/my-project')
+sys.path.append(str(os.path.dirname(os.path.abspath(__file__))))
 
 django.setup()
 
 from django.contrib.auth import get_user_model
-from socios.models import Socio, Dependente, InteracaoSocio
-from financeiro.models import PlanoMensalidade, Mensalidade, CategoriaReceita, Receita, CategoriaDespesa, Despesa
-from cobranca.models import TemplateCobranca
-from eventos.models import Evento
-from core.models import ConfiguracaoSistema
+from core.models import Empresa, CategoriaSocio, Convenio, Socio, Dependente, ConfiguracaoSistema
+from financeiro.models import Mensalidade, Caixa, PlanoDeContas
 
 Usuario = get_user_model()
 
 
-def criar_configuracoes_iniciais():
-    """Criar configurações iniciais do sistema"""
+def criar_empresa_padrao():
+    print("Criando empresa padrão...")
+    empresa, _ = Empresa.objects.get_or_create(
+        nome='Clube Campestre Exemplo',
+        defaults={
+            'responsavel': 'Administrador',
+            'telefone': '(11) 3333-4444',
+            'endereco': 'Rua Principal, 1000',
+            'cidade': 'São Paulo',
+            'estado': 'SP',
+        }
+    )
+    print(f"Empresa criada: {empresa}")
+    return empresa
+
+
+def criar_configuracoes_iniciais(empresa):
     print("Criando configurações iniciais...")
-    
     configuracoes = [
-        {
-            'chave': 'NOME_CLUBE',
-            'valor': 'Clube Campestre Exemplo',
-            'descricao': 'Nome oficial do clube'
-        },
-        {
-            'chave': 'DIA_VENCIMENTO_MENSALIDADE',
-            'valor': '10',
-            'descricao': 'Dia do vencimento das mensalidades'
-        },
-        {
-            'chave': 'VALOR_MENSALIDADE_PADRAO',
-            'valor': '150.00',
-            'descricao': 'Valor padrão da mensalidade'
-        },
-        {
-            'chave': 'PERMITIR_CANCELAMENTO_MENSALIDADE',
-            'valor': 'True',
-            'descricao': 'Permite cancelamento de mensalidades'
-        },
-        {
-            'chave': 'DIAS_TOLERANCIA_MENSALIDADE',
-            'valor': '5',
-            'descricao': 'Dias de tolerência para pagamento de mensalidades'
-        },
-        {
-            'chave': 'PERCENTUAL_JUROS_ATRASO',
-            'valor': '2.0',
-            'descricao': 'Percentual de juros por mês de atraso'
-        },
+        ('NOME_CLUBE', 'Clube Campestre Exemplo', 'Nome oficial do clube'),
+        ('DIA_VENCIMENTO_MENSALIDADE', '10', 'Dia do vencimento das mensalidades'),
+        ('VALOR_MENSALIDADE_PADRAO', '150.00', 'Valor padrão da mensalidade'),
+        ('PERMITIR_CANCELAMENTO_MENSALIDADE', 'True', 'Permite cancelamento de mensalidades'),
+        ('DIAS_TOLERANCIA_MENSALIDADE', '5', 'Dias de tolerância para pagamento de mensalidades'),
+        ('PERCENTUAL_JUROS_ATRASO', '2.0', 'Percentual de juros por mês de atraso'),
     ]
-    
-    for config_data in configuracoes:
+    for chave, valor, descricao in configuracoes:
         ConfiguracaoSistema.objects.get_or_create(
-            chave=config_data['chave'],
-            defaults={
-                'valor': config_data['valor'],
-                'descricao': config_data['descricao']
-            }
+            empresa=empresa, chave=chave,
+            defaults={'valor': valor, 'descricao': descricao}
         )
-    
     print("Configurações iniciais criadas com sucesso!")
 
 
-def criar_planos_mensalidade():
-    """Criar planos de mensalidade padrão"""
-    print("Criando planos de mensalidade...")
-    
-    planos = [
-        {
-            'nome': 'Plano Básico',
-            'descricao': 'Acesso básico às instalações do clube',
-            'valor': Decimal('150.00')
-        },
-        {
-            'nome': 'Plano Familiar',
-            'descricao': 'Acesso completo para o sócio e dependentes',
-            'valor': Decimal('250.00')
-        },
-        {
-            'nome': 'Plano Premium',
-            'descricao': 'Acesso VIP com benefícios exclusivos',
-            'valor': Decimal('400.00')
-        }
+def criar_categorias_socio(empresa):
+    print("Criando categorias de sócio...")
+    categorias = [
+        ('Básico', 'Acesso básico às instalações', Decimal('150.00'), 10),
+        ('Familiar', 'Acesso completo para o sócio e dependentes', Decimal('250.00'), 10),
+        ('Premium', 'Acesso VIP com benefícios exclusivos', Decimal('400.00'), 10),
     ]
-    
-    for plano_data in planos:
-        PlanoMensalidade.objects.get_or_create(
-            nome=plano_data['nome'],
-            defaults=plano_data
+    cats = {}
+    for nome, desc, valor, dia in categorias:
+        cat, _ = CategoriaSocio.objects.get_or_create(
+            empresa=empresa, nome=nome,
+            defaults={'descricao': desc, 'valor_mensalidade': valor, 'dia_vencimento': dia}
         )
-    
-    print("Planos de mensalidade criados com sucesso!")
+        cats[nome] = cat
+    print("Categorias criadas com sucesso!")
+    return cats
 
 
-def criar_socios_exemplo():
-    """Criar sócios de exemplo"""
+def criar_convenios(empresa):
+    print("Criando convênios...")
+    convenio, _ = Convenio.objects.get_or_create(
+        empresa=empresa, nome='Sem Convênio',
+        defaults={'empresa_contato': '', 'telefone_contato': ''}
+    )
+    print("Convênios criados com sucesso!")
+    return convenio
+
+
+def criar_socios_exemplo(empresa, categoria, convenio):
     print("Criando sócios de exemplo...")
-    
     socios_data = [
         {
-            'nome_completo': 'João Silva',
-            'cpf': '12345678900',
-            'email': 'joao.silva@email.com',
-            'telefone': '(11) 99999-8888',
-            'data_nascimento': '1980-05-15',
-            'endereco': 'Rua das Flores',
-            'numero': '123',
-            'bairro': 'Centro',
-            'cidade': 'São Paulo',
-            'estado': 'SP',
-            'cep': '01234-567'
+            'num_registro': 1, 'nome': 'João Silva',
+            'cpf': '12345678900', 'email': 'joao.silva@email.com',
+            'data_nascimento': '1980-05-15', 'endereco': 'Rua das Flores, 123',
+            'bairro': 'Centro', 'cidade': 'São Paulo', 'estado': 'SP', 'cep': '01234-567',
         },
         {
-            'nome_completo': 'Maria Santos',
-            'cpf': '98765432100',
-            'email': 'maria.santos@email.com',
-            'telefone': '(11) 98888-7777',
-            'data_nascimento': '1985-08-20',
-            'endereco': 'Avenida Principal',
-            'numero': '456',
-            'bairro': 'Jardins',
-            'cidade': 'São Paulo',
-            'estado': 'SP',
-            'cep': '01456-789'
+            'num_registro': 2, 'nome': 'Maria Santos',
+            'cpf': '98765432100', 'email': 'maria.santos@email.com',
+            'data_nascimento': '1985-08-20', 'endereco': 'Avenida Principal, 456',
+            'bairro': 'Jardins', 'cidade': 'São Paulo', 'estado': 'SP', 'cep': '01456-789',
         },
         {
-            'nome_completo': 'Pedro Oliveira',
-            'cpf': '45678912300',
-            'email': 'pedro.oliveira@email.com',
-            'telefone': '(11) 97777-6666',
-            'data_nascimento': '1975-12-10',
-            'endereco': 'Rua dos Ipês',
-            'numero': '789',
-            'bairro': 'Vila Nova',
-            'cidade': 'São Paulo',
-            'estado': 'SP',
-            'cep': '02345-678'
-        }
+            'num_registro': 3, 'nome': 'Pedro Oliveira',
+            'cpf': '45678912300', 'email': 'pedro.oliveira@email.com',
+            'data_nascimento': '1975-12-10', 'endereco': 'Rua dos Ipês, 789',
+            'bairro': 'Vila Nova', 'cidade': 'São Paulo', 'estado': 'SP', 'cep': '02345-678',
+        },
     ]
-    
     for socio_data in socios_data:
-        Socio.objects.get_or_create(
+        socio, created = Socio.objects.get_or_create(
             cpf=socio_data['cpf'],
-            defaults=socio_data
+            defaults={
+                **socio_data,
+                'empresa': empresa,
+                'categoria': categoria,
+                'convenio': convenio,
+                'situacao': 'ATIVO',
+            }
         )
-    
+        if created:
+            print(f"  Sócio criado: {socio.nome}")
     print("Sócios de exemplo criados com sucesso!")
 
 
 def criar_mensalidades_exemplo():
-    """Criar mensalidades de exemplo"""
     print("Criando mensalidades de exemplo...")
-    
     socio = Socio.objects.first()
-    plano = PlanoMensalidade.objects.first()
-    
-    if socio and plano:
-        # Criar mensalidades para os últimos 3 meses
-        for i in range(3):
-            data_vencimento = datetime.now().date() - timedelta(days=30 * i)
-            referencia = data_vencimento.strftime('%m/%Y')
-            
-            Mensalidade.objects.get_or_create(
-                socio=socio,
-                referencia=referencia,
-                defaults={
-                    'plano': plano,
-                    'valor': plano.valor,
-                    'data_vencimento': data_vencimento,
-                    'status': 'PENDENTE' if i == 0 else 'PAGO',
-                    'data_pagamento': data_vencimento if i > 0 else None,
-                    'forma_pagamento': 'DINHEIRO' if i > 0 else None
-                }
-            )
-    
+    if not socio:
+        print("  Nenhum sócio encontrado. Pulando.")
+        return
+
+    for i in range(3):
+        competencia = datetime.now().replace(day=1) - timedelta(days=30 * i)
+        competencia = competencia.replace(day=1)
+        vencimento = competencia.replace(day=10)
+        valor = socio.categoria.valor_mensalidade
+
+        mensalidade, created = Mensalidade.objects.get_or_create(
+            socio=socio, competencia=competencia,
+            defaults={
+                'valor': valor,
+                'data_vencimento': vencimento,
+                'status': 'PENDENTE' if i == 0 else 'PAGA',
+                'data_pagamento': vencimento if i > 0 else None,
+            }
+        )
+        if created:
+            print(f"  Mensalidade criada: {competencia.strftime('%m/%Y')} - R$ {valor}")
     print("Mensalidades de exemplo criadas com sucesso!")
 
 
-def criar_templates_cobranca():
-    """Criar templates de cobrança"""
-    print("Criando templates de cobrança...")
-    
-    templates = [
-        {
-            'nome': 'Cobrança Padrão',
-            'tipo': 'EMAIL',
-            'assunto': 'Lembrete de Mensalidade - Clube Campestre',
-            'template': '''
-Prezado(a) {{ socio.nome_completo }},
-
-Esperamos que esteja tudo bem!
-
-Este é um lembrete sobre sua mensalidade do Clube Campestre:
-
-- Referência: {{ mensalidade.referencia }}
-- Valor: R$ {{ mensalidade.valor }}
-- Data de vencimento: {{ mensalidade.data_vencimento|date:"d/m/Y" }}
-
-Caso já tenha realizado o pagamento, por favor, desconsidere este e-mail.
-
-Para dúvidas ou mais informações, entre em contato conosco.
-
-Atenciosamente,
-Equipe do Clube Campestre
-            ''',
-            'variaveis_disponiveis': 'socio.nome_completo, mensalidade.referencia, mensalidade.valor, mensalidade.data_vencimento'
-        },
-        {
-            'nome': 'Cobrança por Atraso',
-            'tipo': 'EMAIL',
-            'assunto': 'Mensalidade em Atraso - Clube Campestre',
-            'template': '''
-Prezado(a) {{ socio.nome_completo }},
-
-Identificamos que sua mensalidade está em atraso:
-
-- Referência: {{ mensalidade.referencia }}
-- Valor: R$ {{ mensalidade.valor }}
-- Data de vencimento: {{ mensalidade.data_vencimento|date:"d/m/Y" }}
-- Dias de atraso: {{ mensalidade.dias_atraso }}
-
-Por favor, regularize sua situação o mais breve possível para evitar juros.
-
-Para realizar o pagamento ou negociar, entre em contato conosco.
-
-Atenciosamente,
-Equipe do Clube Campestre
-            ''',
-            'variaveis_disponiveis': 'socio.nome_completo, mensalidade.referencia, mensalidade.valor, mensalidade.data_vencimento, mensalidade.dias_atraso'
-        }
-    ]
-    
-    for template_data in templates:
-        TemplateCobranca.objects.get_or_create(
-            nome=template_data['nome'],
-            defaults=template_data
+def criar_admin(empresa):
+    print("Criando usuario admin...")
+    if not Usuario.objects.filter(email='admin@clubemanager.com').exists():
+        Usuario.objects.create_superuser(
+            username='admin',
+            email='admin@clubemanager.com',
+            password='admin123',
+            empresa=empresa,
+            nivel_acesso='ADMIN',
         )
-    
-    print("Templates de cobrança criados com sucesso!")
-
-
-def criar_eventos_exemplo():
-    """Criar eventos de exemplo"""
-    print("Criando eventos de exemplo...")
-    
-    eventos_data = [
-        {
-            'nome': 'Churrasco de Aniversário do Clube',
-            'descricao': 'Venha celebrar mais um ano do nosso clube com muito churrasco, música e diversão para toda a família!',
-            'tipo': 'SOCIAL',
-            'data_inicio': datetime.now() + timedelta(days=30),
-            'data_fim': datetime.now() + timedelta(days=30, hours=6),
-            'local': 'Área de Churrasco do Clube',
-            'capacidade_maxima': 200,
-            'valor_ingresso_socio': Decimal('0.00'),
-            'valor_ingresso_convidado': Decimal('50.00')
-        },
-        {
-            'nome': 'Torneio de Tênis',
-            'descricao': 'Torneio interno de tênis para sócios. Inscrições gratuitas!',
-            'tipo': 'ESPORTIVO',
-            'data_inicio': datetime.now() + timedelta(days=15),
-            'data_fim': datetime.now() + timedelta(days=16),
-            'local': 'Quadras de Tênis',
-            'capacidade_maxima': 32,
-            'valor_ingresso_socio': Decimal('0.00'),
-            'valor_ingresso_convidado': Decimal('0.00')
-        }
-    ]
-    
-    for evento_data in eventos_data:
-        Evento.objects.get_or_create(
-            nome=evento_data['nome'],
-            defaults=evento_data
-        )
-    
-    print("Eventos de exemplo criados com sucesso!")
+        print("Admin criado: admin@clubemanager.com / admin123")
+    else:
+        print("Admin ja existe.")
 
 
 def main():
-    """Função principal para popular o banco de dados"""
+    print("=" * 50)
     print("Iniciando população do banco de dados...")
-    
+    print("=" * 50)
+
     try:
-        criar_configuracoes_iniciais()
-        criar_planos_mensalidade()
-        criar_socios_exemplo()
+        empresa = criar_empresa_padrao()
+        criar_configuracoes_iniciais(empresa)
+        cats = criar_categorias_socio(empresa)
+        convenio = criar_convenios(empresa)
+        criar_socios_exemplo(empresa, cats['Básico'], convenio)
         criar_mensalidades_exemplo()
-        criar_templates_cobranca()
-        criar_eventos_exemplo()
-        
-        print("\n✅ Banco de dados populado com sucesso!")
-        print("\nDados criados:")
-        print("- Configurações do sistema")
-        print("- Planos de mensalidade")
-        print("- Sócios de exemplo")
+        criar_admin(empresa)
+
+        print("")
+        print("=" * 50)
+        print("Banco de dados populado com sucesso!")
+        print("=" * 50)
+        print("")
+        print("Dados criados:")
+        print("- Empresa padrao")
+        print("- Configuracoes do sistema")
+        print("- Categorias de socio")
+        print("- Convenios")
+        print("- Socios de exemplo")
         print("- Mensalidades de exemplo")
-        print("- Templates de cobrança")
-        print("- Eventos de exemplo")
-        
-        print(f"\n👤 Usuário admin: admin@clubemanager.com")
-        print("🔑 Senha: admin123")
-        
+        print("- Usuario admin")
+        print("")
+        print("Usuario admin: admin@clubemanager.com")
+        print("Senha: admin123")
+
     except Exception as e:
-        print(f"\n❌ Erro ao popular banco de dados: {str(e)}")
+        print("")
+        print("ERRO ao popular banco de dados: %s" % str(e))
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 

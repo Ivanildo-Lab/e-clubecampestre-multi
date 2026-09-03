@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}{{ titulo_pagina }}{% endblock %}
+{% block titulo_cabecalho %}{{ titulo_pagina }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">{{ titulo_pagina }}</h3>
+            </div>
+            <form role="form" method="post">
+                {% csrf_token %}
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                {{ form.nome.label_tag }}
+                                {{ form.nome }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.categoria.label_tag }}
+                                {{ form.categoria }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {{ form.descricao.label_tag }}
+                        {{ form.descricao }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.codigo_barras.label_tag }}
+                                {{ form.codigo_barras }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.unidade.label_tag }}
+                                {{ form.unidade }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <div class="checkbox">
+                                    <label>{{ form.ativo }} {{ form.ativo.label }}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h4>Valores e Estoque</h4>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.preco_custo.label_tag }}
+                                <div class="input-group">
+                                    <span class="input-group-addon">R$</span>
+                                    {{ form.preco_custo }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.preco_venda.label_tag }}
+                                <div class="input-group">
+                                    <span class="input-group-addon">R$</span>
+                                    {{ form.preco_venda }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.estoque_atual.label_tag }}
+                                {{ form.estoque_atual }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.estoque_minimo.label_tag }}
+                                {{ form.estoque_minimo }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Salvar</button>
+                    <a href="{% url 'estoque:lista_produtos' %}" class="btn btn-default">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

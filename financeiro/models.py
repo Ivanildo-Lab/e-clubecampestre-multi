@@ -140,11 +140,18 @@ class Mensalidade(models.Model):
         ATRASADA = 'ATRASADA', 'Atrasada'
         CANCELADA = 'CANCELADA', 'Cancelada'
     socio = models.ForeignKey(Socio, on_delete=models.PROTECT, related_name='mensalidades')
-    competencia = models.DateField(verbose_name="Mês de Competência")
+    competencia = models.DateField(verbose_name="Mes de Competencia")
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     data_vencimento = models.DateField()
     data_pagamento = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=10, choices=StatusChoice.choices, default=StatusChoice.PENDENTE)
+    forma_pagamento = models.ForeignKey(
+        'formas_pagamento.FormaPagamento',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Forma de Pagamento"
+    )
     objects = MensalidadeManager()
     def __str__(self):
         return f"Mensalidade de {self.socio.nome} - {self.competencia.strftime('%m/%Y')}"

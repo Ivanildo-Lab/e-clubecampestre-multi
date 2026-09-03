@@ -76,10 +76,9 @@
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">NAVEGAÇÃO</li>
         <li {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}><a href="{% url 'home' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
-        <li {% if request.resolver_match.app_name == 'socios' and 'categorias' not in request.path and 'convenios' not in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_socios' %}"><i class="fa fa-users"></i> <span>Sócios</span></a></li>
         
         <!-- MENU FINANCEIRO -->
-        <li class="treeview {% if request.resolver_match.app_name == 'financeiro' or request.resolver_match.app_name == 'fornecedores' or 'contas' in request.path %}active menu-open{% endif %}">
+        <li class="treeview {% if request.resolver_match.app_name == 'financeiro' or 'contas' in request.path %}active menu-open{% endif %}">
           <a href="#">
             <i class="fa fa-money"></i> <span>Financeiro</span>
             <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
@@ -89,8 +88,22 @@
             <li {% if 'contas' in request.path %}class="active"{% endif %}><a href="{% url 'relatorios:contas' %}"><i class="fa fa-list-alt"></i> Contas a Pagar/Receber</a></li>
             <li {% if 'caixas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_caixas' %}"><i class="fa fa-bank"></i> Caixas e Contas</a></li>
             <li {% if 'fluxo-de-caixa' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:fluxo_de_caixa' %}"><i class="fa fa-line-chart"></i> Fluxo de Caixa</a></li>
-            <li {% if request.resolver_match.app_name == 'fornecedores' %}class="active"{% endif %}><a href="{% url 'fornecedores:lista_fornecedores' %}"><i class="fa fa-truck"></i> Fornecedores</a></li>
             <li {% if 'plano-de-contas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_plano_de_contas' %}"><i class="fa fa-book"></i> Plano de Contas</a></li>
+            <li {% if 'formas-de-pagamento' in request.path %}class="active"{% endif %}><a href="{% url 'formas_pagamento:lista_formas_pagamento' %}"><i class="fa fa-credit-card"></i> Formas de Pagamento</a></li>
+          </ul>
+        </li>
+
+        <!-- MENU CADASTROS -->
+        <li class="treeview {% if request.resolver_match.app_name == 'socios' or request.resolver_match.app_name == 'fornecedores' %}active menu-open{% endif %}">
+          <a href="#">
+            <i class="fa fa-address-book"></i> <span>Cadastros</span>
+            <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+          </a>
+          <ul class="treeview-menu">
+            <li {% if request.resolver_match.app_name == 'socios' and 'categorias' not in request.path and 'convenios' not in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_socios' %}"><i class="fa fa-users"></i> Socios</a></li>
+            <li {% if request.resolver_match.app_name == 'fornecedores' %}class="active"{% endif %}><a href="{% url 'fornecedores:lista_fornecedores' %}"><i class="fa fa-truck"></i> Fornecedores</a></li>
+            <li {% if 'categorias' in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_categorias' %}"><i class="fa fa-tag"></i> Categorias de Socios</a></li>
+            <li {% if 'convenios' in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_convenios' %}"><i class="fa fa-handshake-o"></i> Convenios</a></li>
           </ul>
         </li>
 
@@ -103,14 +116,31 @@
           </ul>
         </li>
 
-        <!-- MENU CADASTROS AUXILIARES -->
-        <li class="treeview {% if 'categorias' in request.path or 'convenios' in request.path %}active menu-open{% endif %}">
-          <a href="#"><i class="fa fa-cogs"></i> <span>Cadastros Auxiliares</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
+        <!-- MENU ESTOQUE -->
+        <li class="treeview {% if request.resolver_match.app_name == 'estoque' %}active menu-open{% endif %}">
+          <a href="#">
+            <i class="fa fa-cubes"></i> <span>Estoque</span>
+            <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+          </a>
           <ul class="treeview-menu">
-            <li {% if 'categorias' in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_categorias' %}"><i class="fa fa-circle-o"></i> Categorias de Sócios</a></li>
-            <li {% if 'convenios' in request.path %}class="active"{% endif %}><a href="{% url 'socios:lista_convenios' %}"><i class="fa fa-circle-o"></i> Convênios</a></li>
+            <li {% if 'estoque/' in request.path and 'movimentacoes' not in request.path and 'categorias' not in request.path %}class="active"{% endif %}><a href="{% url 'estoque:lista_produtos' %}"><i class="fa fa-cube"></i> Produtos</a></li>
+            <li {% if 'estoque/categorias' in request.path %}class="active"{% endif %}><a href="{% url 'estoque:lista_categorias' %}"><i class="fa fa-tags"></i> Categorias</a></li>
+            <li {% if 'estoque/movimentacoes' in request.path %}class="active"{% endif %}><a href="{% url 'estoque:lista_movimentacoes' %}"><i class="fa fa-exchange"></i> Movimentacoes</a></li>
           </ul>
         </li>
+
+        <!-- MENU VENDAS -->
+        <li class="treeview {% if request.resolver_match.app_name == 'vendas' %}active menu-open{% endif %}">
+          <a href="#">
+            <i class="fa fa-shopping-cart"></i> <span>Vendas</span>
+            <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+          </a>
+          <ul class="treeview-menu">
+            <li {% if 'vendas/nova' in request.path %}class="active"{% endif %}><a href="{% url 'vendas:pdv' %}"><i class="fa fa-desktop"></i> Nova Venda</a></li>
+            <li {% if request.resolver_match.url_name == 'historico' and request.resolver_match.app_name == 'vendas' %}class="active"{% endif %}><a href="{% url 'vendas:historico' %}"><i class="fa fa-list"></i> Historico de Vendas</a></li>
+          </ul>
+        </li>
+
       </ul>
     </section>
   </aside>

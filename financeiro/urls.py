@@ -1,12 +1,14 @@
 from django.urls import path
 from .views import (MensalidadeListView, MensalidadeUpdateView,
                      GerarMensalidadesEmMassaView, BaixarMensalidadeView,
+                     PreviewGerarMensalidadesView, ConfirmarGeracaoMensalidadesView,
                     PlanoDeContasListView, PlanoDeContasCreateView,
                     PlanoDeContasUpdateView, PlanoDeContasDeleteView,
                     CaixaListView, CaixaCreateView,
                     CaixaUpdateView, CaixaDeleteView, FluxoDeCaixaView, MensalidadeDeleteView, BaixarContaView,
                     ContaListView, ContaCreateView, ContaUpdateView, ContaDeleteView,
-                    LancamentoCaixaCreateView, LancamentoCaixaUpdateView, LancamentoCaixaDeleteView,MensalidadePDFView
+                    LancamentoCaixaCreateView, LancamentoCaixaUpdateView, LancamentoCaixaDeleteView,MensalidadePDFView,
+                    FluxoDeCaixaPDFView
 
                     )
 
@@ -19,6 +21,8 @@ urlpatterns = [
     path('mensalidades/<int:pk>/baixar/', BaixarMensalidadeView.as_view(), name='baixar_mensalidade'),
     path('mensalidades/<int:pk>/editar/', MensalidadeUpdateView.as_view(), name='editar_mensalidade'),
     path('mensalidades/gerar-em-massa/', GerarMensalidadesEmMassaView.as_view(), name='gerar_mensalidades_massa'),
+    path('mensalidades/preview-geracao/', PreviewGerarMensalidadesView.as_view(), name='preview_geracao_mensalidades'),
+    path('mensalidades/confirmar-geracao/', ConfirmarGeracaoMensalidadesView.as_view(), name='confirmar_geracao_mensalidades'),
     path('plano-de-contas/', PlanoDeContasListView.as_view(), name='lista_plano_de_contas'),
     path('plano-de-contas/adicionar/', PlanoDeContasCreateView.as_view(), name='adicionar_plano_de_contas'),
     path('plano-de-contas/<int:pk>/editar/', PlanoDeContasUpdateView.as_view(), name='editar_plano_de_contas'),
@@ -28,6 +32,7 @@ urlpatterns = [
     path('caixas/<int:pk>/editar/', CaixaUpdateView.as_view(), name='editar_caixa'),
     path('caixas/<int:pk>/excluir/', CaixaDeleteView.as_view(), name='excluir_caixa'),
     path('fluxo-de-caixa/', FluxoDeCaixaView.as_view(), name='fluxo_de_caixa'),
+    path('fluxo-de-caixa/pdf/', FluxoDeCaixaPDFView.as_view(), name='fluxo_caixa_pdf'),
     path('mensalidades/<int:pk>/excluir/', MensalidadeDeleteView.as_view(), name='excluir_mensalidade'),
     path('mensalidades/pdf/', MensalidadePDFView.as_view(), name='mensalidades_pdf'),
     path('contas/', ContaListView.as_view(), name='lista_contas'),

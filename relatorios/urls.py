@@ -2,7 +2,8 @@
 from django.urls import path
 from .views import (
     RelatorioInadimplenciaView, RelatorioInadimplenciaPDFView,
-    RelatorioContasView, RelatorioDREView, RelatorioContasPDFView
+    RelatorioContasView, RelatorioDREView, RelatorioContasPDFView,
+    RelatorioContasSinteticoView, RelatorioContasSinteticoPDFView
 )
 
 app_name = 'relatorios'
@@ -12,5 +13,7 @@ urlpatterns = [
     path('inadimplencia/pdf/', RelatorioInadimplenciaPDFView.as_view(), name='inadimplencia_pdf'),
     path('contas/', RelatorioContasView.as_view(), name='contas'),
     path('contas/pdf/', RelatorioContasPDFView.as_view(), name='contas_pdf'),
+    path('contas/sintetico/', RelatorioContasSinteticoView.as_view(), name='contas_sintetico'),
+    path('contas/sintetico/pdf/', RelatorioContasSinteticoPDFView.as_view(), name='contas_sintetico_pdf'),
     path('dre/', RelatorioDREView.as_view(), name='dre'),
 ]

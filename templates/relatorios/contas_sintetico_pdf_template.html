@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório Sintético por Sócio</title>
+    <style>
+        @page { size: A4 portrait; margin: 1cm; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9pt; color: #2c3e50; margin: 0; }
+        .header { width: 100%; border-bottom: 2px solid #004080; padding-bottom: 10px; margin-bottom: 12px; }
+        .company-name { font-size: 14pt; font-weight: 800; color: #004080; margin: 0; }
+        .report-title { font-size: 11pt; margin: 3px 0 0 0; text-transform: uppercase; color: #555; letter-spacing: 0.5px; }
+        .report-sub { font-size: 7.5pt; color: #64748b; margin: 2px 0 0 0; }
+        .logo { max-height: 44px; }
+        .filters-box { background: #f4f6f9; border: 1px solid #ddd; padding: 7px 10px; margin-bottom: 10px; font-size: 8pt; border-radius: 4px; }
+        .filter-item { display: inline-block; margin-right: 14px; }
+        .filter-label { font-weight: 700; color: #334155; }
+        .summary-row { display: table; width: 100%; margin-bottom: 10px; }
+        .summary-box { display: table-cell; width: 33.3%; padding: 7px 10px; text-align: center; border: 1px solid #e2e8f0; background: white; }
+        .summary-box:first-child { border-radius: 6px 0 0 6px; }
+        .summary-box:last-child { border-radius: 0 6px 6px 0; }
+        .summary-label { font-size: 7pt; text-transform: uppercase; letter-spacing: 0.6px; color: #64748b; display: block; }
+        .summary-value { font-size: 11pt; font-weight: 800; display: block; margin-top: 2px; }
+        .text-green { color: #059669; } .text-red { color: #dc2626; } .text-blue { color: #004080; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        th { background: #004080; color: white; padding: 7px 8px; text-align: left; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.6px; }
+        td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; font-size: 8.5pt; }
+        tr:nth-child(even) { background: #f8fafc; }
+        .text-right { text-align: right; } .text-center { text-align: center; }
+        .badge { padding: 2px 7px; border-radius: 10px; font-size: 7pt; font-weight: 700; color: white; }
+        .bg-gray { background: #64748b; } .bg-yellow { background: #f59e0b; } .bg-green { background: #059669; }
+        .total-row td { background: #e0e7ff; border-top: 2px solid #004080; font-weight: 800; padding: 8px; font-size: 9pt; }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: right; font-size: 7pt; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 5px; }
+        .empty { text-align: center; padding: 18px; color: #64748b; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="border: none; width: 72%;">
+                    <div class="company-name">{{ empresa.nome }}</div>
+                    <div class="report-title">Contas a Receber — Sintético por Sócio</div>
+                    <div class="report-sub">Apenas nome e valor total em aberto/atrasado &bull; Agrupado por sócio &bull; Período por vencimento</div>
+                </td>
+                <td style="border: none; text-align: right;">
+                    {% if empresa.logo %}<img src="{{ empresa.logo.url }}" class="logo">{% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="filters-box">
+        <span class="filter-item"><span class="filter-label">Período:</span> {% if data_inicio %}{{ data_inicio|date:"d/m/Y" }}{% else %}Início{% endif %} até {% if data_fim %}{{ data_fim|date:"d/m/Y" }}{% else %}Hoje{% endif %}</span>
+        <span class="filter-item"><span class="filter-label">Status:</span> {% if status_filtro %}{{ status_filtro }}{% else %}Aberto/Atrasado (PENDENTE/VENCIDA/ATRASADA){% endif %}</span>
+        <span class="filter-item"><span class="filter-label">Sócios:</span> {{ sintetico|length }}</span>
+        <span class="filter-item"><span class="filter-label">Títulos:</span> {{ total_qtd }}</span>
+    </div>
+
+    <div class="summary-row">
+        <div class="summary-box">
+            <span class="summary-label">Sócios com débito</span>
+            <span class="summary-value text-blue">{{ sintetico|length }}</span>
+        </div>
+        <div class="summary-box">
+            <span class="summary-label">Qtd títulos</span>
+            <span class="summary-value" style="color:#92400e;">{{ total_qtd }}</span>
+        </div>
+        <div class="summary-box">
+            <span class="summary-label">Valor total</span>
+            <span class="summary-value text-red">R$ {{ total_geral|floatformat:2 }}</span>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 14%; text-align:center;">Registro</th>
+                <th style="width: 54%;">Sócio</th>
+                <th style="width: 14%; text-align:center;">Qtd</th>
+                <th style="width: 18%; text-align:right;">Valor total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in sintetico %}
+            <tr>
+                <td style="text-align:center;"><span class="badge bg-gray">{{ row.num_registro }}</span></td>
+                <td><strong>{{ row.nome }}</strong></td>
+                <td style="text-align:center;"><span class="badge bg-yellow">{{ row.qtd }}</span></td>
+                <td style="text-align:right;"><strong style="color:#dc2626;">R$ {{ row.total|floatformat:2 }}</strong></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="empty">Nenhum débito em aberto para o período filtrado.</td></tr>
+            {% endfor %}
+        </tbody>
+        {% if sintetico %}
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="2" style="text-align:right;">TOTAL GERAL:</td>
+                <td style="text-align:center;">{{ total_qtd }}</td>
+                <td style="text-align:right;">R$ {{ total_geral|floatformat:2 }}</td>
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+
+    <div class="footer">Gerado em {{ data_emissao|date:"d/m/Y H:i" }} &nbsp;|&nbsp; {{ empresa.nome }} — Sistema e-Clube Campestre &nbsp;|&nbsp; Sintético por Sócio</div>
+</body>
+</html>

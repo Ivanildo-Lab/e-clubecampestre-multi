@@ -52,8 +52,11 @@ INSTALLED_APPS = [
     'socios', # Onde estão nossas views e urls de sócios.
     'usuarios', # Desativado por enquanto.
     'financeiro', # Desativado por enquanto.
-     'relatorios', # Desativado por enquanto.
+     'relatorios',
      'fornecedores',
+     'formas_pagamento',
+     'estoque',
+     'vendas',
 ]
 
 MIDDLEWARE = [

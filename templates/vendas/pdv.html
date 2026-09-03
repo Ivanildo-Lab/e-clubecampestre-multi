@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_pagina %}PDV - Nova Venda{% endblock %}
+{% block titulo_cabecalho %}Ponto de Venda{% endblock %}
+{% block subtitulo_cabecalho %}Selecione produtos e finalize a venda{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Produtos -->
+    <div class="col-md-7">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title"><i class="fa fa-cubes"></i> Produtos</h3>
+                <div class="box-tools pull-right" style="width: 50%;">
+                    <div class="input-group">
+                        <input type="text" id="buscaProduto" class="form-control input-sm" placeholder="Buscar por nome ou código de barras..." value="{{ search_query }}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-sm btn-info" id="btnBuscar"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="box-body table-responsive no-padding" style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-hover" id="tabelaProdutos">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Estoque</th>
+                            <th>Preço</th>
+                            <th style="width: 100px;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in produtos %}
+                        <tr data-id="{{ p.id }}" data-nome="{{ p.nome }}" data-preco="{{ p.preco_venda }}" data-estoque="{{ p.estoque_atual }}" data-unidade="{{ p.get_unidade_display }}">
+                            <td>
+                                <strong>{{ p.nome }}</strong><br>
+                                <small class="text-muted">{{ p.categoria.nome|default:"Sem categoria" }} {% if p.codigo_barras %} | {{ p.codigo_barras }}{% endif %}</small>
+                            </td>
+                            <td>
+                                <span class="badge {% if p.estoque_atual <= p.estoque_minimo %}bg-red{% else %}bg-green{% endif %}">{{ p.estoque_atual }} {{ p.get_unidade_display }}</span>
+                            </td>
+                            <td>R$ {{ p.preco_venda|floatformat:2 }}</td>
+                            <td>
+                                <button class="btn btn-xs btn-success btn-add" {% if p.estoque_atual <= 0 %}disabled title="Sem estoque"{% endif %}>
+                                    <i class="fa fa-plus"></i> Adicionar
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center">Nenhum produto encontrado.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="box-footer">
+                <small class="text-muted"><i class="fa fa-info-circle"></i> Clique em Adicionar para incluir no carrinho. Use a busca para filtrar.</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carrinho / Checkout -->
+    <div class="col-md-5">
+        <div class="box box-success">
+            <div class="box-header with-border">
+                <h3 class="box-title"><i class="fa fa-shopping-cart"></i> Carrinho</h3>
+                <span class="badge bg-green pull-right" id="badgeQtdItens">0 itens</span>
+            </div>
+            <div class="box-body">
+                <div id="carrinhoVazio" class="text-center text-muted" style="padding: 20px;">
+                    <i class="fa fa-shopping-cart fa-3x"></i>
+                    <p>Carrinho vazio</p>
+                </div>
+                <div class="table-responsive" id="carrinhoTabelaWrap" style="display:none;">
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th style="width: 80px;">Qtd</th>
+                                <th style="text-align:right;">Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="carrinhoBody"></tbody>
+                    </table>
+                </div>
+                <div class="well well-sm" style="margin-top:10px;">
+                    <h4 class="text-center" style="margin:0;">Total: <strong class="text-green" id="valorTotal">R$ 0,00</strong></h4>
+                </div>
+
+                <form id="formVenda" method="post" action="{% url 'vendas:pdv' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="itens_json" id="itensJson">
+                    
+                    <div class="form-group">
+                        <label>Tipo de Venda</label>
+                        <div>
+                            <label class="radio-inline">
+                                <input type="radio" name="tipo" value="A_VISTA" checked id="tipoVista"> À Vista
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="tipo" value="A_PRAZO" id="tipoPrazo"> A Prazo (Sócio)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="campoAVista">
+                        <div class="form-group">
+                            <label>Forma de Pagamento</label>
+                            <select name="forma_pagamento" class="form-control" id="selectForma">
+                                <option value="">Selecione...</option>
+                                {% for f in formas_pagamento %}
+                                <option value="{{ f.id }}">{{ f.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Caixa *</label>
+                            <select name="caixa" class="form-control" id="selectCaixa">
+                                <option value="">Selecione o caixa...</option>
+                                {% for c in caixas %}
+                                <option value="{{ c.id }}">{{ c.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="campoAPrazo" style="display:none;">
+                        <div class="form-group">
+                            <label>Sócio *</label>
+                            <select name="socio" class="form-control" id="selectSocio">
+                                <option value="">Selecione o sócio...</option>
+                                {% for s in socios %}
+                                <option value="{{ s.id }}">{{ s.nome }} ({{ s.num_registro }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <p class="text-muted"><small><i class="fa fa-info"></i> Será gerada uma <strong>Conta a Receber</strong> para o sócio.</small></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Observação</label>
+                        <textarea name="observacao" class="form-control" rows="2" placeholder="Opcional..."></textarea>
+                    </div>
+
+                    <button type="submit" id="btnFinalizar" class="btn btn-success btn-block btn-lg" disabled>
+                        <i class="fa fa-check"></i> Confirmar Venda
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+    let carrinho = [];
+
+    function formatBRL(v){
+        return 'R$ ' + parseFloat(v).toFixed(2).replace('.', ',');
+    }
+
+    function renderCarrinho(){
+        const body = document.getElementById('carrinhoBody');
+        const vazio = document.getElementById('carrinhoVazio');
+        const wrap = document.getElementById('carrinhoTabelaWrap');
+        const totalEl = document.getElementById('valorTotal');
+        const badge = document.getElementById('badgeQtdItens');
+        const btn = document.getElementById('btnFinalizar');
+        const itensJson = document.getElementById('itensJson');
+
+        body.innerHTML = '';
+        if(carrinho.length === 0){
+            vazio.style.display = 'block';
+            wrap.style.display = 'none';
+            totalEl.textContent = 'R$ 0,00';
+            badge.textContent = '0 itens';
+            btn.disabled = true;
+            itensJson.value = '[]';
+            return;
+        }
+        vazio.style.display = 'none';
+        wrap.style.display = 'block';
+        let total = 0;
+        let totalQtd = 0;
+        carrinho.forEach((item, idx) => {
+            const subtotal = item.quantidade * item.preco;
+            total += subtotal;
+            totalQtd += parseFloat(item.quantidade);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${item.nome}</strong><br><small class="text-muted">R$ ${parseFloat(item.preco).toFixed(2).replace('.',',')} / ${item.unidade}</small></td>
+                <td>
+                    <div class="input-group input-group-sm">
+                        <input type="number" min="0.01" step="0.01" class="form-control input-sm qtd-input" data-idx="${idx}" value="${item.quantidade}" style="padding:3px;">
+                    </div>
+                    <small class="text-muted">est: ${item.estoque}</small>
+                </td>
+                <td style="text-align:right;">${formatBRL(subtotal)}</td>
+                <td><button class="btn btn-xs btn-danger btn-remove" data-idx="${idx}"><i class="fa fa-trash"></i></button></td>
+            `;
+            body.appendChild(tr);
+        });
+        totalEl.textContent = formatBRL(total);
+        badge.textContent = carrinho.length + ' ' + (carrinho.length===1 ? 'item' : 'itens');
+        btn.disabled = false;
+        // serialize for form
+        const payload = carrinho.map(i => ({produto_id: i.id, quantidade: i.quantidade, preco_unitario: i.preco}));
+        itensJson.value = JSON.stringify(payload);
+
+        // bind events for qtd change and remove
+        body.querySelectorAll('.qtd-input').forEach(inp => {
+            inp.addEventListener('change', function(){
+                const idx = parseInt(this.dataset.idx);
+                let val = parseFloat(this.value);
+                if(isNaN(val) || val <= 0){ val = 1; this.value = 1; }
+                const estoque = parseFloat(carrinho[idx].estoque);
+                if(val > estoque){
+                    alert('Estoque insuficiente! Disponível: ' + estoque);
+                    val = estoque;
+                    this.value = estoque;
+                }
+                carrinho[idx].quantidade = val;
+                renderCarrinho();
+            });
+        });
+        body.querySelectorAll('.btn-remove').forEach(btn => {
+            btn.addEventListener('click', function(){
+                const idx = parseInt(this.dataset.idx);
+                carrinho.splice(idx, 1);
+                renderCarrinho();
+            });
+        });
+    }
+
+    function addProduto(id, nome, preco, estoque, unidade){
+        estoque = parseFloat(estoque);
+        if(estoque <= 0){
+            alert('Produto sem estoque!');
+            return;
+        }
+        const exist = carrinho.findIndex(i => i.id == id);
+        if(exist >= 0){
+            let novaQtd = parseFloat(carrinho[exist].quantidade) + 1;
+            if(novaQtd > estoque){
+                alert('Estoque insuficiente! Disponível: ' + estoque);
+                return;
+            }
+            carrinho[exist].quantidade = novaQtd;
+        } else {
+            carrinho.push({id: id, nome: nome, preco: parseFloat(preco), quantidade: 1, estoque: estoque, unidade: unidade});
+        }
+        renderCarrinho();
+    }
+
+    // Delegation for add buttons (existing)
+    document.getElementById('tabelaProdutos').addEventListener('click', function(e){
+        const btn = e.target.closest('.btn-add');
+        if(!btn) return;
+        const tr = btn.closest('tr');
+        const id = tr.dataset.id;
+        const nome = tr.dataset.nome;
+        const preco = tr.dataset.preco;
+        const estoque = tr.dataset.estoque;
+        const unidade = tr.dataset.unidade;
+        addProduto(id, nome, preco, estoque, unidade);
+    });
+
+    // Tipo toggle
+    const tipoVista = document.getElementById('tipoVista');
+    const tipoPrazo = document.getElementById('tipoPrazo');
+    const campoVista = document.getElementById('campoAVista');
+    const campoPrazo = document.getElementById('campoAPrazo');
+    function updateTipo(){
+        if(tipoPrazo.checked){
+            campoVista.style.display = 'none';
+            campoPrazo.style.display = 'block';
+        } else {
+            campoVista.style.display = 'block';
+            campoPrazo.style.display = 'none';
+        }
+    }
+    tipoVista.addEventListener('change', updateTipo);
+    tipoPrazo.addEventListener('change', updateTipo);
+
+    // Busca AJAX
+    const buscaInput = document.getElementById('buscaProduto');
+    const btnBuscar = document.getElementById('btnBuscar');
+    const tabelaBody = document.querySelector('#tabelaProdutos tbody');
+
+    function doSearch(){
+        const q = buscaInput.value.trim();
+        fetch("{% url 'vendas:api_produtos' %}?q=" + encodeURIComponent(q), {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(r => r.json())
+        .then(data => {
+            tabelaBody.innerHTML = '';
+            if(data.produtos.length === 0){
+                tabelaBody.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum produto encontrado.</td></tr>';
+                return;
+            }
+            data.produtos.forEach(p => {
+                const disabled = parseFloat(p.estoque_atual) <= 0 ? 'disabled title="Sem estoque"' : '';
+                const tr = document.createElement('tr');
+                tr.dataset.id = p.id;
+                tr.dataset.nome = p.nome;
+                tr.dataset.preco = p.preco_venda;
+                tr.dataset.estoque = p.estoque_atual;
+                tr.dataset.unidade = p.unidade;
+                tr.innerHTML = `
+                    <td><strong>${p.nome}</strong><br><small class="text-muted">${p.categoria} | estoque: ${p.estoque_atual} ${p.unidade}</small></td>
+                    <td><span class="badge ${parseFloat(p.estoque_atual)<=0 ? 'bg-red' : 'bg-green'}">${p.estoque_atual} ${p.unidade}</span></td>
+                    <td>R$ ${parseFloat(p.preco_venda).toFixed(2).replace('.',',')}</td>
+                    <td><button class="btn btn-xs btn-success btn-add" ${disabled}><i class="fa fa-plus"></i> Adicionar</button></td>
+                `;
+                tabelaBody.appendChild(tr);
+            });
+        });
+    }
+    btnBuscar.addEventListener('click', function(e){ e.preventDefault(); doSearch(); });
+    buscaInput.addEventListener('keyup', function(e){ if(e.key === 'Enter'){ e.preventDefault(); doSearch(); } });
+    // Debounce on typing
+    let debounce;
+    buscaInput.addEventListener('input', function(){
+        clearTimeout(debounce);
+        debounce = setTimeout(doSearch, 400);
+    });
+
+    // Form validation on submit
+    document.getElementById('formVenda').addEventListener('submit', function(e){
+        if(carrinho.length === 0){
+            e.preventDefault();
+            alert('Adicione produtos ao carrinho!');
+            return;
+        }
+        const tipo = document.querySelector('input[name="tipo"]:checked').value;
+        if(tipo === 'A_VISTA'){
+            if(!document.getElementById('selectCaixa').value){
+                e.preventDefault();
+                alert('Selecione o caixa para venda à vista.');
+                return;
+            }
+        } else {
+            if(!document.getElementById('selectSocio').value){
+                e.preventDefault();
+                alert('Selecione o sócio para venda a prazo.');
+                return;
+            }
+        }
+        // allow submit
+    });
+
+    renderCarrinho();
+})();
+</script>
+{% endblock %}

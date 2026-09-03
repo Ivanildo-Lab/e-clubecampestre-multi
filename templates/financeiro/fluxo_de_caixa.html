@@ -9,9 +9,14 @@
         <div class="box box-primary">
             <div class="box-header with-border">
                 <h3 class="box-title">Fluxo de Caixa / Extrato</h3>
-                <!-- BOTÃO DE ADICIONAR LANÇAMENTO MANUAL -->
+                <!-- BOTÕES -->
                 <div class="box-tools pull-right">
-                    <a href="{% url 'financeiro:adicionar_lancamento' %}" class="btn btn-primary btn-flat">
+                    {% if caixa_selecionado_id %}
+                    <a href="{% url 'financeiro:fluxo_caixa_pdf' %}?caixa={{ caixa_selecionado_id }}&data_inicio={{ data_inicio }}&data_fim={{ data_fim }}" target="_blank" class="btn btn-danger btn-flat">
+                        <i class="fa fa-file-pdf-o"></i> PDF
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'financeiro:adicionar_lancamento' %}" class="btn btn-primary btn-flat" style="margin-left: 5px;">
                         <i class="fa fa-plus"></i> Adicionar Lançamento
                     </a>
                 </div>

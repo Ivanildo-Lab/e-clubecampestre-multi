@@ -233,8 +233,14 @@ class BaixaMensalidadeForm(forms.Form):
     caixa = forms.ModelChoiceField(
         queryset=Caixa.objects.all(),
         label="Confirmar no Caixa / Conta",
-        required=False,  # <-- TORNA O CAMPO OPCIONAL
-        empty_label="-- Não lançar no caixa (Apenas baixar) --" # <-- TEXTO MAIS CLARO
+        required=False,
+        empty_label="-- Nao lancar no caixa (Apenas baixar) --"
+    )
+    forma_pagamento = forms.ModelChoiceField(
+        queryset=None,
+        label="Forma de Pagamento",
+        required=False,
+        empty_label="-- Selecione --"
     )
     data_pagamento = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="Data do Pagamento")
     valor_juros = forms.DecimalField(max_digits=10, decimal_places=2, required=False, label="Juros / Multa (R$)")
@@ -243,7 +249,9 @@ class BaixaMensalidadeForm(forms.Form):
         empresa = kwargs.pop('empresa', None)
         super().__init__(*args, **kwargs)
         if empresa:
+            from formas_pagamento.models import FormaPagamento
             self.fields['caixa'].queryset = Caixa.objects.filter(empresa=empresa)
+            self.fields['forma_pagamento'].queryset = FormaPagamento.objects.filter(empresa=empresa, ativo=True)
 
 
 

@@ -32,12 +32,15 @@ class SocioListView(LoginRequiredMixin, ListView):
         search_query = self.request.GET.get('q')
         categoria_id = self.request.GET.get('categoria')
         status = self.request.GET.get('status')
+        busca_dep = self.request.GET.get('busca_dep')
         if search_query:
             queryset = queryset.filter(Q(nome__icontains=search_query) | Q(cpf__icontains=search_query) | Q(num_registro__icontains=search_query))
         if categoria_id:
             queryset = queryset.filter(categoria_id=categoria_id)
         if status:
             queryset = queryset.filter(situacao=status)
+        if busca_dep:
+            queryset = queryset.filter(dependentes__nome__icontains=busca_dep).distinct()
         return queryset.annotate(num_dependentes=Count('dependentes')).order_by('nome')
 
     def get_context_data(self, **kwargs):
@@ -53,6 +56,7 @@ class SocioListView(LoginRequiredMixin, ListView):
         context['search_query'] = self.request.GET.get('q', '')
         context['categoria_selecionada'] = self.request.GET.get('categoria', '')
         context['status_selecionado'] = self.request.GET.get('status', '')
+        context['busca_dep'] = self.request.GET.get('busca_dep', '')
         for socio in context['socios']:
             socio.foto_existe = False
             if socio.foto and socio.foto.storage.exists(socio.foto.name):

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_pagina %}Sintético por Sócio{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Contas a Receber — Sintético por Sócio</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'relatorios:contas_sintetico_pdf' %}?data_inicio={{ data_inicio }}&data_fim={{ data_fim }}&status={{ status_filtro }}" target="_blank" class="btn btn-danger btn-flat">
+                        <i class="fa fa-file-pdf-o"></i> PDF Sintético
+                    </a>
+                    <a href="{% url 'relatorios:contas' %}" class="btn btn-default btn-flat" style="margin-left:5px;">
+                        <i class="fa fa-list"></i> Detalhado
+                    </a>
+                </div>
+            </div>
+
+            <form method="GET" action="">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-3 form-group">
+                            <label>Vencimento De</label>
+                            <input type="date" name="data_inicio" class="form-control" value="{{ data_inicio }}">
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label>Até</label>
+                            <input type="date" name="data_fim" class="form-control" value="{{ data_fim }}">
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label>Status</label>
+                            <select name="status" class="form-control">
+                                <option value="">Aberto / Atrasado (Pendente+Vencida/Atrasada)</option>
+                                <option value="PENDENTE" {% if status_filtro == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                                <option value="VENCIDA" {% if status_filtro == 'VENCIDA' %}selected{% endif %}>Vencida</option>
+                                <option value="ATRASADA" {% if status_filtro == 'ATRASADA' %}selected{% endif %}>Atrasada</option>
+                                <option value="PAGA" {% if status_filtro == 'PAGA' %}selected{% endif %}>Paga</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-info btn-flat btn-block"><i class="fa fa-filter"></i> Filtrar</button>
+                        </div>
+                    </div>
+                    <p class="text-muted"><small><i class="fa fa-info-circle"></i> Sem filtro de status, mostra apenas <strong>em aberto/atrasado</strong> (Conta: PENDENTE/VENCIDA, Mensalidade: PENDENTE/ATRASADA). Informe o período para filtrar por vencimento.</small></p>
+                </div>
+            </form>
+
+            <div class="box-body" style="padding-top: 0;">
+                <div class="row">
+                    <div class="col-md-4"><div class="info-box bg-aqua"><span class="info-box-icon"><i class="fa fa-users"></i></span><div class="info-box-content"><span class="info-box-text">Sócios com débito</span><span class="info-box-number">{{ sintetico|length }}</span></div></div></div>
+                    <div class="col-md-4"><div class="info-box bg-yellow"><span class="info-box-icon"><i class="fa fa-list-ol"></i></span><div class="info-box-content"><span class="info-box-text">Qtd títulos</span><span class="info-box-number">{{ total_qtd }}</span></div></div></div>
+                    <div class="col-md-4"><div class="info-box bg-green"><span class="info-box-icon"><i class="fa fa-dollar"></i></span><div class="info-box-content"><span class="info-box-text">Total geral</span><span class="info-box-number">R$ {{ total_geral|floatformat:2 }}</span></div></div></div>
+                </div>
+            </div>
+
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">Registro</th>
+                            <th>Sócio</th>
+                            <th class="text-center" style="width: 12%;">Qtd títulos</th>
+                            <th class="text-right" style="width: 18%;">Valor total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in sintetico %}
+                        <tr>
+                            <td><span class="badge bg-gray">{{ row.num_registro }}</span></td>
+                            <td><strong>{{ row.nome }}</strong></td>
+                            <td class="text-center"><span class="badge bg-yellow">{{ row.qtd }}</span></td>
+                            <td class="text-right"><strong class="text-red">R$ {{ row.total|floatformat:2 }}</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center" style="padding: 20px; color: #777;">Nenhum débito em aberto para o período/status filtrado.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if sintetico %}
+                    <tfoot>
+                        <tr style="background: #f4f4f4; font-weight: bold; border-top: 2px solid #004080;">
+                            <td colspan="2" class="text-right">TOTAL GERAL:</td>
+                            <td class="text-center">{{ total_qtd }}</td>
+                            <td class="text-right text-red" style="font-size: 11pt;">R$ {{ total_geral|floatformat:2 }}</td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

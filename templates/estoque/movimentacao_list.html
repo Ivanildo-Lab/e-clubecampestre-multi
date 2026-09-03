@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Movimentacoes de Estoque{% endblock %}
+{% block titulo_cabecalho %}Movimentacoes de Estoque{% endblock %}
+{% block subtitulo_cabecalho %}Entradas, Saidas e Ajustes{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Historico de Movimentacoes</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'estoque:movimentacoes_pdf' %}?tipo={{ tipo_selecionado }}&produto={{ produto_selecionado }}&q={{ search_query }}" class="btn btn-danger btn-flat" target="_blank">
+                        <i class="fa fa-file-pdf-o"></i> Gerar PDF
+                    </a>
+                    <a href="{% url 'estoque:adicionar_movimentacao' %}" class="btn btn-success btn-flat">
+                        <i class="fa fa-plus"></i> Nova Movimentacao
+                    </a>
+                </div>
+            </div>
+
+            <form method="GET" action="{% url 'estoque:lista_movimentacoes' %}">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <select name="tipo" class="form-control">
+                                    <option value="">Todos</option>
+                                    <option value="ENTRADA" {% if tipo_selecionado == 'ENTRADA' %}selected{% endif %}>Entrada</option>
+                                    <option value="SAIDA" {% if tipo_selecionado == 'SAIDA' %}selected{% endif %}>Saida</option>
+                                    <option value="AJUSTE" {% if tipo_selecionado == 'AJUSTE' %}selected{% endif %}>Ajuste</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Produto</label>
+                                <select name="produto" class="form-control">
+                                    <option value="">Todos</option>
+                                    {% for prod in produtos %}
+                                        <option value="{{ prod.id }}" {% if prod.id|stringformat:"s" == produto_selecionado %}selected{% endif %}>{{ prod.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Buscar</label>
+                            <input type="text" name="q" class="form-control" placeholder="Produto ou motivo..." value="{{ search_query }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label>&nbsp;</label>
+                            <div class="btn-group" style="display: flex;">
+                                <button type="submit" class="btn btn-info btn-flat" style="flex-grow: 1;">Filtrar</button>
+                                <a href="{% url 'estoque:lista_movimentacoes' %}" class="btn btn-default btn-flat"><i class="fa fa-eraser"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Produto</th>
+                            <th>Tipo</th>
+                            <th>Qtd</th>
+                            <th>Fornecedor</th>
+                            <th>Valor Compra</th>
+                            <th>Motivo</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mov in movimentacoes %}
+                        <tr>
+                            <td>{{ mov.data_movimentacao|date:"d/m/Y H:i" }}</td>
+                            <td><strong>{{ mov.produto.nome }}</strong></td>
+                            <td>
+                                {% if mov.tipo == 'ENTRADA' %}
+                                    <span class="label label-success">{{ mov.get_tipo_display }}</span>
+                                {% elif mov.tipo == 'SAIDA' %}
+                                    <span class="label label-danger">{{ mov.get_tipo_display }}</span>
+                                {% else %}
+                                    <span class="label label-warning">{{ mov.get_tipo_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ mov.quantidade }}</td>
+                            <td>{{ mov.fornecedor.nome|default:"--" }}</td>
+                            <td>{% if mov.valor_compra > 0 %}R$ {{ mov.valor_compra|floatformat:2 }}{% else %}--{% endif %}</td>
+                            <td>{{ mov.motivo }}</td>
+                            <td>{{ mov.usuario.get_full_name|default:mov.usuario.username }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="8" class="text-center">Nenhuma movimentacao encontrada.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="box-footer clearfix">
+                <ul class="pagination pagination-sm no-margin pull-right">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page=1&q={{ search_query }}&tipo={{ tipo_selecionado }}&produto={{ produto_selecionado }}">&laquo;</a></li>
+                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&tipo={{ tipo_selecionado }}&produto={{ produto_selecionado }}">&lsaquo;</a></li>
+                    {% endif %}
+                    <li class="disabled"><a>Pag {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</a></li>
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&tipo={{ tipo_selecionado }}&produto={{ produto_selecionado }}">&rsaquo;</a></li>
+                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&tipo={{ tipo_selecionado }}&produto={{ produto_selecionado }}">&raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

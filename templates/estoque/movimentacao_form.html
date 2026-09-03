@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}{{ titulo_pagina }}{% endblock %}
+{% block titulo_cabecalho %}{{ titulo_pagina }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="box box-warning">
+            <div class="box-header with-border">
+                <h3 class="box-title">Registrar Movimentacao</h3>
+            </div>
+            <form role="form" method="post">
+                {% csrf_token %}
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                {{ form.produto.label_tag }}
+                                {{ form.produto }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.tipo.label_tag }}
+                                {{ form.tipo }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.quantidade.label_tag }}
+                                {{ form.quantidade }}
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                {{ form.motivo.label_tag }}
+                                {{ form.motivo }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campos visiveis apenas para ENTRADA -->
+                    <div id="campos-entrada" style="display: none;">
+                        <hr>
+                        <h4><i class="fa fa-truck"></i> Dados da Compra (Entrada)</h4>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    {{ form.fornecedor.label_tag }}
+                                    {{ form.fornecedor }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.valor_compra.label_tag }}
+                                    <div class="input-group">
+                                        <span class="input-group-addon">R$</span>
+                                        {{ form.valor_compra }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.observacao.label_tag }}
+                        {{ form.observacao }}
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-warning"><i class="fa fa-save"></i> Registrar Movimentacao</button>
+                    <a href="{% url 'estoque:lista_movimentacoes' %}" class="btn btn-default">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tipoSelect = document.getElementById('id_tipo');
+    var camposEntrada = document.getElementById('campos-entrada');
+
+    function toggleCamposEntrada() {
+        if (tipoSelect.value === 'ENTRADA') {
+            camposEntrada.style.display = 'block';
+        } else {
+            camposEntrada.style.display = 'none';
+        }
+    }
+
+    tipoSelect.addEventListener('change', toggleCamposEntrada);
+    toggleCamposEntrada();
+});
+</script>
+{% endblock %}

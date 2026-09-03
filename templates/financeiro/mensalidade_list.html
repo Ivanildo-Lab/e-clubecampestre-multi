@@ -51,7 +51,7 @@
                 <table class="table table-hover">
                     <tbody>
                         <tr>
-                            <th>Sócio</th><th>Competência</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Data Pagamento</th><th>Ações</th>
+                            <th>Sócio</th><th>Competência</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Data Pagamento</th><th>Forma Pgto</th><th>Ações</th>
                         </tr>
                         {% for mensalidade in mensalidades %}
                         <tr>
@@ -63,6 +63,7 @@
                                 {% if mensalidade.status == 'PAGA' %}<span class="label label-success">{{ mensalidade.get_status_display }}</span>{% elif mensalidade.status == 'ATRASADA' %}<span class="label label-danger">{{ mensalidade.get_status_display }}</span>{% elif mensalidade.status == 'PENDENTE' %}<span class="label label-warning">{{ mensalidade.get_status_display }}</span>{% else %}<span class="label label-default">{{ mensalidade.get_status_display }}</span>{% endif %}
                             </td>
                             <td>{{ mensalidade.data_pagamento|date:"d/m/Y"|default:"--" }}</td>
+                            <td>{{ mensalidade.forma_pagamento.nome|default:"--" }}</td>
                             <td>
                                 {% if mensalidade.status != 'PAGA' %}
                                 <button class="btn btn-xs btn-success js-baixa-mensalidade-btn"
@@ -87,7 +88,7 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="7" class="text-center">Nenhuma mensalidade encontrada.</td></tr>
+                        <tr><td colspan="8" class="text-center">Nenhuma mensalidade encontrada.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -96,13 +97,13 @@
             <div class="box-footer clearfix">
                 <ul class="pagination pagination-sm no-margin pull-right">
                     {% if page_obj.has_previous %}
-                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">&laquo; Primeira</a></li>
-                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">&lsaquo; Anterior</a></li>
+                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}">&laquo; Primeira</a></li>
+                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}">&lsaquo; Anterior</a></li>
                     {% endif %}
                     <li class="disabled"><a>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.</a></li>
                     {% if page_obj.has_next %}
-                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">Próxima &rsaquo;</a></li>
-                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}">Última &raquo;</a></li>
+                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}">Próxima &rsaquo;</a></li>
+                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}">Última &raquo;</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -124,6 +125,10 @@
                     <hr>
                     
                     <!-- RENDERIZA OS CAMPOS DIRETAMENTE DO FORMULÁRIO DO DJANGO -->
+                    <div class="form-group">
+                        {{ baixa_form.forma_pagamento.label_tag }}
+                        {{ baixa_form.forma_pagamento }}
+                    </div>
                     <div class="form-group">
                         {{ baixa_form.caixa.label_tag }}
                         {{ baixa_form.caixa }}

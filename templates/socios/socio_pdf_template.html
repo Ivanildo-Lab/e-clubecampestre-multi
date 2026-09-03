@@ -4,63 +4,284 @@
     <meta charset="UTF-8">
     <title>Ficha Cadastral - {{ socio.nome }}</title>
     <style>
-        @page { size: A4; margin: 1.5cm; }
-        body { font-family: 'Helvetica', sans-serif; font-size: 11pt; color: #333; }
-        h1, h2, h3 { font-family: 'Arial', sans-serif; color: #004080; }
-        .header { text-align: center; border-bottom: 2px solid #004080; padding-bottom: 10px; }
-        .header img { max-height: 80px; max-width: 200px; }
-        .header h1 { margin: 0; font-size: 18pt; }
-        .section { margin-top: 1.5cm; }
-        .section h2 { font-size: 14pt; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px; }
-        .data-grid { width: 100%; border-collapse: collapse; }
-        .data-grid td { padding: 6px; vertical-align: top; }
-        .data-grid .label { font-weight: bold; width: 25%; }
-        .dependents-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .dependents-table th, .dependents-table td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-        .dependents-table th { background-color: #f2f2f2; }
-        .footer { text-align: center; font-size: 9pt; color: #777; position: fixed; bottom: 0; left: 0; right: 0; }
+        @page { size: A4; margin: 1.2cm 1.4cm 1.8cm 1.4cm; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9pt; color: #2c3e50; line-height: 1.4; margin:0; }
+
+        /* Header com gradiente */
+        .header {
+            background: linear-gradient(135deg, #004080 0%, #0066cc 55%, #0099e6 100%);
+            color: white;
+            padding: 18px 20px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::after {
+            content: "";
+            position: absolute;
+            right: -30px; top: -30px;
+            width: 150px; height: 150px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+        .header-table { width: 100%; border-collapse: collapse; }
+        .header-table td { border: none; padding: 0; vertical-align: middle; }
+        .company-logo { max-height: 52px; max-width: 160px; background: white; padding: 4px 8px; border-radius: 6px; }
+        .company-name { font-size: 14pt; font-weight: 800; letter-spacing: 0.5px; margin: 0; }
+        .company-sub { font-size: 7.5pt; opacity: 0.9; margin: 2px 0 0 0; }
+        .report-badge {
+            background: white; color: #004080;
+            padding: 6px 14px; border-radius: 20px;
+            font-size: 8pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px;
+        }
+        .report-title { font-size: 13pt; font-weight: 800; margin: 8px 0 0 0; }
+        .report-subtitle { font-size: 7.5pt; opacity: 0.92; margin: 2px 0 0 0; }
+
+        /* Foto e destaque nome */
+        .hero {
+            display: table; width: 100%; margin-bottom: 14px;
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;
+        }
+        .hero-photo { display: table-cell; width: 92px; vertical-align: middle; text-align: center; }
+        .photo-circle {
+            width: 78px; height: 78px; border-radius: 50%; object-fit: cover;
+            border: 3px solid #004080; background: #e2e8f0;
+        }
+        .photo-placeholder {
+            width: 78px; height: 78px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: white; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 22pt; font-weight: 800; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .hero-info { display: table-cell; vertical-align: middle; padding-left: 14px; }
+        .hero-name { font-size: 13pt; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
+        .hero-meta { font-size: 8pt; color: #64748b; margin: 0; }
+        .badge-status {
+            display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 7.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 6px;
+        }
+        .badge-ativo { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .badge-inativo { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        .badge-suspenso, .badge-cancelado { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .hero-cards { display: table-cell; vertical-align: middle; width: 34%; }
+        .mini-card { background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 9px; margin-bottom: 6px; text-align: center; }
+        .mini-label { font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.7px; color: #64748b; display: block; }
+        .mini-value { font-size: 10pt; font-weight: 800; color: #004080; display: block; }
+
+        /* Secoes */
+        .section { margin-bottom: 12px; page-break-inside: avoid; }
+        .section-header {
+            background: #004080; color: white; padding: 6px 10px; border-radius: 6px 6px 0 0;
+            font-size: 8.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.7px;
+        }
+        .section-header.green { background: linear-gradient(90deg, #059669, #10b981); }
+        .section-header.orange { background: linear-gradient(90deg, #ea580c, #f59e0b); }
+        .section-header.purple { background: linear-gradient(90deg, #6d28d9, #8b5cf6); }
+        .section-body {
+            border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 6px 6px;
+            background: white; padding: 10px 11px;
+        }
+        .grid { width: 100%; border-collapse: collapse; }
+        .grid td { padding: 4.5px 6px; vertical-align: top; border-bottom: 1px solid #f1f5f9; font-size: 8.5pt; }
+        .grid tr:last-child td { border-bottom: none; }
+        .grid .label { font-weight: 700; color: #334155; width: 28%; background: #f8fafc; border-radius: 4px; }
+        .grid .value { color: #0f172a; }
+
+        /* Tabela dependentes estilizada */
+        .dep-table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+        .dep-table th {
+            background: linear-gradient(90deg, #004080, #0066cc); color: white;
+            padding: 7px 8px; text-align: left; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        .dep-table td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; }
+        .dep-table tr:nth-child(even) { background: #f8fafc; }
+        .dep-table .badge-conjuge { background: #dbeafe; color: #1e40af; padding: 2px 7px; border-radius: 10px; font-size: 7pt; font-weight: 700; }
+        .dep-table .badge-filho { background: #fef3c7; color: #92400e; padding: 2px 7px; border-radius: 10px; font-size: 7pt; font-weight: 700; }
+        .dep-table .badge-outro { background: #f1f5f9; color: #334155; padding: 2px 7px; border-radius: 10px; font-size: 7pt; font-weight: 700; }
+
+        .obs-box { background: #fffbeb; border: 1px solid #fcd34d; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 8px 10px; font-size: 8.5pt; color: #92400e; min-height: 38px; }
+        .footer {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            text-align: center; font-size: 7pt; color: #64748b;
+            border-top: 2px solid #004080; padding-top: 6px;
+            background: white;
+        }
+        .footer strong { color: #004080; }
+        .watermark {
+            position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 72pt; color: rgba(0,64,128,0.04); font-weight: 900; letter-spacing: 8px; z-index: -1;
+        }
+        .two-col { display: table; width: 100%; }
+        .two-col > .col { display: table-cell; width: 50%; vertical-align: top; }
+        .two-col > .col:first-child { padding-right: 6px; }
+        .two-col > .col:last-child { padding-left: 6px; }
     </style>
 </head>
 <body>
+    <div class="watermark">{{ empresa.nome|upper }}</div>
+
+    <!-- HEADER -->
     <div class="header">
-        {% if empresa.logo %}
-            <img src="{{ empresa.logo.url }}">
-        {% endif %}
-        <h1>{{ empresa.nome }}</h1>
-        <p>Ficha Cadastral de Sócio</p>
-    </div>
-
-    <div class="section">
-        <h2>Dados do Titular</h2>
-        <table class="data-grid">
-            <tr><td class="label">Nome Completo:</td><td>{{ socio.nome }}</td></tr>
-            <tr><td class="label">Nº Registro:</td><td>{{ socio.num_registro }}</td></tr>
-            <tr><td class="label">CPF:</td><td>{{ socio.cpf }}</td></tr>
-            <tr><td class="label">Data de Nascimento:</td><td>{{ socio.data_nascimento|date:"d/m/Y" }}</td></tr>
-            <tr><td class="label">Data de Admissão:</td><td>{{ socio.data_admissao|date:"d/m/Y" }}</td></tr>
-            <tr><td class="label">Categoria:</td><td>{{ socio.categoria.nome }}</td></tr>
-            <tr><td class="label">Situação:</td><td>{{ socio.get_situacao_display }}</td></tr>
-            <tr><td class="label">Email:</td><td>{{ socio.email|default:"Não informado" }}</td></tr>
-            <tr><td class="label">Telefone:</td><td>{{ socio.tel_residencial|default:"Não informado" }}</td></tr>
+        <table class="header-table">
+            <tr>
+                <td style="width: 68%;">
+                    <div class="company-name">{{ empresa.nome }}</div>
+                    <div class="company-sub">{% if empresa.cidade %}{{ empresa.cidade }}{% if empresa.estado %} - {{ empresa.estado }}{% endif %} &nbsp;|&nbsp; {% endif %}Sistema e-Clube Campestre</div>
+                    <div class="report-title">Ficha Cadastral do Sócio</div>
+                    <div class="report-subtitle">Cadastro completo &bull; Situação e dependentes &bull; Gerado em {% now "d/m/Y H:i" %}</div>
+                </td>
+                <td style="width: 32%; text-align: right;">
+                    {% if empresa.logo %}
+                        <img src="{{ empresa.logo.url }}" class="company-logo">
+                    {% else %}
+                        <div class="report-badge">e-Clube</div>
+                    {% endif %}
+                    <div style="margin-top: 8px;"><span class="report-badge">Registro #{{ socio.num_registro }}</span></div>
+                </td>
+            </tr>
         </table>
     </div>
 
-    {% if dependentes %}
+    <!-- HERO COM FOTO + NOME + CARDS -->
+    <div class="hero">
+        <div class="hero-photo">
+            {% if socio.foto %}
+                <img src="{{ socio.foto.url }}" class="photo-circle">
+            {% else %}
+                <div class="photo-placeholder">{{ socio.nome|slice:":1"|upper }}</div>
+            {% endif %}
+        </div>
+        <div class="hero-info">
+            <div class="hero-name">{{ socio.nome }}</div>
+            <div class="hero-meta">
+                {% if socio.apelido %}<strong>Apelido:</strong> {{ socio.apelido }} &nbsp;|&nbsp; {% endif %}
+                <strong>CPF:</strong> {{ socio.cpf|default:"—" }} &nbsp;|&nbsp; <strong>RG:</strong> {{ socio.rg|default:"—" }}<br>
+                <strong>Nascimento:</strong> {{ socio.data_nascimento|date:"d/m/Y" }} &nbsp;|&nbsp; <strong>Admissão:</strong> {{ socio.data_admissao|date:"d/m/Y" }}<br>
+                <strong>Categoria:</strong> {{ socio.categoria.nome }} {% if socio.convenio %}&nbsp;|&nbsp; <strong>Convênio:</strong> {{ socio.convenio.nome }}{% endif %}
+            </div>
+            {% if socio.situacao == 'ATIVO' %}<span class="badge-status badge-ativo">● Ativo</span>
+            {% elif socio.situacao == 'INATIVO' %}<span class="badge-status badge-inativo">● Inativo</span>
+            {% else %}<span class="badge-status badge-suspenso">● {{ socio.get_situacao_display }}</span>{% endif %}
+        </div>
+        <div class="hero-cards">
+            <div class="mini-card">
+                <span class="mini-label">Matrícula / Contrato</span>
+                <span class="mini-value">{{ socio.num_registro }}{% if socio.num_contrato %} / {{ socio.num_contrato }}{% endif %}</span>
+            </div>
+            <div class="mini-card">
+                <span class="mini-label">Situação</span>
+                <span class="mini-value" style="color:{% if socio.situacao == 'ATIVO' %}#166534{% else %}#991b1b{% endif %};">{{ socio.get_situacao_display }}</span>
+            </div>
+            <div class="mini-card">
+                <span class="mini-label">Dependentes</span>
+                <span class="mini-value">{{ dependentes|length }} vínculo(s)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- DADOS PESSOAIS + CONTATO -->
+    <div class="two-col">
+        <div class="col">
+            <div class="section">
+                <div class="section-header">Dados Pessoais</div>
+                <div class="section-body">
+                    <table class="grid">
+                        <tr><td class="label">Nacionalidade</td><td class="value">{{ socio.nacionalidade|default:"—" }}</td></tr>
+                        <tr><td class="label">Naturalidade</td><td class="value">{{ socio.naturalidade|default:"—" }}</td></tr>
+                        <tr><td class="label">Estado Civil</td><td class="value">{{ socio.get_estado_civil_display|default:"—" }}</td></tr>
+                        <tr><td class="label">Profissão</td><td class="value">{{ socio.profissao|default:"—" }}</td></tr>
+                        <tr><td class="label">Nome do Pai</td><td class="value">{{ socio.nome_pai|default:"—" }}</td></tr>
+                        <tr><td class="label">Nome da Mãe</td><td class="value">{{ socio.nome_mae|default:"—" }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="section">
+                <div class="section-header green">Contato & Endereço</div>
+                <div class="section-body">
+                    <table class="grid">
+                        <tr><td class="label">E-mail</td><td class="value">{{ socio.email|default:"Não informado" }}</td></tr>
+                        <tr><td class="label">Telefone</td><td class="value">{{ socio.tel_residencial|default:"—" }}{% if socio.tel_trabalho %} / {{ socio.tel_trabalho }}{% endif %}</td></tr>
+                        <tr><td class="label">Endereço</td><td class="value">{{ socio.endereco|default:"—" }}{% if socio.bairro %}, {{ socio.bairro }}{% endif %}</td></tr>
+                        <tr><td class="label">Cidade / UF</td><td class="value">{% if socio.cidade %}{{ socio.cidade }}{% if socio.estado %} - {{ socio.estado }}{% endif %}{% else %}—{% endif %}</td></tr>
+                        <tr><td class="label">CEP</td><td class="value">{{ socio.cep|default:"—" }}</td></tr>
+                        <tr><td class="label">Convênio</td><td class="value">{{ socio.convenio.nome|default:"—" }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEPENDENTES -->
     <div class="section">
-        <h2>Dependentes</h2>
-        <table class="dependents-table">
-            <thead><tr><th>Nome</th><th>Parentesco</th><th>Data de Nascimento</th></tr></thead>
-            <tbody>
-            {% for dep in dependentes %}
-                <tr><td>{{ dep.nome }}</td><td>{{ dep.get_parentesco_display }}</td><td>{{ dep.data_nascimento|date:"d/m/Y" }}</td></tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <div class="section-header orange">Vínculos & Dependentes</div>
+        <div class="section-body" style="padding:0;">
+            {% if dependentes %}
+            <table class="dep-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%; text-align:center;">#</th>
+                        <th style="width: 42%;">Nome</th>
+                        <th style="width: 18%;">Parentesco</th>
+                        <th style="width: 18%; text-align:center;">Nascimento</th>
+                        <th style="width: 17%; text-align:center;">CPF</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for dep in dependentes %}
+                    <tr>
+                        <td style="text-align:center; color:#64748b;">{{ forloop.counter }}</td>
+                        <td><strong>{{ dep.nome }}</strong></td>
+                        <td>
+                            {% if dep.parentesco == 'CONJUGE' %}<span class="badge-conjuge">Cônjuge</span>
+                            {% elif dep.parentesco == 'FILHO' %}<span class="badge-filho">Filho(a)</span>
+                            {% elif dep.parentesco == 'PAI' %}<span class="badge-outro">Pai</span>
+                            {% elif dep.parentesco == 'MAE' %}<span class="badge-outro">Mãe</span>
+                            {% else %}<span class="badge-outro">{{ dep.get_parentesco_display }}</span>{% endif %}
+                        </td>
+                        <td style="text-align:center;">{{ dep.data_nascimento|date:"d/m/Y"|default:"—" }}</td>
+                        <td style="text-align:center; font-size: 7.5pt;">{{ dep.cpf|default:"—" }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div style="padding: 6px 10px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 7.5pt; color: #64748b; text-align: right;">
+                Total de vínculos: <strong>{{ dependentes|length }}</strong> &nbsp;|&nbsp; Titular: <strong>{{ socio.nome }}</strong>
+            </div>
+            {% else %}
+            <div style="padding: 18px; text-align: center; color: #64748b;">
+                <div style="font-size: 20pt; margin-bottom: 4px;">—</div>
+                Nenhum dependente vinculado a este sócio.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- OBSERVAÇÕES -->
+    {% if socio.observacoes %}
+    <div class="section">
+        <div class="section-header purple">Observações</div>
+        <div class="section-body">
+            <div class="obs-box">{{ socio.observacoes|linebreaksbr }}</div>
+        </div>
     </div>
     {% endif %}
 
+    <!-- RODAPÉ ASSINATURAS -->
+    <div style="margin-top: 18px; display: table; width: 100%; font-size: 7.5pt; color: #64748b; text-align: center;">
+        <div style="display: table-cell; width: 50%; padding: 0 20px;">
+            <div style="border-top: 1px solid #cbd5e1; padding-top: 6px; margin-top: 30px;">Assinatura do Sócio</div>
+            <div style="font-size: 6.5pt; color: #94a3b8;">{{ socio.nome }} — Registro {{ socio.num_registro }}</div>
+        </div>
+        <div style="display: table-cell; width: 50%; padding: 0 20px;">
+            <div style="border-top: 1px solid #cbd5e1; padding-top: 6px; margin-top: 30px;">Assinatura / Carimbo da Secretaria</div>
+            <div style="font-size: 6.5pt; color: #94a3b8;">{{ empresa.nome }}</div>
+        </div>
+    </div>
+
     <div class="footer">
-        <p>Gerado em {% now "d/m/Y H:i" %} pelo Sistema e-Clube Campestre</p>
+        Documento gerado eletronicamente em <strong>{% now "d/m/Y H:i" %}</strong> &nbsp;|&nbsp; <strong>{{ empresa.nome }}</strong> — Sistema e-Clube Campestre &nbsp;|&nbsp; Ficha #{{ socio.num_registro }} &nbsp;|&nbsp; Página 1 de 1
     </div>
 </body>
 </html>

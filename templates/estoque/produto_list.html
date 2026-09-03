@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Produtos{% endblock %}
+{% block titulo_cabecalho %}Gestao de Estoque{% endblock %}
+{% block subtitulo_cabecalho %}Produtos e Control de Estoque{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-aqua">
+            <div class="inner"><h3>{{ total_produtos }}</h3><p>Total de Produtos</p></div>
+            <div class="icon"><i class="fa fa-cube"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-red">
+            <div class="inner"><h3>{{ produtos_estoque_baixo }}</h3><p>Estoque Baixo</p></div>
+            <div class="icon"><i class="fa fa-exclamation-triangle"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Produtos</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'estoque:estoque_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-danger btn-flat" target="_blank">
+                        <i class="fa fa-file-pdf-o"></i> PDF
+                    </a>
+                    <a href="{% url 'estoque:adicionar_produto' %}" class="btn btn-success btn-flat" style="margin-left: 5px;">
+                        <i class="fa fa-plus"></i> Adicionar
+                    </a>
+                </div>
+            </div>
+
+            <form method="GET" action="{% url 'estoque:lista_produtos' %}">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Categoria</label>
+                                <select name="categoria" class="form-control">
+                                    <option value="">Todas</option>
+                                    {% for cat in categorias %}
+                                        <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == categoria_selecionada %}selected{% endif %}>{{ cat.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Estoque Baixo</label>
+                                <select name="estoque_baixo" class="form-control">
+                                    <option value="">Todos</option>
+                                    <option value="1" {% if estoque_baixo_filtro == '1' %}selected{% endif %}>Apenas Estoque Baixo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Buscar</label>
+                            <input type="text" name="q" class="form-control" placeholder="Nome ou codigo de barras..." value="{{ search_query }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label>&nbsp;</label>
+                            <div class="btn-group" style="display: flex;">
+                                <button type="submit" class="btn btn-info btn-flat" style="flex-grow: 1;">Filtrar</button>
+                                <a href="{% url 'estoque:lista_produtos' %}" class="btn btn-default btn-flat" title="Limpar"><i class="fa fa-eraser"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Categoria</th>
+                            <th>Unidade</th>
+                            <th>Preco Custo</th>
+                            <th>Preco Venda</th>
+                            <th>Estoque</th>
+                            <th>Minimo</th>
+                            <th>Status</th>
+                            <th>Acoes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produto in produtos %}
+                        <tr {% if produto.estoque_baixo %}class="danger"{% endif %}>
+                            <td>
+                                <strong>{{ produto.nome }}</strong>
+                                {% if produto.codigo_barras %}<br><small class="text-muted">{{ produto.codigo_barras }}</small>{% endif %}
+                            </td>
+                            <td>{{ produto.categoria.nome|default:"--" }}</td>
+                            <td>{{ produto.get_unidade_display }}</td>
+                            <td>R$ {{ produto.preco_custo|floatformat:2 }}</td>
+                            <td>R$ {{ produto.preco_venda|floatformat:2 }}</td>
+                            <td>
+                                <strong>{{ produto.estoque_atual }}</strong>
+                                {% if produto.estoque_baixo %}
+                                    <span class="label label-danger"><i class="fa fa-exclamation"></i> Baixo</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ produto.estoque_minimo }}</td>
+                            <td>
+                                {% if produto.ativo %}<span class="label label-success">Ativo</span>{% else %}<span class="label label-default">Inativo</span>{% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'estoque:editar_produto' produto.pk %}" class="btn btn-xs btn-info" title="Editar"><i class="fa fa-pencil"></i></a>
+                                <button class="btn btn-xs btn-danger js-delete-btn"
+                                        data-url="{% url 'estoque:excluir_produto' produto.pk %}"
+                                        data-nome="{{ produto.nome }}"
+                                        title="Excluir"><i class="fa fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="9" class="text-center">Nenhum produto encontrado.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="box-footer clearfix">
+                <ul class="pagination pagination-sm no-margin pull-right">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&estoque_baixo={{ estoque_baixo_filtro }}">&laquo;</a></li>
+                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&estoque_baixo={{ estoque_baixo_filtro }}">&lsaquo;</a></li>
+                    {% endif %}
+                    <li class="disabled"><a>Pag {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</a></li>
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&estoque_baixo={{ estoque_baixo_filtro }}">&rsaquo;</a></li>
+                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&estoque_baixo={{ estoque_baixo_filtro }}">&raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'partials/modal_delete.html' %}
+{% endblock %}
+
+{% block scripts %}
+{% include 'partials/modal_delete_script.js' %}
+{% endblock %}
