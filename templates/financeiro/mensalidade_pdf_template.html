@@ -1,3 +1,4 @@
+{% load brl %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -122,7 +123,7 @@
                         <span class="badge bg-gray">{{ m.get_status_display }}</span>
                     {% endif %}
                 </td>
-                <td class="text-right">R$ {{ m.valor|floatformat:2 }}</td>
+                <td class="text-right">R$ {{ m.valor|brl }}</td>
             </tr>
             {% empty %}
             <tr>
@@ -135,7 +136,7 @@
         <tfoot>
             <tr class="total-row">
                 <td colspan="6" class="text-right">TOTAL GERAL:</td>
-                <td class="text-right">R$ {{ total_geral|floatformat:2 }}</td>
+                <td class="text-right">R$ {{ total_geral|brl }}</td>
             </tr>
         </tfoot>
     </table>

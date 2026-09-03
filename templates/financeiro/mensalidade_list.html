@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load brl %}
 
 {% block titulo_pagina %}Mensalidades{% endblock %}
 {% block titulo_cabecalho %}Gestão de Mensalidades{% endblock %}
@@ -61,7 +62,7 @@
                             <td>{{ mensalidade.socio.nome }}</td>
                             <td>{{ mensalidade.competencia|date:"m/Y" }}</td>
                             <td>{{ mensalidade.data_vencimento|date:"d/m/Y" }}</td>
-                            <td>R$ {{ mensalidade.valor|floatformat:2 }}</td>
+                            <td>R$ {{ mensalidade.valor|brl }}</td>
                             <td>
                                 {% if mensalidade.status == 'PAGA' %}<span class="label label-success">{{ mensalidade.get_status_display }}</span>{% elif mensalidade.status == 'ATRASADA' %}<span class="label label-danger">{{ mensalidade.get_status_display }}</span>{% elif mensalidade.status == 'PENDENTE' %}<span class="label label-warning">{{ mensalidade.get_status_display }}</span>{% else %}<span class="label label-default">{{ mensalidade.get_status_display }}</span>{% endif %}
                             </td>
@@ -99,7 +100,7 @@
             
             <div class="box-footer clearfix">
                 <div class="pull-left" style="padding: 5px 0;">
-                    <strong>Total filtrado: R$ {{ total_geral|floatformat:2 }}</strong> <span class="text-muted">({{ total_qtd }} mensalidade(s))</span>
+                    <strong>Total filtrado: R$ {{ total_geral|brl }}</strong> <span class="text-muted">({{ total_qtd }} mensalidade(s))</span>
                 </div>
                 <ul class="pagination pagination-sm no-margin pull-right">
                     {% if page_obj.has_previous %}

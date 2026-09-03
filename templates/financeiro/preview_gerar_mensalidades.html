@@ -110,6 +110,7 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    function formatBRL(v){ return v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
     function calcularTotal() {
         let total = 0;
         document.querySelectorAll('.socio-check:checked').forEach(function(checkbox) {
@@ -117,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const valorInput = row.querySelector('.valor-input');
             total += parseFloat(valorInput.value) || 0;
         });
-        document.getElementById('totalGeral').textContent = total.toFixed(2);
+        document.getElementById('totalGeral').textContent = formatBRL(total);
     }
 
     document.querySelectorAll('.valor-input').forEach(function(input) {
