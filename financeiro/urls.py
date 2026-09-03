@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (MensalidadeListView, MensalidadeUpdateView,
-                     GerarMensalidadesEmMassaView, BaixarMensalidadeView,
+                     GerarMensalidadesEmMassaView, GerarMensalidadePorSocioView, BaixarMensalidadeView,
                      PreviewGerarMensalidadesView, ConfirmarGeracaoMensalidadesView,
                     PlanoDeContasListView, PlanoDeContasCreateView,
                     PlanoDeContasUpdateView, PlanoDeContasDeleteView,
@@ -21,6 +21,8 @@ urlpatterns = [
     path('mensalidades/<int:pk>/baixar/', BaixarMensalidadeView.as_view(), name='baixar_mensalidade'),
     path('mensalidades/<int:pk>/editar/', MensalidadeUpdateView.as_view(), name='editar_mensalidade'),
     path('mensalidades/gerar-em-massa/', GerarMensalidadesEmMassaView.as_view(), name='gerar_mensalidades_massa'),
+    path('mensalidades/gerar-por-socio/', GerarMensalidadePorSocioView.as_view(), name='gerar_mensalidade_socio'),
+    path('mensalidades/gerar-por-socio/<int:pk>/', GerarMensalidadePorSocioView.as_view(), name='gerar_mensalidade_socio_pk'),
     path('mensalidades/preview-geracao/', PreviewGerarMensalidadesView.as_view(), name='preview_geracao_mensalidades'),
     path('mensalidades/confirmar-geracao/', ConfirmarGeracaoMensalidadesView.as_view(), name='confirmar_geracao_mensalidades'),
     path('plano-de-contas/', PlanoDeContasListView.as_view(), name='lista_plano_de_contas'),

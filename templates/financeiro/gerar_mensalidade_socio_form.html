@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}{{ titulo_pagina }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title"><i class="fa fa-user-plus"></i> Gerar Mensalidade por Sócio</h3>
+            </div>
+            <form role="form" method="post">
+                {% csrf_token %}
+                <div class="box-body">
+                    <p class="text-muted">Use para sócios que entraram após a geração em lote. O valor/dia vem do <strong>convênio</strong> se tiver valor > 0, senão da <strong>categoria</strong>.</p>
+                    {{ form.media.css }}
+                    <div class="form-group">
+                        {{ form.socio.label_tag }}
+                        {{ form.socio }}
+                        {% if form.socio.errors %}<span class="text-red">{{ form.socio.errors }}</span>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label>{{ form.periodo.label }}</label>
+                        <div>
+                            {% for radio in form.periodo %}
+                            <label class="radio-inline" style="margin-right:18px;">{{ radio.tag }} {{ radio.choice_label }}</label>
+                            {% endfor %}
+                        </div>
+                        {% if form.periodo.errors %}<span class="text-red">{{ form.periodo.errors }}</span>{% endif %}
+                    </div>
+                    <div class="callout callout-warning" style="margin-bottom:0;">
+                        <strong>Dica:</strong> Você também pode clicar no ícone <i class="fa fa-dollar"></i> na lista de sócios para pré-selecionar o sócio.
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-info btn-lg"><i class="fa fa-refresh"></i> Prévia</button>
+                    <a href="{% url 'financeiro:lista_mensalidades' %}" class="btn btn-default btn-lg">Cancelar</a>
+                    <a href="{% url 'financeiro:gerar_mensalidades_massa' %}" class="btn btn-link pull-right">Ir para geração em massa</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ form.media.js }}
+{% endblock %}

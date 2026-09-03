@@ -306,3 +306,28 @@ class GerarMensalidadesForm(forms.Form):
         convenio = cleaned.get('convenio')
         # Validação cruzada não obrigatória - pode gerar para todos se vazio, mas se origem específica exige seleção? Mantemos opcional.
         return cleaned
+
+
+class GerarMensalidadePorSocioForm(forms.Form):
+    socio = forms.ModelChoiceField(
+        queryset=Socio.objects.all(),
+        label="Sócio",
+        widget=ModelSelect2Widget(
+            model=Socio,
+            search_fields=['nome__icontains', 'cpf__icontains', 'num_registro__icontains'],
+            attrs={'data-placeholder': 'Digite nome, CPF ou registro...', 'data-width': '100%'}
+        )
+    )
+    periodo = forms.ChoiceField(
+        choices=[('mes', 'Apenas Mês Atual'), ('ano', 'Próximos 12 Meses')],
+        label="Período",
+        widget=forms.RadioSelect,
+        initial='mes'
+    )
+
+    def __init__(self, *args, **kwargs):
+        empresa = kwargs.pop('empresa', None)
+        super().__init__(*args, **kwargs)
+        if empresa:
+            self.fields['socio'].queryset = Socio.objects.filter(empresa=empresa, situacao='ATIVO').order_by('nome')
+        # Select2 já cuida do estilo, periodo é radio

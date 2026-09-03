@@ -13,7 +13,7 @@ from decimal import Decimal
 
 # Importações de Modelos e Formulários
 from .models import Mensalidade, LancamentoCaixa, Caixa, PlanoDeContas, Conta
-from .forms import MensalidadeForm, PlanoDeContasForm, CaixaForm, ContaForm,GerarMensalidadesForm,LancamentoCaixaForm, BaixaMensalidadeForm, BaixaContaForm
+from .forms import MensalidadeForm, PlanoDeContasForm, CaixaForm, ContaForm,GerarMensalidadesForm,GerarMensalidadePorSocioForm,LancamentoCaixaForm, BaixaMensalidadeForm, BaixaContaForm
 from core.models import CategoriaSocio, ConfiguracaoSistema, Convenio, Socio
 from django.views.generic import FormView
 
@@ -140,6 +140,94 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
             'socios': socios_preview,
         }
 
+        return redirect('financeiro:preview_geracao_mensalidades')
+
+
+class GerarMensalidadePorSocioView(LoginRequiredMixin, FormView):
+    template_name = 'financeiro/gerar_mensalidade_socio_form.html'
+    form_class = GerarMensalidadePorSocioForm
+    success_url = reverse_lazy('financeiro:lista_mensalidades')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['empresa'] = self.request.user.empresa
+        return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+        socio_id = self.request.GET.get('socio') or self.kwargs.get('pk')
+        if socio_id:
+            initial['socio'] = socio_id
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = 'Gerar Mensalidade por Sócio'
+        return context
+
+    def form_valid(self, form):
+        if not (self.request.user.is_superuser or self.request.user.nivel_acesso == 'ADMIN'):
+            messages.error(self.request, 'Voce nao tem permissao para executar esta acao.')
+            return redirect('financeiro:lista_mensalidades')
+
+        socio = form.cleaned_data['socio']
+        periodo = form.cleaned_data['periodo']
+        meses_a_gerar = 1 if periodo == 'mes' else 12
+
+        # Valida pertence à empresa
+        if socio.empresa_id != self.request.user.empresa.id:
+            messages.error(self.request, 'Sócio não pertence à sua empresa.')
+            return redirect('financeiro:gerar_mensalidade_socio')
+
+        # Usa valor do convênio se existir e >0, senão categoria
+        if socio.convenio and socio.convenio.valor_mensalidade > 0:
+            valor = socio.convenio.valor_mensalidade
+            dia_vencimento = socio.convenio.dia_vencimento or socio.categoria.dia_vencimento
+        else:
+            valor = socio.categoria.valor_mensalidade
+            dia_vencimento = socio.categoria.dia_vencimento
+        if dia_vencimento == 0:
+            dia_vencimento = 10
+        if valor is None or valor <= 0:
+            messages.error(self.request, f'O sócio {socio.nome} está em categoria/convênio sem valor de mensalidade definido ({valor}). Ajuste no cadastro.')
+            return redirect('financeiro:gerar_mensalidade_socio')
+
+        import datetime, calendar
+        hoje = datetime.date.today()
+        socios_preview = []
+        for i in range(meses_a_gerar):
+            ano_comp = hoje.year + (hoje.month + i - 1) // 12
+            mes_comp = (hoje.month + i - 1) % 12 + 1
+            competencia = datetime.date(ano_comp, mes_comp, 1)
+            if Mensalidade.objects.filter(socio=socio, competencia=competencia).exists():
+                continue
+            try:
+                vencimento = competencia.replace(day=dia_vencimento)
+            except ValueError:
+                ultimo = calendar.monthrange(competencia.year, competencia.month)[1]
+                vencimento = competencia.replace(day=ultimo)
+            socios_preview.append({
+                'socio_id': socio.id,
+                'socio_nome': socio.nome,
+                'categoria': socio.categoria.nome,
+                'convenio': socio.convenio.nome if socio.convenio else '-',
+                'valor': valor,
+                'competencia': competencia,
+                'vencimento': vencimento,
+            })
+
+        if not socios_preview:
+            messages.info(self.request, f'Nenhuma nova mensalidade a gerar para {socio.nome} no período selecionado.')
+            return redirect('financeiro:lista_mensalidades')
+
+        # Reusa mesma sessão do fluxo em massa para aproveitar preview/confirm
+        self.request.session['preview_geracao'] = {
+            'origem': 'socio_unico',
+            'convenio_id': socio.convenio.id if socio.convenio else None,
+            'categoria_id': socio.categoria.id,
+            'meses_a_gerar': meses_a_gerar,
+            'socios': socios_preview,
+        }
         return redirect('financeiro:preview_geracao_mensalidades')
 
 
