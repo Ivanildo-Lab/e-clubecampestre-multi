@@ -98,6 +98,9 @@
             </div>
             
             <div class="box-footer clearfix">
+                <div class="pull-left" style="padding: 5px 0;">
+                    <strong>Total filtrado: R$ {{ total_geral|floatformat:2 }}</strong> <span class="text-muted">({{ total_qtd }} mensalidade(s))</span>
+                </div>
                 <ul class="pagination pagination-sm no-margin pull-right">
                     {% if page_obj.has_previous %}
                         <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}">&laquo; Primeira</a></li>

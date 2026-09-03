@@ -431,6 +431,14 @@ class MensalidadeListView(LoginRequiredMixin, ListView):
         context['categoria_selecionada'] = self.request.GET.get('categoria', '')
         context['convenio_selecionado'] = self.request.GET.get('convenio', '')
         context['baixa_form'] = BaixaMensalidadeForm(empresa=empresa_atual)
+        # Total filtrado formatado como R$
+        try:
+            qs = self.get_queryset()
+            context['total_geral'] = qs.aggregate(total=Sum('valor'))['total'] or 0
+            context['total_qtd'] = qs.count()
+        except:
+            context['total_geral'] = 0
+            context['total_qtd'] = 0
         return context
 
 
