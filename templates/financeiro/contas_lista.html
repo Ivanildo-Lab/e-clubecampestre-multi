@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load brl %}
+{% block titulo_pagina %}{{ titulo }}{% endblock %}
+{% block titulo_cabecalho %}Financeiro{% endblock %}
+{% block subtitulo_cabecalho %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="box {% if tipo_lista == 'receber' %}box-success{% else %}box-danger{% endif %}">
+    <div class="box-header with-border">
+        <h3 class="box-title">{{ titulo }}</h3>
+        <div class="box-tools pull-right">
+            {% if tipo_lista == 'receber' %}
+                <a href="{% url 'financeiro:nova_receita' %}" class="btn btn-success btn-flat"><i class="fa fa-plus"></i> Novo Recebimento</a>
+            {% else %}
+                <a href="{% url 'financeiro:nova_despesa' %}" class="btn btn-danger btn-flat"><i class="fa fa-plus"></i> Nova Despesa</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <form method="GET" class="box-body" style="background:#f9f9f9; border-bottom:1px solid #ecf0f5;">
+        <div class="row">
+            <div class="col-md-3">
+                <label style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#6c757d;">{% if tipo_lista == 'receber' %}Cliente (Sócio){% else %}Fornecedor{% endif %}</label>
+                <input type="text" name="cliente" value="{{ filtro_nome|default:'' }}" class="form-control input-sm" placeholder="Buscar nome...">
+            </div>
+            <div class="col-md-2">
+                <label style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#6c757d;">Categoria</label>
+                <select name="categoria" class="form-control input-sm">
+                    <option value="">Todas</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if filtro_categoria == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#6c757d;">Status</label>
+                <select name="status" class="form-control input-sm">
+                    <option value="">Todos</option>
+                    <option value="PENDENTE" {% if filtro_status == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                    <option value="PARCIAL" {% if filtro_status == 'PARCIAL' %}selected{% endif %}>Parcial</option>
+                    <option value="PAGA" {% if filtro_status == 'PAGA' %}selected{% endif %}>Paga</option>
+                    <option value="ATRASADA" {% if filtro_status == 'ATRASADA' %}selected{% endif %}>Atrasada</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#6c757d;">Ordenar por</label>
+                <select name="ordenar" class="form-control input-sm">
+                    <option value="data_vencimento" {% if ordenar == 'data_vencimento' %}selected{% endif %}>Vencimento (asc)</option>
+                    <option value="-data_vencimento" {% if ordenar == '-data_vencimento' %}selected{% endif %}>Vencimento (desc)</option>
+                    <option value="cliente" {% if ordenar == 'cliente' %}selected{% endif %}>Cliente (A-Z)</option>
+                    <option value="-cliente" {% if ordenar == '-cliente' %}selected{% endif %}>Cliente (Z-A)</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#6c757d;">Vencimento</label>
+                <div class="input-group input-group-sm">
+                    <input type="date" name="data_ini" value="{{ filtro_data_ini|default:'' }}" class="form-control input-sm">
+                    <span class="input-group-addon">até</span>
+                    <input type="date" name="data_fim" value="{{ filtro_data_fim|default:'' }}" class="form-control input-sm">
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top:8px;">
+            <div class="col-md-3">
+                <label style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#6c757d;">Pagamento De</label>
+                <input type="date" name="data_pag_ini" value="{{ filtro_data_pag_ini|default:'' }}" class="form-control input-sm">
+            </div>
+            <div class="col-md-3">
+                <label style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#6c757d;">Pagamento Até</label>
+                <input type="date" name="data_pag_fim" value="{{ filtro_data_pag_fim|default:'' }}" class="form-control input-sm">
+            </div>
+            <div class="col-md-6 text-right">
+                <label>&nbsp;</label>
+                <div>
+                    <button type="submit" class="btn btn-primary btn-sm btn-flat"><i class="fa fa-search"></i> Filtrar</button>
+                    <a href="{% if tipo_lista == 'receber' %}{% url 'financeiro:lista_receber' %}{% else %}{% url 'financeiro:lista_pagar' %}{% endif %}" class="btn btn-default btn-sm btn-flat"><i class="fa fa-times"></i> Limpar</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- RESUMO -->
+    {% if contas %}
+    <div class="box-body" style="background:#f9f9f9; border-bottom:1px solid #ecf0f5; font-size:12px;">
+        <strong>Registros: {{ qtd_total }}</strong> |
+        <span style="color:#f39c12;">Pendentes: <b>{{ qtd_pendentes }}</b></span> {% if qtd_parciais > 0 %}| <span style="color:#ff851b;">Parciais: <b>{{ qtd_parciais }}</b></span>{% endif %} |
+        <span style="color:#00a65a;">Pagas: <b>{{ qtd_pagas }}</b></span> |
+        <strong>Total: R$ {{ total_geral|brl }}</strong> |
+        <span style="color:#00a65a;">Recebido/Pago: R$ {{ total_pago|brl }}</span> |
+        <span style="color:#f39c12;">A Receber/Pagar: R$ {{ total_pendente|brl }}</span> {% if tipo_lista == 'receber' %}| <span style="color:#dd4b39;">Juros ({{ taxa_juros_mensal }}% a.m.): R$ {{ total_juros|brl }}</span> | <strong style="color:#3c8dbc;">Total c/ Juros: R$ {{ total_com_juros|brl }}</strong>{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- TABELA -->
+    <div class="box-body table-responsive no-padding">
+        <table class="table table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Vencimento</th>
+                    <th>{% if tipo_lista == 'receber' %}Cliente{% else %}Fornecedor{% endif %}</th>
+                    <th>Doc / Descrição</th>
+                    <th style="text-align:right;">Valor</th>
+                    <th style="text-align:right;">Pago</th>
+                    {% if tipo_lista == 'receber' %}
+                    <th style="text-align:center;">Dias Atraso</th>
+                    <th style="text-align:right;">Juros</th>
+                    <th style="text-align:right;">Total c/ Juros</th>
+                    {% endif %}
+                    <th style="text-align:center;">Pgto</th>
+                    <th style="text-align:center;">Status</th>
+                    <th style="text-align:center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in contas %}
+                <tr>
+                    <td style="font-family:monospace; font-size:12px;">{{ c.data_vencimento|date:"d/m/Y" }}</td>
+                    <td>
+                        <div style="font-weight:bold; font-size:12px;">{% if tipo_lista == 'receber' %}{{ c.socio.nome|default:"-- Sem Sócio --" }}{% else %}{{ c.fornecedor.nome|default:"-- Sem Fornecedor --" }}{% endif %}</div>
+                        <small style="color:#777;">{{ c.plano_de_contas.nome }}</small>
+                    </td>
+                    <td>
+                        {% if c.documento %}<span class="label label-info" style="font-size:10px;">Doc: {{ c.documento }}</span><br>{% endif %}
+                        <small style="color:#777;">{{ c.descricao }}</small>
+                    </td>
+                    <td style="text-align:right; font-weight:bold; color:{% if tipo_lista == 'receber' %}#00a65a{% else %}#dd4b39{% endif %};">R$ {{ c.valor|brl }}</td>
+                    <td style="text-align:right;">{% if c.valor_pago > 0 %}<span style="color:#00a65a; font-weight:bold;">R$ {{ c.valor_pago|brl }}</span>{% else %}<span style="color:#ccc;">-</span>{% endif %}</td>
+                    {% if tipo_lista == 'receber' %}
+                    <td style="text-align:center;">{% if c.dias_atraso_calculado > 0 %}<span style="color:#dd4b39; font-weight:bold;">{{ c.dias_atraso_calculado }}d</span>{% else %}-{% endif %}</td>
+                    <td style="text-align:right;">{% if c.juros_calculado > 0 %}<span style="color:#dd4b39; font-weight:bold;">R$ {{ c.juros_calculado|brl }}</span>{% else %}-{% endif %}</td>
+                    <td style="text-align:right; font-weight:bold; color:{% if c.juros_calculado > 0 %}#3c8dbc{% else %}#333{% endif %};">R$ {{ c.total_com_juros_calculado|brl }}</td>
+                    {% endif %}
+                    <td style="text-align:center; font-size:11px;">{{ c.data_pagamento|date:"d/m/Y"|default:"-" }}</td>
+                    <td style="text-align:center;">
+                        {% if c.status == 'PAGA' %}<span class="label label-success">Paga</span>
+                        {% elif c.status == 'PARCIAL' %}<span class="label label-warning">Parcial</span>
+                        {% elif c.status == 'CANCELADA' %}<span class="label label-default">Cancelada</span>
+                        {% else %}{% now "Y-m-d" as hoje %}{% if c.data_vencimento|date:"Y-m-d" < hoje %}<span class="label label-danger">Atrasada</span>{% else %}<span class="label label-warning">Pendente</span>{% endif %}{% endif %}
+                    </td>
+                    <td style="text-align:center; white-space:nowrap;">
+                        {% if c.status == 'PENDENTE' or c.status == 'PARCIAL' %}
+                        <form action="{% url 'financeiro:baixar_conta' c.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="btn btn-xs btn-success" title="Baixar"><i class="fa fa-check"></i></button>
+                        </form>
+                        {% endif %}
+                        <a href="{% url 'financeiro:editar_conta' c.id %}" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a>
+                        <a href="{% url 'financeiro:excluir_conta' c.id %}" onclick="return confirm('Tem certeza?')" class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="12" class="text-center" style="padding:20px; color:#777;">Nenhuma conta encontrada.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="box-footer clearfix">
+        <div class="pagination pagination-sm no-margin pull-right">
+            {% if page_obj.has_other_pages %}
+            <ul class="pagination pagination-sm no-margin">
+                {% if page_obj.has_previous %}<li><a href="?page={{ page_obj.previous_page_number }}&cliente={{ filtro_nome }}&status={{ filtro_status }}&categoria={{ filtro_categoria }}&data_ini={{ filtro_data_ini }}&data_fim={{ filtro_data_fim }}&data_pag_ini={{ filtro_data_pag_ini }}&data_pag_fim={{ filtro_data_pag_fim }}&ordenar={{ ordenar }}">«</a></li>{% endif %}
+                <li class="active"><a>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</a></li>
+                {% if page_obj.has_next %}<li><a href="?page={{ page_obj.next_page_number }}&cliente={{ filtro_nome }}&status={{ filtro_status }}&categoria={{ filtro_categoria }}&data_ini={{ filtro_data_ini }}&data_fim={{ filtro_data_fim }}&data_pag_ini={{ filtro_data_pag_ini }}&data_pag_fim={{ filtro_data_pag_fim }}&ordenar={{ ordenar }}">»</a></li>{% endif %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

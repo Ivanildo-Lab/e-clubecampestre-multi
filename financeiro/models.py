@@ -164,18 +164,78 @@ class Conta(models.Model):
     """ Representa uma Conta a Pagar ou a Receber avulsa. """
     class StatusChoice(models.TextChoices):
         PENDENTE = 'PENDENTE', 'Pendente'
+        PARCIAL = 'PARCIAL', 'Parcialmente Paga'
         PAGA = 'PAGA', 'Paga'
         VENCIDA = 'VENCIDA', 'Vencida'
         CANCELADA = 'CANCELADA', 'Cancelada'
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name='contas')
     plano_de_contas = models.ForeignKey(PlanoDeContas, on_delete=models.PROTECT)
-    socio = models.ForeignKey(Socio, on_delete=models.SET_NULL, blank=True, null=True, help_text="Opcional")
+    socio = models.ForeignKey(Socio, on_delete=models.SET_NULL, blank=True, null=True, help_text="Opcional - Cliente (Receber)")
     descricao = models.CharField(max_length=255)
     valor = models.DecimalField(max_digits=15, decimal_places=2)
+    valor_pago = models.DecimalField(max_digits=15, decimal_places=2, default=0, verbose_name="Valor Pago")
+    documento = models.CharField(max_length=50, blank=True, null=True, verbose_name="Nº Doc / Parcela")
     data_vencimento = models.DateField()
     data_pagamento = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=10, choices=StatusChoice.choices, default=StatusChoice.PENDENTE)
     fornecedor = models.ForeignKey('fornecedores.Fornecedor', on_delete=models.SET_NULL, blank=True, null=True, help_text="Opcional. Use para contas a pagar.")
+
+    @property
+    def valor_restante(self):
+        from decimal import Decimal
+        try:
+            return (self.valor or Decimal('0')) - (self.valor_pago or Decimal('0'))
+        except:
+            return self.valor
+
+    def dias_atraso(self, data_ref=None):
+        if self.status in ('PAGA', 'CANCELADA'):
+            return 0
+        if data_ref is None:
+            data_ref = datetime.date.today()
+        if isinstance(data_ref, str):
+            try:
+                from django.utils.dateparse import parse_date
+                parsed = parse_date(data_ref)
+                if parsed:
+                    data_ref = parsed
+            except:
+                pass
+        if hasattr(data_ref, 'date') and not isinstance(data_ref, datetime.date):
+            try:
+                data_ref = data_ref.date()
+            except:
+                pass
+        if not isinstance(data_ref, datetime.date):
+            return 0
+        if self.data_vencimento >= data_ref:
+            return 0
+        delta = (data_ref - self.data_vencimento).days
+        return delta if delta > 0 else 0
+
+    def calcular_juros(self, taxa_mensal, data_ref=None):
+        from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+        dias = self.dias_atraso(data_ref)
+        if dias <= 0:
+            return Decimal('0.00')
+        try:
+            taxa = Decimal(str(taxa_mensal).replace(',', '.').strip())
+        except:
+            taxa = Decimal('2.0')
+        try:
+            base = Decimal(str(self.valor_restante))
+        except:
+            base = Decimal('0.00')
+        if base <= 0:
+            return Decimal('0.00')
+        juros = base * (taxa / Decimal('100')) * (Decimal(dias) / Decimal('30'))
+        return juros.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+    def total_com_juros(self, taxa_mensal, data_ref=None):
+        from decimal import Decimal, ROUND_HALF_UP
+        juros = self.calcular_juros(taxa_mensal, data_ref)
+        total = Decimal(str(self.valor_restante)) + juros
+        return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     def __str__(self):
         return f"{self.plano_de_contas.get_tipo_display()}: {self.descricao}"

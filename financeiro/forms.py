@@ -115,11 +115,16 @@ class ContaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         empresa = kwargs.pop('empresa', None)
+        tipo_filtro = kwargs.pop('tipo_filtro', None)
         super().__init__(*args, **kwargs)
 
         if empresa:
-            # A view ainda controla o queryset inicial para segurança
-            self.fields['plano_de_contas'].queryset = PlanoDeContas.objects.filter(empresa=empresa)
+            qs = PlanoDeContas.objects.filter(empresa=empresa)
+            if tipo_filtro == 'RECEITA':
+                qs = qs.filter(tipo='RECEITA')
+            elif tipo_filtro == 'DESPESA':
+                qs = qs.filter(tipo='DESPESA')
+            self.fields['plano_de_contas'].queryset = qs
             self.fields['socio'].queryset = Socio.objects.filter(empresa=empresa)
             self.fields['fornecedor'].queryset = Fornecedor.objects.filter(empresa=empresa)            
         

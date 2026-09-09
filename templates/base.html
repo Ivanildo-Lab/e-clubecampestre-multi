@@ -85,7 +85,9 @@
           </a>
           <ul class="treeview-menu">
             <li {% if 'mensalidades' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_mensalidades' %}"><i class="fa fa-calendar-check-o"></i> Mensalidades</a></li>
-            <li {% if 'contas' in request.path %}class="active"{% endif %}><a href="{% url 'relatorios:contas' %}"><i class="fa fa-list-alt"></i> Contas a Pagar/Receber</a></li>
+            <li {% if 'contas/receber' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_receber' %}"><i class="fa fa-arrow-down text-green"></i> Contas a Receber</a></li>
+            <li {% if 'contas/pagar' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_pagar' %}"><i class="fa fa-arrow-up text-red"></i> Contas a Pagar</a></li>
+            <li {% if 'relatorios/contas' in request.path %}class="active"{% endif %}><a href="{% url 'relatorios:contas' %}"><i class="fa fa-list-alt"></i> Relatório Contas</a></li>
             <li {% if 'caixas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_caixas' %}"><i class="fa fa-bank"></i> Caixas e Contas</a></li>
             <li {% if 'fluxo-de-caixa' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:fluxo_de_caixa' %}"><i class="fa fa-line-chart"></i> Fluxo de Caixa</a></li>
             <li {% if 'plano-de-contas' in request.path %}class="active"{% endif %}><a href="{% url 'financeiro:lista_plano_de_contas' %}"><i class="fa fa-book"></i> Plano de Contas</a></li>

@@ -7,6 +7,7 @@ from .views import (MensalidadeListView, MensalidadeUpdateView,
                     CaixaListView, CaixaCreateView,
                     CaixaUpdateView, CaixaDeleteView, FluxoDeCaixaView, MensalidadeDeleteView, BaixarContaView,
                     ContaListView, ContaCreateView, ContaUpdateView, ContaDeleteView,
+                    ContasReceberListView, ContasPagarListView, ContaReceberCreateView, ContaPagarCreateView,
                     LancamentoCaixaCreateView, LancamentoCaixaUpdateView, LancamentoCaixaDeleteView,MensalidadePDFView,
                     FluxoDeCaixaPDFView
 
@@ -38,6 +39,10 @@ urlpatterns = [
     path('mensalidades/<int:pk>/excluir/', MensalidadeDeleteView.as_view(), name='excluir_mensalidade'),
     path('mensalidades/pdf/', MensalidadePDFView.as_view(), name='mensalidades_pdf'),
     path('contas/', ContaListView.as_view(), name='lista_contas'),
+    path('contas/receber/', ContasReceberListView.as_view(), name='lista_receber'),
+    path('contas/pagar/', ContasPagarListView.as_view(), name='lista_pagar'),
+    path('contas/receber/nova/', ContaReceberCreateView.as_view(), name='nova_receita'),
+    path('contas/pagar/nova/', ContaPagarCreateView.as_view(), name='nova_despesa'),
     path('contas/adicionar/', ContaCreateView.as_view(), name='adicionar_conta'),
     path('contas/<int:pk>/editar/', ContaUpdateView.as_view(), name='editar_conta'),
     path('contas/<int:pk>/excluir/', ContaDeleteView.as_view(), name='excluir_conta'),

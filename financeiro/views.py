@@ -683,6 +683,170 @@ class ContaListView(LoginRequiredMixin, ListView):
             context['caixa_padrao_id'] = None
         return context
 
+# --- CONTAS SEPARADAS (RECEBER / PAGAR) conforme modelo e-metalurgicaservicos ---
+
+class BaseContaListView(LoginRequiredMixin, ListView):
+    model = Conta
+    template_name = 'financeiro/contas_lista.html'
+    context_object_name = 'contas'
+    paginate_by = 50
+    tipo = None  # 'RECEITA' ou 'DESPESA' - definido nas subclasses
+
+    def get_queryset(self):
+        empresa = self.request.user.empresa
+        qs = Conta.objects.filter(empresa=empresa, plano_de_contas__tipo=self.tipo).select_related('plano_de_contas', 'socio', 'fornecedor')
+        # Filtros
+        data_ini = self.request.GET.get('data_ini')
+        data_fim = self.request.GET.get('data_fim')
+        data_pag_ini = self.request.GET.get('data_pag_ini')
+        data_pag_fim = self.request.GET.get('data_pag_fim')
+        cliente = self.request.GET.get('cliente')
+        status = self.request.GET.get('status')
+        categoria_id = self.request.GET.get('categoria')
+        ordenar = self.request.GET.get('ordenar', 'data_vencimento')
+
+        if data_ini and data_fim:
+            qs = qs.filter(data_vencimento__range=[data_ini, data_fim])
+        elif data_ini:
+            qs = qs.filter(data_vencimento__gte=data_ini)
+        elif data_fim:
+            qs = qs.filter(data_vencimento__lte=data_fim)
+
+        if cliente:
+            if self.tipo == 'RECEITA':
+                qs = qs.filter(socio__nome__icontains=cliente)
+            else:
+                qs = qs.filter(fornecedor__nome__icontains=cliente)
+
+        if status:
+            if status == 'ATRASADA':
+                qs = qs.filter(status__in=['PENDENTE', 'PARCIAL'], data_vencimento__lt=timezone.now().date())
+            else:
+                qs = qs.filter(status=status)
+
+        if categoria_id:
+            qs = qs.filter(plano_de_contas_id=categoria_id)
+
+        if data_pag_ini and data_pag_fim:
+            qs = qs.filter(data_pagamento__range=[data_pag_ini, data_pag_fim])
+
+        ordenacao = {
+            'data_vencimento': 'data_vencimento',
+            '-data_vencimento': '-data_vencimento',
+            'cliente': 'socio__nome' if self.tipo == 'RECEITA' else 'fornecedor__nome',
+            '-cliente': '-socio__nome' if self.tipo == 'RECEITA' else '-fornecedor__nome',
+            'valor': 'valor',
+            '-valor': '-valor',
+        }
+        qs = qs.order_by(ordenacao.get(ordenar, 'data_vencimento'), 'id')
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        empresa = self.request.user.empresa
+        qs = self.get_queryset()
+        # Totais
+        total_geral = qs.aggregate(total=Sum('valor'))['total'] or 0
+        total_pago = qs.filter(status='PAGA').aggregate(total=Sum('valor'))['total'] or 0
+        total_pendente = qs.filter(status__in=['PENDENTE', 'PARCIAL']).aggregate(total=Sum('valor'))['total'] or 0
+        # Para valor_restante = valor - valor_pago, mas se valor_pago=0 então total_pendente == total_geral - total_pago (aprox)
+        # Calcula juros se houver taxa
+        from core.models import ConfiguracaoSistema
+        taxa_obj = ConfiguracaoSistema.objects.filter(empresa=empresa, chave='TAXA_JUROS_MENSAL').first()
+        taxa = taxa_obj.valor if taxa_obj else '2.0'
+        try:
+            taxa_dec = Decimal(str(taxa).replace(',', '.'))
+        except:
+            taxa_dec = Decimal('2.0')
+
+        total_juros = Decimal('0.00')
+        total_com_juros = Decimal('0.00')
+        for c in context['contas']:
+            try:
+                juros = c.calcular_juros(taxa_dec)
+                total_c = c.total_com_juros(taxa_dec)
+            except:
+                juros = Decimal('0.00')
+                total_c = c.valor
+            c.juros_calculado = juros
+            c.total_com_juros_calculado = total_c
+            # dias atraso
+            c.dias_atraso_calculado = c.dias_atraso()
+            total_juros += juros
+            total_com_juros += total_c
+
+        context.update({
+            'titulo': 'Contas a Receber' if self.tipo == 'RECEITA' else 'Contas a Pagar',
+            'tipo_lista': 'receber' if self.tipo == 'RECEITA' else 'pagar',
+            'categorias': PlanoDeContas.objects.filter(empresa=empresa, tipo=self.tipo).order_by('nome'),
+            'caixas': Caixa.objects.filter(empresa=empresa),
+            'total_geral': total_geral,
+            'total_pago': total_pago,
+            'total_pendente': total_pendente,
+            'total_juros': total_juros,
+            'total_com_juros': total_com_juros,
+            'taxa_juros_mensal': taxa_dec,
+            'filtro_data_ini': self.request.GET.get('data_ini', ''),
+            'filtro_data_fim': self.request.GET.get('data_fim', ''),
+            'filtro_data_pag_ini': self.request.GET.get('data_pag_ini', ''),
+            'filtro_data_pag_fim': self.request.GET.get('data_pag_fim', ''),
+            'filtro_nome': self.request.GET.get('cliente', ''),
+            'filtro_status': self.request.GET.get('status', ''),
+            'filtro_categoria': self.request.GET.get('categoria', ''),
+            'ordenar': self.request.GET.get('ordenar', 'data_vencimento'),
+            'qtd_total': qs.count(),
+            'qtd_pendentes': qs.filter(status='PENDENTE').count(),
+            'qtd_pagas': qs.filter(status='PAGA').count(),
+            'qtd_parciais': qs.filter(status='PARCIAL').count(),
+        })
+        return context
+
+class ContasReceberListView(BaseContaListView):
+    tipo = 'RECEITA'
+
+class ContasPagarListView(BaseContaListView):
+    tipo = 'DESPESA'
+
+class ContaReceberCreateView(LoginRequiredMixin, CreateView):
+    model = Conta
+    form_class = ContaForm
+    template_name = 'financeiro/conta_form.html'
+    success_url = reverse_lazy('financeiro:lista_receber')
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['empresa'] = self.request.user.empresa
+        kwargs['tipo_filtro'] = 'RECEITA'
+        return kwargs
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = 'Novo Recebimento'
+        context['tipo_titulo'] = 'receber'
+        return context
+    def form_valid(self, form):
+        form.instance.empresa = self.request.user.empresa
+        messages.success(self.request, 'Conta a receber criada com sucesso!')
+        return super().form_valid(form)
+
+class ContaPagarCreateView(LoginRequiredMixin, CreateView):
+    model = Conta
+    form_class = ContaForm
+    template_name = 'financeiro/conta_form.html'
+    success_url = reverse_lazy('financeiro:lista_pagar')
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['empresa'] = self.request.user.empresa
+        kwargs['tipo_filtro'] = 'DESPESA'
+        return kwargs
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = 'Nova Despesa'
+        context['tipo_titulo'] = 'pagar'
+        return context
+    def form_valid(self, form):
+        form.instance.empresa = self.request.user.empresa
+        messages.success(self.request, 'Conta a pagar criada com sucesso!')
+        return super().form_valid(form)
+
 class ContaCreateView(LoginRequiredMixin, CreateView):
     model = Conta
     form_class = ContaForm
@@ -701,13 +865,29 @@ class ContaUpdateView(LoginRequiredMixin, UpdateView):
     model = Conta
     form_class = ContaForm
     template_name = 'financeiro/conta_form.html'
-    success_url = reverse_lazy('financeiro:lista_contas')
+    def get_success_url(self):
+        # Redireciona para a lista correta conforme tipo
+        if self.object.plano_de_contas.tipo == 'RECEITA':
+            return reverse_lazy('financeiro:lista_receber')
+        return reverse_lazy('financeiro:lista_pagar')
     def get_queryset(self):
         return Conta.objects.filter(empresa=self.request.user.empresa)
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['empresa'] = self.request.user.empresa
+        # Filtra plano por tipo da conta existente
+        try:
+            kwargs['tipo_filtro'] = self.get_object().plano_de_contas.tipo
+        except:
+            kwargs['tipo_filtro'] = None
         return kwargs
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            context['tipo_titulo'] = 'receber' if self.object.plano_de_contas.tipo == 'RECEITA' else 'pagar'
+        except:
+            context['tipo_titulo'] = ''
+        return context
     def form_valid(self, form):
         messages.success(self.request, 'Conta atualizada com sucesso!')
         return super().form_valid(form)
@@ -715,13 +895,15 @@ class ContaUpdateView(LoginRequiredMixin, UpdateView):
 class ContaDeleteView(LoginRequiredMixin, View):
     def post(self, request, pk):
         conta = get_object_or_404(Conta, pk=pk, empresa=request.user.empresa)
+        tipo = conta.plano_de_contas.tipo if conta.plano_de_contas else 'RECEITA'
+        redirect_url = 'financeiro:lista_receber' if tipo == 'RECEITA' else 'financeiro:lista_pagar'
         if conta.status == 'PAGA':
             messages.error(request, 'Não é possível excluir uma conta que já foi paga.')
         else:
             nome_conta = conta.descricao
             conta.delete()
             messages.success(request, f'A conta "{nome_conta}" foi excluída com sucesso.')
-        return redirect('financeiro:lista_contas')
+        return redirect(redirect_url)
 
 class BaixarContaView(LoginRequiredMixin, View):
     def post(self, request, pk):
@@ -750,7 +932,8 @@ class BaixarContaView(LoginRequiredMixin, View):
                 messages.error(request, f"Ocorreu um erro ao baixar a conta: {e}")
         else:
             messages.error(request, "Dados inválidos. Por favor, verifique.")
-        return redirect('financeiro:lista_contas')
+        tipo = conta.plano_de_contas.tipo if conta.plano_de_contas else 'RECEITA'
+        return redirect('financeiro:lista_receber' if tipo == 'RECEITA' else 'financeiro:lista_pagar')
 
 class LancamentoCaixaCreateView(LoginRequiredMixin, CreateView):
     model = LancamentoCaixa
