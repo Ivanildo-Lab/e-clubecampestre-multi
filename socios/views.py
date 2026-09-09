@@ -48,7 +48,7 @@ class SocioListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(situacao=status)
         if busca_dep:
             queryset = queryset.filter(dependentes__nome__icontains=busca_dep).distinct()
-        return queryset.annotate(num_dependentes=Count('dependentes')).order_by('nome')
+        return queryset.select_related('categoria', 'convenio').annotate(num_dependentes=Count('dependentes')).order_by('nome')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -102,8 +102,9 @@
                             <th>Sócio</th>
                             <th>Contato</th>
                             <th>Categoria</th>
+                            <th>Convênio</th>
                             <th>Status</th>
-                            <th class="text-center">Dependentes</th> <!-- NOVA COLUNA -->
+                            <th class="text-center">Dependentes</th>
                             <th>Ações</th>
                         </tr>
                         {% for socio in socios %}
@@ -123,8 +124,15 @@
                             </td>
                             <td><span style="display: block;"><i class="fa fa-envelope-o margin-r-5"></i> {{ socio.email|default:"Não informado" }}</span><span style="display: block;"><i class="fa fa-phone margin-r-5"></i> {{ socio.tel_residencial|default:"Não informado" }}</span></td>
                             <td>{{ socio.categoria.nome }}</td>
+                            <td>
+                                {% if socio.convenio %}
+                                    <span class="label label-info">{{ socio.convenio.nome }}</span>
+                                {% else %}
+                                    <small class="text-muted">—</small>
+                                {% endif %}
+                            </td>
                             <td>{% if socio.situacao == 'ATIVO' %}<span class="label label-success">{{ socio.get_situacao_display }}</span>{% elif socio.situacao == 'INATIVO' %}<span class="label label-warning">{{ socio.get_situacao_display }}</span>{% else %}<span class="label label-danger">{{ socio.get_situacao_display }}</span>{% endif %}</td>
-                            <td class="text-center"> <!-- NOVO CAMPO DE DADOS -->
+                            <td class="text-center">
                                 <span class="badge bg-light-blue">{{ socio.num_dependentes }}</span>
                             </td>
                             <td>
@@ -141,7 +149,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center">Nenhum sócio encontrado com os filtros aplicados.</td>
+                            <td colspan="7" class="text-center">Nenhum sócio encontrado com os filtros aplicados.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
