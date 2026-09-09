@@ -34,10 +34,10 @@
             <form method="GET" action="{% url 'socios:lista_socios' %}">
                 <div class="box-body">
                     <div class="row">
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Categoria</label>
-                                <select name="categoria" class="form-control">
+                                <select name="categoria" class="form-control input-sm">
                                     <option value="">Todas</option>
                                     {% for cat in categorias %}
                                         <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == categoria_selecionada %}selected{% endif %}>{{ cat.nome }}</option>
@@ -45,10 +45,10 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Convênio</label>
-                                <select name="convenio" class="form-control">
+                                <select name="convenio" class="form-control input-sm">
                                     <option value="">Todos</option>
                                     <option value="none" {% if convenio_selecionado == 'none' %}selected{% endif %}>Sem convênio</option>
                                     {% for conv in convenios %}
@@ -60,7 +60,7 @@
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Status</label>
-                                <select name="status" class="form-control">
+                                <select name="status" class="form-control input-sm">
                                     <option value="">Todos</option>
                                     {% for value, display in situacao_choices %}
                                         <option value="{{ value }}" {% if value == status_selecionado %}selected{% endif %}>{{ display }}</option>
@@ -68,19 +68,27 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <label>Buscar por Dependente</label>
-                            <input type="text" name="busca_dep" class="form-control" placeholder="Nome do dependente..." value="{{ busca_dep }}">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Buscar por Dependente</label>
+                                <input type="text" name="busca_dep" class="form-control input-sm" placeholder="Nome do dependente..." value="{{ busca_dep }}">
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <label>Buscar por Nome, CPF ou Registro</label>
-                            <input type="text" name="q" class="form-control" placeholder="Digite para buscar..." value="{{ search_query }}">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Buscar por Nome, CPF ou Registro</label>
+                                <input type="text" name="q" class="form-control input-sm" placeholder="Digite nome, CPF ou nº registro..." value="{{ search_query }}">
+                            </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <label>&nbsp;</label>
-                            <div class="btn-group" style="display: flex;">
-                                <button type="submit" class="btn btn-info btn-flat" style="flex-grow: 1;">Filtrar</button>
-                                <a href="{% url 'socios:lista_socios' %}" class="btn btn-default btn-flat" title="Limpar Filtros"><i class="fa fa-eraser"></i></a>
+                            <div class="input-group">
+                                <button type="submit" class="btn btn-info btn-flat btn-sm" style="flex:1;"><i class="fa fa-search"></i> Filtrar</button>
+                                <span class="input-group-btn">
+                                    <a href="{% url 'socios:lista_socios' %}" class="btn btn-default btn-flat btn-sm" title="Limpar Filtros"><i class="fa fa-eraser"></i> Limpar</a>
+                                </span>
                             </div>
                         </div>
                     </div>
