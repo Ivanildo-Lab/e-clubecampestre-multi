@@ -1,0 +1,139 @@
+{% load brl %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo }}</title>
+    <style>
+        @page { size: A4 portrait; margin: 1cm 1cm 1.5cm 1cm; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 8.5pt; color: #2c3e50; margin:0; }
+        .header {
+            background: linear-gradient(135deg, {% if tipo_lista == 'receber' %}#065f46 0%, #059669 55%, #10b981 100%{% else %}#7f1d1d 0%, #dc2626 55%, #ef4444 100%{% endif %});
+            color: white; padding: 14px 16px; border-radius: 8px; margin-bottom: 12px; position: relative; overflow: hidden;
+        }
+        .header::after { content:""; position:absolute; right:-30px; top:-30px; width:140px; height:140px; background: rgba(255,255,255,0.08); border-radius:50%; }
+        .header-table { width:100%; border-collapse:collapse; }
+        .header-table td { border:none; padding:0; vertical-align:middle; }
+        .company-name { font-size:13pt; font-weight:800; color:white; margin:0; letter-spacing:0.5px; }
+        .company-sub { font-size:7pt; opacity:0.9; margin:2px 0 0 0; color:white; }
+        .report-title { font-size:12pt; font-weight:800; margin:6px 0 0 0; text-transform: uppercase; color:white; }
+        .report-sub { font-size:7pt; opacity:0.9; margin:2px 0 0 0; color:white; }
+        .logo { max-height:44px; background:white; padding:3px 6px; border-radius:6px; }
+        .badge-report { background:white; color:{% if tipo_lista == 'receber' %}#065f46{% else %}#7f1d1d{% endif %}; padding:4px 10px; border-radius:14px; font-size:7pt; font-weight:800; text-transform:uppercase; }
+        .watermark { position: fixed; top:45%; left:50%; transform: translate(-50%,-50%) rotate(-30deg); font-size:56pt; color: rgba(0,64,128,0.04); font-weight:900; letter-spacing:6px; z-index:-1; }
+        .filters-box { background:#f4f6f9; border:1px solid #e2e8f0; padding:7px 10px; margin-bottom:10px; font-size:7.5pt; border-radius:6px; }
+        .filter-item { display:inline-block; margin-right:12px; }
+        .filter-label { font-weight:700; color:#334155; }
+        .filter-value { color:#004080; font-weight:600; }
+        .summary-row { display:table; width:100%; margin-bottom:10px; }
+        .summary-box { display:table-cell; width:25%; text-align:center; border:1px solid #e2e8f0; padding:7px 6px; background:white; }
+        .summary-box:first-child { border-radius:6px 0 0 6px; }
+        .summary-box:last-child { border-radius:0 6px 6px 0; }
+        .summary-label { font-size:6.5pt; text-transform:uppercase; letter-spacing:0.6px; color:#64748b; display:block; }
+        .summary-value { font-size:9.5pt; font-weight:800; display:block; margin-top:2px; }
+        .text-green { color:#059669; } .text-red { color:#dc2626; } .text-blue { color:#004080; }
+        table { width:100%; border-collapse:collapse; margin-bottom:12px; }
+        th { background: {% if tipo_lista == 'receber' %}#065f46{% else %}#7f1d1d{% endif %}; color:white; padding:6px 5px; text-align:left; font-size:6.5pt; text-transform:uppercase; letter-spacing:0.5px; }
+        td { padding:5px 5px; border-bottom:1px solid #e2e8f0; font-size:7.5pt; vertical-align:top; }
+        tr:nth-child(even) { background:#f8fafc; }
+        .text-right { text-align:right; } .text-center { text-align:center; }
+        .badge { padding:2px 6px; border-radius:10px; font-size:6.5pt; font-weight:700; color:white; }
+        .bg-green { background:#059669; } .bg-red { background:#dc2626; } .bg-yellow { background:#f59e0b; } .bg-gray { background:#64748b; } .bg-blue { background:#2563eb; }
+        .total-row td { background:#e0e7ff; border-top:2px solid {% if tipo_lista == 'receber' %}#065f46{% else %}#7f1d1d{% endif %}; font-weight:800; padding:7px; font-size:8.5pt; }
+        .footer { position: fixed; bottom:0; left:0; right:0; text-align:right; font-size:7pt; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:5px; background:white; }
+    </style>
+</head>
+<body>
+    <div class="watermark">{{ empresa.nome|upper }}</div>
+
+    <div class="header">
+        <table class="header-table">
+            <tr>
+                <td style="width:70%;">
+                    <div class="company-name">{{ empresa.nome }}</div>
+                    <div class="company-sub">{% if empresa.cidade %}{{ empresa.cidade }}{% if empresa.estado %} - {{ empresa.estado }}{% endif %} | {% endif %}Sistema e-Clube Campestre</div>
+                    <div class="report-title">{{ titulo }}</div>
+                    <div class="report-sub">Período de vencimento: {% if filtro_data_ini %}{{ filtro_data_ini|date:"d/m/Y" }}{% else %}início{% endif %} até {% if filtro_data_fim %}{{ filtro_data_fim|date:"d/m/Y" }}{% else %}hoje{% endif %} &bull; Gerado em {{ data_emissao|date:"d/m/Y H:i" }}</div>
+                </td>
+                <td style="width:30%; text-align:right;">
+                    {% if empresa.logo %}<img src="{{ empresa.logo.url }}" class="logo">{% else %}<span class="badge-report">{% if tipo_lista == 'receber' %}RECEBER{% else %}PAGAR{% endif %}</span>{% endif %}
+                    <div style="margin-top:6px;"><span class="badge-report">{{ qtd_total }} registro(s)</span></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="filters-box">
+        <span class="filter-item"><span class="filter-label">Filtros:</span></span>
+        {% if filtro_nome %}<span class="filter-item"><span class="filter-label">{% if tipo_lista == 'receber' %}Cliente{% else %}Fornecedor{% endif %}:</span> {{ filtro_nome }}</span>{% endif %}
+        {% if categoria_nome %}<span class="filter-item"><span class="filter-label">Categoria:</span> {{ categoria_nome }}</span>{% endif %}
+        {% if filtro_status %}<span class="filter-item"><span class="filter-label">Status:</span> {{ filtro_status }}</span>{% endif %}
+        {% if filtro_data_ini or filtro_data_fim %}<span class="filter-item"><span class="filter-label">Venc:</span> {{ filtro_data_ini|default:"início" }} até {{ filtro_data_fim|default:"hoje" }}</span>{% endif %}
+        {% if not filtro_nome and not categoria_nome and not filtro_status and not filtro_data_ini %}<span class="filter-item"><i>Sem filtros — todos os registros</i></span>{% endif %}
+    </div>
+
+    <div class="summary-row">
+        <div class="summary-box">
+            <span class="summary-label">Registros</span>
+            <span class="summary-value text-blue">{{ qtd_total }}</span>
+        </div>
+        <div class="summary-box">
+            <span class="summary-label">Total geral</span>
+            <span class="summary-value">R$ {{ total_geral|brl }}</span>
+        </div>
+        <div class="summary-box">
+            <span class="summary-label">Juros</span>
+            <span class="summary-value text-red">R$ {{ total_juros|brl }}</span>
+        </div>
+        <div class="summary-box">
+            <span class="summary-label">Total c/ Juros</span>
+            <span class="summary-value text-green">R$ {{ total_com_juros|brl }}</span>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width:11%;">Vencimento</th>
+                <th style="width:20%;">{% if tipo_lista == 'receber' %}Cliente{% else %}Fornecedor{% endif %}</th>
+                <th style="width:24%;">Doc / Descrição</th>
+                <th style="width:11%; text-align:right;">Valor</th>
+                <th style="width:8%; text-align:center;">Dias</th>
+                <th style="width:11%; text-align:right;">Juros</th>
+                <th style="width:11%; text-align:right;">Total</th>
+                <th style="width:4%; text-align:center;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in contas %}
+            <tr>
+                <td style="text-align:center; font-family:monospace;">{{ c.data_vencimento|date:"d/m/Y" }}</td>
+                <td><strong style="font-size:7.5pt;">{% if tipo_lista == 'receber' %}{{ c.socio.nome|default:"—" }}{% else %}{{ c.fornecedor.nome|default:"—" }}{% endif %}</strong><br><small style="color:#64748b; font-size:6.5pt;">{{ c.plano_de_contas.nome }}</small></td>
+                <td>{% if c.documento %}<span class="badge bg-blue" style="font-size:6pt;">{{ c.documento }}</span> {% endif %}<span style="font-size:7pt;">{{ c.descricao|truncatechars:40 }}</span></td>
+                <td style="text-align:right;">R$ {{ c.valor|brl }}</td>
+                <td style="text-align:center;">{% if c.dias_atraso_calculado > 0 %}<span style="color:#dc2626; font-weight:700;">{{ c.dias_atraso_calculado }}d</span>{% else %}—{% endif %}</td>
+                <td style="text-align:right;">{% if c.juros_calculado > 0 %}R$ {{ c.juros_calculado|brl }}{% else %}—{% endif %}</td>
+                <td style="text-align:right; font-weight:700;">R$ {{ c.total_com_juros_calculado|brl }}</td>
+                <td style="text-align:center;">{% if c.status == 'PAGA' %}<span class="badge bg-green">Paga</span>{% elif c.status == 'PARCIAL' %}<span class="badge bg-yellow">Parcial</span>{% else %}<span class="badge bg-red">{{ c.status|slice:":3" }}</span>{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" style="text-align:center; padding:18px; color:#64748b;">Nenhum lançamento encontrado para os filtros.</td></tr>
+            {% endfor %}
+        </tbody>
+        {% if contas %}
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="3" style="text-align:right;">TOTAL GERAL:</td>
+                <td style="text-align:right;">R$ {{ total_geral|brl }}</td>
+                <td></td>
+                <td style="text-align:right;">R$ {{ total_juros|brl }}</td>
+                <td style="text-align:right;">R$ {{ total_com_juros|brl }}</td>
+                <td></td>
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+
+    <div class="footer">Gerado em {{ data_emissao|date:"d/m/Y H:i" }} &nbsp;|&nbsp; {{ empresa.nome }} — Sistema e-Clube Campestre &nbsp;|&nbsp; {{ titulo }}</div>
+</body>
+</html>

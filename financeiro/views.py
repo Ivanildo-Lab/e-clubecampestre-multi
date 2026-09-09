@@ -847,6 +847,118 @@ class ContaPagarCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, 'Conta a pagar criada com sucesso!')
         return super().form_valid(form)
 
+class BaseContaPDFView(LoginRequiredMixin, View):
+    tipo = None
+    def get(self, request):
+        empresa = request.user.empresa
+        qs = Conta.objects.filter(empresa=empresa, plano_de_contas__tipo=self.tipo).select_related('plano_de_contas', 'socio', 'fornecedor')
+        data_ini = request.GET.get('data_ini')
+        data_fim = request.GET.get('data_fim')
+        data_pag_ini = request.GET.get('data_pag_ini')
+        data_pag_fim = request.GET.get('data_pag_fim')
+        cliente = request.GET.get('cliente')
+        status = request.GET.get('status')
+        categoria_id = request.GET.get('categoria')
+        ordenar = request.GET.get('ordenar', 'data_vencimento')
+
+        if data_ini and data_fim:
+            qs = qs.filter(data_vencimento__range=[data_ini, data_fim])
+        elif data_ini:
+            qs = qs.filter(data_vencimento__gte=data_ini)
+        elif data_fim:
+            qs = qs.filter(data_vencimento__lte=data_fim)
+        if cliente:
+            if self.tipo == 'RECEITA':
+                qs = qs.filter(socio__nome__icontains=cliente)
+            else:
+                qs = qs.filter(fornecedor__nome__icontains=cliente)
+        if status:
+            if status == 'ATRASADA':
+                qs = qs.filter(status__in=['PENDENTE', 'PARCIAL'], data_vencimento__lt=timezone.now().date())
+            else:
+                qs = qs.filter(status=status)
+        if categoria_id:
+            qs = qs.filter(plano_de_contas_id=categoria_id)
+        if data_pag_ini and data_pag_fim:
+            qs = qs.filter(data_pagamento__range=[data_pag_ini, data_pag_fim])
+
+        ordenacao = {
+            'data_vencimento': 'data_vencimento',
+            '-data_vencimento': '-data_vencimento',
+            'cliente': 'socio__nome' if self.tipo == 'RECEITA' else 'fornecedor__nome',
+            '-cliente': '-socio__nome' if self.tipo == 'RECEITA' else '-fornecedor__nome',
+            'valor': 'valor',
+            '-valor': '-valor',
+        }
+        qs = qs.order_by(ordenacao.get(ordenar, 'data_vencimento'), 'id')
+
+        # Totais e juros
+        total_geral = qs.aggregate(total=Sum('valor'))['total'] or 0
+        total_pago = qs.filter(status='PAGA').aggregate(total=Sum('valor'))['total'] or 0
+        # Taxa
+        from core.models import ConfiguracaoSistema
+        taxa_obj = ConfiguracaoSistema.objects.filter(empresa=empresa, chave='TAXA_JUROS_MENSAL').first()
+        taxa = taxa_obj.valor if taxa_obj else '2.0'
+        try:
+            taxa_dec = Decimal(str(taxa).replace(',', '.'))
+        except:
+            taxa_dec = Decimal('2.0')
+
+        for c in qs:
+            try:
+                c.juros_calculado = c.calcular_juros(taxa_dec)
+                c.total_com_juros_calculado = c.total_com_juros(taxa_dec)
+                c.dias_atraso_calculado = c.dias_atraso()
+            except:
+                c.juros_calculado = Decimal('0.00')
+                c.total_com_juros_calculado = c.valor
+                c.dias_atraso_calculado = 0
+
+        total_juros = sum((c.juros_calculado for c in qs), Decimal('0.00'))
+        total_com_juros = sum((c.total_com_juros_calculado for c in qs), Decimal('0.00'))
+
+        categoria_nome = None
+        if categoria_id:
+            cat = PlanoDeContas.objects.filter(id=categoria_id, empresa=empresa).first()
+            if cat:
+                categoria_nome = cat.nome
+
+        context = {
+            'contas': qs,
+            'empresa': empresa,
+            'titulo': 'Contas a Receber' if self.tipo == 'RECEITA' else 'Contas a Pagar',
+            'tipo_lista': 'receber' if self.tipo == 'RECEITA' else 'pagar',
+            'total_geral': total_geral,
+            'total_pago': total_pago,
+            'total_juros': total_juros,
+            'total_com_juros': total_com_juros,
+            'taxa_juros_mensal': taxa_dec,
+            'filtro_data_ini': data_ini or '',
+            'filtro_data_fim': data_fim or '',
+            'filtro_data_pag_ini': data_pag_ini or '',
+            'filtro_data_pag_fim': data_pag_fim or '',
+            'filtro_nome': cliente or '',
+            'filtro_status': status or '',
+            'filtro_categoria': categoria_id or '',
+            'categoria_nome': categoria_nome or '',
+            'ordenar': ordenar,
+            'qtd_total': qs.count(),
+            'data_emissao': timezone.now(),
+        }
+        html_string = render_to_string('financeiro/contas_pdf.html', context)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = 'contas_receber.pdf' if self.tipo == 'RECEITA' else 'contas_pagar.pdf'
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        return response
+
+class ContasReceberPDFView(BaseContaPDFView):
+    tipo = 'RECEITA'
+
+class ContasPagarPDFView(BaseContaPDFView):
+    tipo = 'DESPESA'
+
 class ContaCreateView(LoginRequiredMixin, CreateView):
     model = Conta
     form_class = ContaForm

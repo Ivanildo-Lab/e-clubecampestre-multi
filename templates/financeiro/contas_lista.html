@@ -10,8 +10,10 @@
         <h3 class="box-title">{{ titulo }}</h3>
         <div class="box-tools pull-right">
             {% if tipo_lista == 'receber' %}
+                <a href="{% url 'financeiro:receber_pdf' %}?{{ request.GET.urlencode }}" target="_blank" class="btn btn-default btn-flat" style="margin-right:6px;"><i class="fa fa-file-pdf-o"></i> PDF</a>
                 <a href="{% url 'financeiro:nova_receita' %}" class="btn btn-success btn-flat"><i class="fa fa-plus"></i> Novo Recebimento</a>
             {% else %}
+                <a href="{% url 'financeiro:pagar_pdf' %}?{{ request.GET.urlencode }}" target="_blank" class="btn btn-default btn-flat" style="margin-right:6px;"><i class="fa fa-file-pdf-o"></i> PDF</a>
                 <a href="{% url 'financeiro:nova_despesa' %}" class="btn btn-danger btn-flat"><i class="fa fa-plus"></i> Nova Despesa</a>
             {% endif %}
         </div>
