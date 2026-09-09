@@ -16,6 +16,7 @@ from .forms import SocioForm, DependenteFormSet, CategoriaSocioForm, ConvenioFor
 
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from django.utils import timezone
 from weasyprint import HTML, CSS
 
 # --- Views de Sócio ---
@@ -273,6 +274,67 @@ class ConvenioDeleteActionView(LoginRequiredMixin, View):
         except Exception as e:
             messages.error(request, f'Não foi possível excluir o convênio "{convenio.nome}", pois ele pode estar em uso.')
         return redirect('socios:lista_convenios')
+
+
+class SocioListPDFView(LoginRequiredMixin, View):
+    def get(self, request):
+        empresa_atual = request.user.empresa
+        queryset = Socio.objects.filter(empresa=empresa_atual)
+
+        search_query = request.GET.get('q')
+        categoria_id = request.GET.get('categoria')
+        convenio_id = request.GET.get('convenio')
+        status = request.GET.get('status')
+        busca_dep = request.GET.get('busca_dep')
+
+        if search_query:
+            queryset = queryset.filter(Q(nome__icontains=search_query) | Q(cpf__icontains=search_query) | Q(num_registro__icontains=search_query))
+        if categoria_id:
+            queryset = queryset.filter(categoria_id=categoria_id)
+        if convenio_id:
+            if convenio_id == 'none':
+                queryset = queryset.filter(convenio__isnull=True)
+            else:
+                queryset = queryset.filter(convenio_id=convenio_id)
+        if status:
+            queryset = queryset.filter(situacao=status)
+        if busca_dep:
+            queryset = queryset.filter(dependentes__nome__icontains=busca_dep).distinct()
+
+        socios = queryset.select_related('categoria', 'convenio').annotate(num_dependentes=Count('dependentes')).order_by('nome')
+
+        # Nomes para cabeçalho
+        categoria_nome = None
+        if categoria_id:
+            cat = CategoriaSocio.objects.filter(id=categoria_id, empresa=empresa_atual).first()
+            if cat:
+                categoria_nome = cat.nome
+        convenio_nome = None
+        if convenio_id:
+            if convenio_id == 'none':
+                convenio_nome = 'Sem convênio'
+            else:
+                conv = Convenio.objects.filter(id=convenio_id, empresa=empresa_atual).first()
+                if conv:
+                    convenio_nome = conv.nome
+
+        context = {
+            'socios': socios,
+            'empresa': empresa_atual,
+            'total_geral': socios.count(),
+            'data_emissao': timezone.now(),
+            'filtro_categoria': categoria_nome,
+            'filtro_convenio': convenio_nome,
+            'filtro_status': status,
+            'filtro_q': search_query,
+            'filtro_busca_dep': busca_dep,
+        }
+        html_string = render_to_string('socios/socio_list_pdf_template.html', context)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="relatorio_socios.pdf"'
+        return response
 
 
 # Adicione esta nova view no final do arquivo

@@ -22,6 +22,9 @@
             <div class="box-header with-border">
                 <h3 class="box-title">Filtros e Busca</h3>
                 <div class="box-tools pull-right">
+                    <a href="{% url 'socios:relatorio_pdf' %}?q={{ search_query }}&categoria={{ categoria_selecionada }}&convenio={{ convenio_selecionado }}&status={{ status_selecionado }}&busca_dep={{ busca_dep }}" target="_blank" class="btn btn-danger btn-flat" style="margin-right:6px;">
+                        <i class="fa fa-file-pdf-o"></i> PDF Filtrado
+                    </a>
                     <a href="{% url 'socios:adicionar_socio' %}" class="btn btn-primary btn-flat">
                         <i class="fa fa-plus"></i> Adicionar Sócio
                     </a>

@@ -1,0 +1,108 @@
+{% load brl %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Sócios</title>
+    <style>
+        @page { size: A4 landscape; margin: 1cm; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 8.5pt; color: #2c3e50; margin:0; }
+        .header {
+            background: linear-gradient(135deg, #004080 0%, #0066cc 55%, #0099e6 100%);
+            color: white; padding: 14px 16px; border-radius: 8px; margin-bottom: 12px; position: relative; overflow: hidden;
+        }
+        .header::after { content:""; position:absolute; right:-30px; top:-30px; width:140px; height:140px; background: rgba(255,255,255,0.08); border-radius:50%; }
+        .header-table { width:100%; border-collapse:collapse; }
+        .header-table td { border:none; padding:0; vertical-align:middle; }
+        .company-name { font-size:13pt; font-weight:800; color:white; margin:0; letter-spacing:0.5px; }
+        .company-sub { font-size:7pt; opacity:0.9; margin:2px 0 0 0; color:white; }
+        .report-title { font-size:12pt; font-weight:800; margin:6px 0 0 0; text-transform: uppercase; color:white; }
+        .report-sub { font-size:7pt; opacity:0.9; margin:2px 0 0 0; color:white; }
+        .logo { max-height:44px; background:white; padding:3px 6px; border-radius:6px; }
+        .badge-report { background:white; color:#004080; padding:4px 10px; border-radius:14px; font-size:7pt; font-weight:800; text-transform:uppercase; }
+        .watermark { position: fixed; top:45%; left:50%; transform: translate(-50%,-50%) rotate(-30deg); font-size:64pt; color: rgba(0,64,128,0.04); font-weight:900; letter-spacing:6px; z-index:-1; }
+        .filters-box { background:#f4f6f9; border:1px solid #e2e8f0; padding:7px 10px; margin-bottom:10px; font-size:7.5pt; border-radius:6px; }
+        .filter-item { display:inline-block; margin-right:14px; }
+        .filter-label { font-weight:700; color:#334155; }
+        .filter-value { color:#004080; font-weight:600; }
+        .summary-row { display:table; width:100%; margin-bottom:10px; }
+        .summary-box { display:table-cell; width:33.3%; text-align:center; border:1px solid #e2e8f0; padding:7px 6px; background:white; }
+        .summary-box:first-child { border-radius:6px 0 0 6px; }
+        .summary-box:last-child { border-radius:0 6px 6px 0; }
+        .summary-label { font-size:6.5pt; text-transform:uppercase; letter-spacing:0.6px; color:#64748b; display:block; }
+        .summary-value { font-size:10.5pt; font-weight:800; display:block; margin-top:2px; }
+        .text-green { color:#059669; } .text-red { color:#dc2626; } .text-blue { color:#004080; }
+        table { width:100%; border-collapse:collapse; margin-bottom:12px; }
+        th { background: #004080; color:white; padding:7px 6px; text-align:left; font-size:7pt; text-transform:uppercase; letter-spacing:0.6px; }
+        td { padding:5px 6px; border-bottom:1px solid #e2e8f0; font-size:7.5pt; vertical-align:top; }
+        tr:nth-child(even) { background:#f8fafc; }
+        .text-right { text-align:right; } .text-center { text-align:center; }
+        .badge { padding:2px 7px; border-radius:10px; font-size:6.5pt; font-weight:700; color:white; }
+        .bg-green { background:#059669; } .bg-red { background:#dc2626; } .bg-yellow { background:#f59e0b; } .bg-gray { background:#64748b; } .bg-blue { background:#2563eb; }
+        .footer { position: fixed; bottom:0; left:0; right:0; text-align:right; font-size:7pt; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:5px; background:white; }
+    </style>
+</head>
+<body>
+    <div class="watermark">{{ empresa.nome|upper }}</div>
+
+    <div class="header">
+        <table class="header-table">
+            <tr>
+                <td style="width:70%;">
+                    <div class="company-name">{{ empresa.nome }}</div>
+                    <div class="company-sub">{% if empresa.cidade %}{{ empresa.cidade }}{% if empresa.estado %} - {{ empresa.estado }}{% endif %} | {% endif %}Sistema e-Clube Campestre</div>
+                    <div class="report-title">Relatório de Sócios</div>
+                    <div class="report-sub">Filtros aplicados abaixo &bull; Gerado em {{ data_emissao|date:"d/m/Y H:i" }}</div>
+                </td>
+                <td style="width:30%; text-align:right;">
+                    {% if empresa.logo %}<img src="{{ empresa.logo.url }}" class="logo">{% else %}<span class="badge-report">SÓCIOS</span>{% endif %}
+                    <div style="margin-top:6px;"><span class="badge-report">{{ total_geral }} sócio(s)</span></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="filters-box">
+        <span class="filter-item"><span class="filter-label">Filtros:</span></span>
+        {% if filtro_q %}<span class="filter-item"><span class="filter-label">Busca:</span> {{ filtro_q }}</span>{% endif %}
+        {% if filtro_categoria %}<span class="filter-item"><span class="filter-label">Categoria:</span> {{ filtro_categoria }}</span>{% endif %}
+        {% if filtro_convenio %}<span class="filter-item"><span class="filter-label">Convênio:</span> {{ filtro_convenio }}</span>{% endif %}
+        {% if filtro_status %}<span class="filter-item"><span class="filter-label">Status:</span> {{ filtro_status }}</span>{% endif %}
+        {% if filtro_busca_dep %}<span class="filter-item"><span class="filter-label">Dependente:</span> {{ filtro_busca_dep }}</span>{% endif %}
+        {% if not filtro_q and not filtro_categoria and not filtro_convenio and not filtro_status and not filtro_busca_dep %}<span class="filter-item"><i>Sem filtros — todos os registros</i></span>{% endif %}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width:7%; text-align:center;">Registro</th>
+                <th style="width:26%;">Nome</th>
+                <th style="width:13%;">CPF</th>
+                <th style="width:14%;">Categoria</th>
+                <th style="width:14%;">Convênio</th>
+                <th style="width:9%; text-align:center;">Status</th>
+                <th style="width:7%; text-align:center;">Dep.</th>
+                <th style="width:10%;">Telefone</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in socios %}
+            <tr>
+                <td style="text-align:center;"><span class="badge bg-blue">{{ s.num_registro }}</span></td>
+                <td><strong>{{ s.nome }}</strong>{% if s.apelido %}<br><small style="color:#64748b;">{{ s.apelido }}</small>{% endif %}</td>
+                <td style="font-size:7pt;">{{ s.cpf|default:"—" }}</td>
+                <td style="font-size:7pt;">{{ s.categoria.nome }}</td>
+                <td style="font-size:7pt;">{{ s.convenio.nome|default:"—" }}</td>
+                <td style="text-align:center;">{% if s.situacao == 'ATIVO' %}<span class="badge bg-green">Ativo</span>{% elif s.situacao == 'INATIVO' %}<span class="badge bg-yellow">Inativo</span>{% else %}<span class="badge bg-red">{{ s.get_situacao_display }}</span>{% endif %}</td>
+                <td style="text-align:center;"><span class="badge bg-gray">{{ s.num_dependentes }}</span></td>
+                <td style="font-size:7pt;">{{ s.tel_residencial|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" style="text-align:center; padding:18px; color:#64748b;">Nenhum sócio encontrado para os filtros.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">Gerado em {{ data_emissao|date:"d/m/Y H:i" }} &nbsp;|&nbsp; {{ empresa.nome }} — Sistema e-Clube Campestre &nbsp;|&nbsp; Relatório de Sócios &nbsp;|&nbsp; {{ total_geral }} registro(s)</div>
+</body>
+</html>
