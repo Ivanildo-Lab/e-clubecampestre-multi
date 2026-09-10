@@ -18,14 +18,26 @@
                         {{ form.socio }}
                         {% if form.socio.errors %}<span class="text-red">{{ form.socio.errors }}</span>{% endif %}
                     </div>
-                    <div class="form-group">
-                        <label>{{ form.periodo.label }}</label>
-                        <div>
-                            {% for radio in form.periodo %}
-                            <label class="radio-inline" style="margin-right:18px;">{{ radio.tag }} {{ radio.choice_label }}</label>
-                            {% endfor %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{ form.periodo.label }}</label>
+                                <div>
+                                    {% for radio in form.periodo %}
+                                    <label class="radio-inline" style="margin-right:18px;">{{ radio.tag }} {{ radio.choice_label }}</label>
+                                    {% endfor %}
+                                </div>
+                                {% if form.periodo.errors %}<span class="text-red">{{ form.periodo.errors }}</span>{% endif %}
+                            </div>
                         </div>
-                        {% if form.periodo.errors %}<span class="text-red">{{ form.periodo.errors }}</span>{% endif %}
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.data_vencimento_primeira.label_tag }}
+                                {{ form.data_vencimento_primeira }}
+                                {% if form.data_vencimento_primeira.errors %}<span class="text-red">{{ form.data_vencimento_primeira.errors }}</span>{% endif %}
+                                <p class="help-block" style="margin-bottom:0;">{{ form.data_vencimento_primeira.help_text }}</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="callout callout-warning" style="margin-bottom:0;">
                         <strong>Dica:</strong> Você também pode clicar no ícone <i class="fa fa-dollar"></i> na lista de sócios para pré-selecionar o sócio.

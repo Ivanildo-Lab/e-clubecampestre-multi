@@ -329,10 +329,17 @@ class GerarMensalidadePorSocioForm(forms.Form):
         widget=forms.RadioSelect,
         initial='mes'
     )
+    data_vencimento_primeira = forms.DateField(
+        label="Venc. da Primeira",
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        required=False,
+        help_text="Deixe em branco para usar hoje. Permite retroativo."
+    )
 
     def __init__(self, *args, **kwargs):
         empresa = kwargs.pop('empresa', None)
         super().__init__(*args, **kwargs)
         if empresa:
             self.fields['socio'].queryset = Socio.objects.filter(empresa=empresa, situacao='ATIVO').order_by('nome')
+        self.fields['data_vencimento_primeira'].widget.attrs['class'] = 'form-control'
         # Select2 já cuida do estilo, periodo é radio

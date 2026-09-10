@@ -165,6 +165,14 @@ class GerarMensalidadePorSocioView(LoginRequiredMixin, FormView):
         context['titulo_pagina'] = 'Gerar Mensalidade por Sócio'
         return context
 
+    def _add_months(self, source, months):
+        import calendar, datetime
+        month = source.month - 1 + months
+        year = source.year + month // 12
+        month = month % 12 + 1
+        day = min(source.day, calendar.monthrange(year, month)[1])
+        return datetime.date(year, month, day)
+
     def form_valid(self, form):
         if not (self.request.user.is_superuser or self.request.user.nivel_acesso == 'ADMIN'):
             messages.error(self.request, 'Voce nao tem permissao para executar esta acao.')
@@ -172,6 +180,7 @@ class GerarMensalidadePorSocioView(LoginRequiredMixin, FormView):
 
         socio = form.cleaned_data['socio']
         periodo = form.cleaned_data['periodo']
+        data_primeira = form.cleaned_data.get('data_vencimento_primeira')
         meses_a_gerar = 1 if periodo == 'mes' else 12
 
         # Valida pertence à empresa
@@ -193,19 +202,31 @@ class GerarMensalidadePorSocioView(LoginRequiredMixin, FormView):
             return redirect('financeiro:gerar_mensalidade_socio')
 
         import datetime, calendar
-        hoje = datetime.date.today()
+        # Se informou vencimento da primeira, usa ele como base (permite retroativo)
+        if data_primeira:
+            base_venc = data_primeira
+            base_comp = data_primeira.replace(day=1)
+        else:
+            hoje = datetime.date.today()
+            base_venc = None
+            base_comp = hoje.replace(day=1)
+
         socios_preview = []
         for i in range(meses_a_gerar):
-            ano_comp = hoje.year + (hoje.month + i - 1) // 12
-            mes_comp = (hoje.month + i - 1) % 12 + 1
-            competencia = datetime.date(ano_comp, mes_comp, 1)
+            if data_primeira:
+                vencimento = self._add_months(base_venc, i)
+                competencia = vencimento.replace(day=1)
+            else:
+                ano_comp = base_comp.year + (base_comp.month + i - 1) // 12
+                mes_comp = (base_comp.month + i - 1) % 12 + 1
+                competencia = datetime.date(ano_comp, mes_comp, 1)
+                try:
+                    vencimento = competencia.replace(day=dia_vencimento)
+                except ValueError:
+                    ultimo = calendar.monthrange(competencia.year, competencia.month)[1]
+                    vencimento = competencia.replace(day=ultimo)
             if Mensalidade.objects.filter(socio=socio, competencia=competencia).exists():
                 continue
-            try:
-                vencimento = competencia.replace(day=dia_vencimento)
-            except ValueError:
-                ultimo = calendar.monthrange(competencia.year, competencia.month)[1]
-                vencimento = competencia.replace(day=ultimo)
             socios_preview.append({
                 'socio_id': socio.id,
                 'socio_nome': socio.nome,
