@@ -145,8 +145,9 @@
                             <td>
                                 <a href="{% url 'socios:socio_pdf' socio.pk %}" class="btn btn-xs btn-primary" title="Gerar Ficha em PDF" target="_blank"><i class="fa fa-print"></i></a>                                <a href="{% url 'socios:editar_socio' socio.pk %}" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a>
                                 <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'socios:excluir_socio' socio.pk %}" data-nome="{{ socio.nome }}"><i class="fa fa-trash"></i></button>
+                                <a href="{% url 'socios:socio_debitos' socio.pk %}" class="btn btn-xs btn-warning" title="Ver débitos (contas + mensalidades)"><i class="fa fa-exclamation-triangle"></i></a>
                                 <a href="{% url 'financeiro:gerar_mensalidade_socio_pk' socio.pk %}" class="btn btn-xs bg-purple" title="Gerar mensalidade específica (após admissão)"><i class="fa fa-calendar-plus-o"></i></a>
-                                <form action="{% url 'socios:gerar_mensalidade_individual' socio.pk %}" method="post" style="display: inline;">
+                                <form action="{% url 'socios:gerar_mensalidade_individual' socio.pk %}" method="post" style="display: inline;" onsubmit="return confirm('Confirma a geração de 12 mensalidades para {{ socio.nome|escapejs }}?');">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-xs btn-success" title="Gerar Mensalidade Anual do Socio (12 meses)">
                                         <i class="fa fa-dollar"></i>
