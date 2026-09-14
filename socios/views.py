@@ -66,6 +66,19 @@ class SocioListView(LoginRequiredMixin, ListView):
         context['convenio_selecionado'] = self.request.GET.get('convenio', '')
         context['status_selecionado'] = self.request.GET.get('status', '')
         context['busca_dep'] = self.request.GET.get('busca_dep', '')
+        # Quantidade filtrada
+        try:
+            context['filtrados_total'] = self.get_queryset().count()
+        except:
+            context['filtrados_total'] = context['socios'].count() if 'socios' in context else 0
+        # Se filtro por convênio, mostra total do convênio também
+        if context['convenio_selecionado'] and context['convenio_selecionado'] != 'none':
+            try:
+                convenio_obj = Convenio.objects.get(id=context['convenio_selecionado'], empresa=empresa_atual)
+                context['convenio_filtrado_nome'] = convenio_obj.nome
+                context['convenio_filtrado_total'] = Socio.objects.filter(empresa=empresa_atual, convenio=convenio_obj).count()
+            except:
+                pass
         for socio in context['socios']:
             socio.foto_existe = False
             if socio.foto and socio.foto.storage.exists(socio.foto.name):
@@ -318,10 +331,19 @@ class SocioListPDFView(LoginRequiredMixin, View):
                 if conv:
                     convenio_nome = conv.nome
 
+        # Total do convênio filtrado (para mostrar "X sócios no total")
+        convenio_filtrado_total = None
+        if convenio_id and convenio_id != 'none':
+            try:
+                convenio_obj = Convenio.objects.get(id=convenio_id, empresa=empresa_atual)
+                convenio_filtrado_total = Socio.objects.filter(empresa=empresa_atual, convenio=convenio_obj).count()
+            except:
+                pass
         context = {
             'socios': socios,
             'empresa': empresa_atual,
             'total_geral': socios.count(),
+            'convenio_filtrado_total': convenio_filtrado_total,
             'data_emissao': timezone.now(),
             'filtro_categoria': categoria_nome,
             'filtro_convenio': convenio_nome,

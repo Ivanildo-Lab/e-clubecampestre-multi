@@ -66,10 +66,11 @@
         <span class="filter-item"><span class="filter-label">Filtros:</span></span>
         {% if filtro_q %}<span class="filter-item"><span class="filter-label">Busca:</span> {{ filtro_q }}</span>{% endif %}
         {% if filtro_categoria %}<span class="filter-item"><span class="filter-label">Categoria:</span> {{ filtro_categoria }}</span>{% endif %}
-        {% if filtro_convenio %}<span class="filter-item"><span class="filter-label">Convênio:</span> {{ filtro_convenio }}</span>{% endif %}
+        {% if filtro_convenio %}<span class="filter-item"><span class="filter-label">Convênio:</span> {{ filtro_convenio }}{% if convenio_filtrado_total %} ({{ convenio_filtrado_total }} no total){% endif %}</span>{% endif %}
         {% if filtro_status %}<span class="filter-item"><span class="filter-label">Status:</span> {{ filtro_status }}</span>{% endif %}
         {% if filtro_busca_dep %}<span class="filter-item"><span class="filter-label">Dependente:</span> {{ filtro_busca_dep }}</span>{% endif %}
         {% if not filtro_q and not filtro_categoria and not filtro_convenio and not filtro_status and not filtro_busca_dep %}<span class="filter-item"><i>Sem filtros — todos os registros</i></span>{% endif %}
+        <span class="filter-item"><span class="filter-label">Resultado:</span> {{ total_geral }} sócio(s)</span>
     </div>
 
     <table>

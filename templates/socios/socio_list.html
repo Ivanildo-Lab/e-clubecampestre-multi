@@ -94,6 +94,13 @@
                     </div>
                 </div>
             </form>
+
+            {% if request.GET.q or request.GET.categoria or request.GET.convenio or request.GET.status or request.GET.busca_dep %}
+            <div class="box-body" style="padding: 8px 15px; background:#e8f4f8; border-top:1px solid #d2e3f0; border-bottom:1px solid #d2e3f0;">
+                <i class="fa fa-filter"></i> <strong>{{ filtrados_total }}</strong> sócio(s) encontrado(s) com os filtros atuais
+                {% if convenio_filtrado_nome %} — Convênio <strong>{{ convenio_filtrado_nome }}</strong> possui <strong>{{ convenio_filtrado_total }}</strong> sócio(s) no total{% endif %}
+            </div>
+            {% endif %}
             
             <div class="box-body table-responsive no-padding">
                 <table class="table table-hover">
