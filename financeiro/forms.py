@@ -1,5 +1,7 @@
 # financeiro/forms.py
 
+import datetime
+
 from django import forms
 from django_select2.forms import ModelSelect2Widget
 from .models import Conta, PlanoDeContas, Socio, Caixa, LancamentoCaixa,Mensalidade
@@ -339,7 +341,9 @@ class GerarMensalidadesForm(forms.Form):
             try:
                 datetime.date(int(ano), int(mes), 1)
             except Exception as e:
-                self.add_error('mes_referencia', 'Mês/ano inválido.')
+                import logging
+                logging.getLogger('clube_manager').error(f"Falha mes/ano: mes={mes!r} ano={ano!r} erro={e}")
+                self.add_error('mes_referencia', 'Mês/ano inválido.')                
         return cleaned
 
 
