@@ -43,6 +43,22 @@
                         <p class="help-block">Se escolher Convênio, selecione o convênio. Obrigatório. O valor/dia virão do convênio (se 0, usa categoria do sócio).</p>
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.mes_referencia.label_tag }} {{ form.mes_referencia }}
+                                {% if form.mes_referencia.errors %}<span class="help-block text-red">{{ form.mes_referencia.errors.0 }}</span>{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.ano_referencia.label_tag }} {{ form.ano_referencia }}
+                                {% if form.ano_referencia.errors %}<span class="help-block text-red">{{ form.ano_referencia.errors.0 }}</span>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <p class="help-block">Padrão: mês/ano atual. Altere para gerar retroativo.</p>
+
                     <div class="form-group">
                         <label>{{ form.periodo.label }}</label>
                         <div class="radio">

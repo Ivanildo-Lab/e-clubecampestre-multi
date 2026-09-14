@@ -266,8 +266,8 @@ class GerarMensalidadesForm(forms.Form):
         ('convenio', 'Por Convênio'),
     ]
     PERIODO_CHOICES = [
-        ('mes', 'Apenas para o Mês Atual'),
-        ('ano', 'Para os Próximos 12 Meses'),
+        ('mes', 'Apenas para o Mês Selecionado'),
+        ('ano', '12 Meses a partir do Mês Selecionado'),
     ]
 
     origem = forms.ChoiceField(
@@ -288,6 +288,8 @@ class GerarMensalidadesForm(forms.Form):
         required=False,
         empty_label="Todos os Convênios"
     )
+    mes_referencia = forms.ChoiceField(label="Mês", required=False)
+    ano_referencia = forms.ChoiceField(label="Ano", required=False)
     periodo = forms.ChoiceField(
         choices=PERIODO_CHOICES,
         label="Período de Geração",
@@ -298,9 +300,26 @@ class GerarMensalidadesForm(forms.Form):
     def __init__(self, *args, **kwargs):
         empresa = kwargs.pop('empresa', None)
         super().__init__(*args, **kwargs)
+        import datetime
+        from django.utils.formats import date_format
+        hoje = datetime.date.today()
+        # Meses
+        meses = [(str(i), date_format(datetime.date(2000, i, 1), "F").capitalize()) for i in range(1, 13)]
+        anos = [(str(i), str(i)) for i in range(hoje.year - 2, hoje.year + 3)]
+        self.fields['mes_referencia'].choices = meses
+        self.fields['ano_referencia'].choices = anos
+        # Default atual
+        if not self.data.get('mes_referencia') and not self.initial.get('mes_referencia'):
+            self.fields['mes_referencia'].initial = str(hoje.month)
+            self.fields['ano_referencia'].initial = str(hoje.year)
+        else:
+            # Se já veio via POST/initial, mantém
+            pass
         if empresa:
             self.fields['categoria'].queryset = CategoriaSocio.objects.filter(empresa=empresa)
             self.fields['convenio'].queryset = Convenio.objects.filter(empresa=empresa)
+        self.fields['mes_referencia'].widget.attrs.update({'class': 'form-control'})
+        self.fields['ano_referencia'].widget.attrs.update({'class': 'form-control'})
         self.fields['categoria'].widget.attrs.update({'class': 'form-control'})
         self.fields['convenio'].widget.attrs.update({'class': 'form-control'})
 
@@ -313,6 +332,14 @@ class GerarMensalidadesForm(forms.Form):
             self.add_error('convenio', 'Preencha o campo convênio.')
         if origem == 'categoria' and not categoria:
             self.add_error('categoria', 'Preencha o campo categoria.')
+        # Valida mes/ano - apenas se ambos preenchidos, senão usa padrão
+        mes = cleaned.get('mes_referencia')
+        ano = cleaned.get('ano_referencia')
+        if mes and ano:
+            try:
+                datetime.date(int(ano), int(mes), 1)
+            except Exception as e:
+                self.add_error('mes_referencia', 'Mês/ano inválido.')
         return cleaned
 
 

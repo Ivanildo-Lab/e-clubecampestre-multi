@@ -96,14 +96,20 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
             socios_ativos = socios_ativos.filter(categoria_id=categoria.id)
 
         import datetime
-        hoje = datetime.date.today()
+        # Mês/Ano de referência escolhido (permite retroativo)
+        mes_ref = int(form.cleaned_data.get('mes_referencia') or datetime.date.today().month)
+        ano_ref = int(form.cleaned_data.get('ano_referencia') or datetime.date.today().year)
+        try:
+            base_competencia = datetime.date(ano_ref, mes_ref, 1)
+        except ValueError:
+            base_competencia = datetime.date.today().replace(day=1)
         socios_preview = []
 
         for socio in socios_ativos:
             valor, dia_vencimento = self._get_valor_vencimento(socio, origem, convenio, categoria)
             if valor is None or valor <= 0:
                 continue
-            competencia = hoje.replace(day=1)
+            competencia = base_competencia
             try:
                 vencimento = competencia.replace(day=dia_vencimento)
             except ValueError:
@@ -129,13 +135,19 @@ class GerarMensalidadesEmMassaView(LoginRequiredMixin, FormView):
                 })
 
         if not socios_preview:
-            messages.info(self.request, 'Nenhuma nova mensalidade precisava ser gerada para os filtros selecionados.')
+            # Aviso específico quando já existe para o período
+            from django.utils.formats import date_format
+            mes_nome = date_format(base_competencia, "F").capitalize()
+            nome_filtro = convenio.nome if convenio else (categoria.nome if categoria else "selecionado(s)")
+            messages.warning(self.request, f'Nenhuma nova mensalidade para {mes_nome} de {ano_ref} — todas as mensalidades do {origem} "{nome_filtro}" já estão geradas para esse período.')
             return redirect('financeiro:lista_mensalidades')
 
         self.request.session['preview_geracao'] = {
             'origem': origem,
             'convenio_id': convenio.id if convenio else None,
             'categoria_id': categoria.id if categoria else None,
+            'mes_referencia': str(mes_ref),
+            'ano_referencia': str(ano_ref),
             'meses_a_gerar': meses_a_gerar,
             'socios': socios_preview,
         }
@@ -312,12 +324,19 @@ class ConfirmarGeracaoMensalidadesView(LoginRequiredMixin, View):
         convenio_id = request.POST.get('convenio_id')
         categoria_id = request.POST.get('categoria_id')
         origem = request.POST.get('origem', 'convenio')
+        # Para retroativo, usa mes/ano guardados na sessão
+        preview = request.session.get('preview_geracao', {})
+        mes_ref = int(preview.get('mes_referencia') or request.POST.get('mes_referencia') or datetime.date.today().month)
+        ano_ref = int(preview.get('ano_referencia') or request.POST.get('ano_referencia') or datetime.date.today().year)
 
         socios_ids = request.POST.getlist('socios_selecionados')
         valores = request.POST.getlist('valores')
 
         import datetime
-        hoje = datetime.date.today()
+        try:
+            base_competencia = datetime.date(ano_ref, mes_ref, 1)
+        except ValueError:
+            base_competencia = datetime.date.today().replace(day=1)
         mensalidades_para_criar = []
         num_ignoradas = 0
 
@@ -338,9 +357,9 @@ class ConfirmarGeracaoMensalidadesView(LoginRequiredMixin, View):
                 pass
 
         for i in range(meses_a_gerar):
-            ano_competencia = hoje.year + (hoje.month + i - 1) // 12
-            mes_competencia = (hoje.month + i - 1) % 12 + 1
-            competencia = hoje.replace(day=1).replace(year=ano_competencia, month=mes_competencia)
+            ano_competencia = base_competencia.year + (base_competencia.month + i - 1) // 12
+            mes_competencia = (base_competencia.month + i - 1) % 12 + 1
+            competencia = base_competencia.replace(day=1).replace(year=ano_competencia, month=mes_competencia)
 
             socios_com_mensalidade = Mensalidade.objects.filter(
                 socio__empresa_id=empresa_atual.id,
@@ -430,7 +449,7 @@ class MensalidadeListView(LoginRequiredMixin, ListView):
         if convenio_id:
             queryset = queryset.filter(socio__convenio_id=convenio_id)
             
-        return queryset.select_related('socio', 'socio__categoria').order_by('-data_vencimento')
+        return queryset.select_related('socio', 'socio__categoria', 'socio__convenio').order_by('-data_vencimento')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -518,6 +537,87 @@ class BaixarMensalidadeView(LoginRequiredMixin, View):
         else:
             messages.error(request, f"Dados inválidos. Por favor, verifique: {form.errors}")
         
+        return redirect('financeiro:lista_mensalidades')
+
+class BaixarMensalidadesLoteView(LoginRequiredMixin, View):
+    def post(self, request):
+        empresa_atual = request.user.empresa
+        ids = request.POST.getlist('mensalidades_ids')
+        if not ids:
+            ids = request.POST.getlist('mensalidades_ids[]')
+        if not ids:
+            raw = request.POST.get('mensalidades_ids', '')
+            if raw:
+                ids = [x.strip() for x in raw.split(',') if x.strip()]
+        if not ids:
+            messages.error(request, 'Nenhuma mensalidade selecionada.')
+            return redirect('financeiro:lista_mensalidades')
+
+        form = BaixaMensalidadeForm(request.POST, empresa=empresa_atual)
+        if not form.is_valid():
+            messages.error(request, f'Dados inválidos: {form.errors}')
+            return redirect('financeiro:lista_mensalidades')
+
+        caixa = form.cleaned_data.get('caixa')
+        forma_pagamento = form.cleaned_data.get('forma_pagamento')
+        data_pagamento = form.cleaned_data['data_pagamento']
+
+        # Busca mensalidades válidas (pendente/atrasada) da empresa
+        mensalidades = Mensalidade.objects.filter(id__in=ids, socio__empresa=empresa_atual, status__in=['PENDENTE', 'ATRASADA'])
+        if not mensalidades.exists():
+            messages.warning(request, 'Nenhuma mensalidade válida para baixa (já pagas ou não encontradas).')
+            return redirect('financeiro:lista_mensalidades')
+
+        taxa_obj = ConfiguracaoSistema.objects.filter(empresa=empresa_atual, chave='TAXA_JUROS_MENSAL').first()
+        taxa = taxa_obj.valor if taxa_obj else '2.0'
+        try:
+            taxa_dec = Decimal(str(taxa).replace(',', '.'))
+        except:
+            taxa_dec = Decimal('2.0')
+
+        sucesso = 0
+        try:
+            with transaction.atomic():
+                for mensalidade in mensalidades.select_related('socio'):
+                    # Calcula juros por mensalidade
+                    try:
+                        juros = mensalidade.calcular_juros(taxa_dec, data_pagamento) if hasattr(mensalidade, 'calcular_juros') else Decimal('0.00')
+                    except:
+                        # Fallback simples: se não tem método, calcula manualmente
+                        dias = (data_pagamento - mensalidade.data_vencimento).days if data_pagamento > mensalidade.data_vencimento else 0
+                        if dias > 0:
+                            juros = mensalidade.valor * (taxa_dec / Decimal('100')) * (Decimal(dias) / Decimal('30'))
+                            juros = juros.quantize(Decimal('0.01'))
+                        else:
+                            juros = Decimal('0.00')
+                    mensalidade.status = 'PAGA'
+                    mensalidade.data_pagamento = data_pagamento
+                    mensalidade.forma_pagamento = forma_pagamento
+                    mensalidade.save(update_fields=['status', 'data_pagamento', 'forma_pagamento'])
+
+                    if caixa:
+                        try:
+                            plano_mensal_id = int(ConfiguracaoSistema.objects.get(empresa=empresa_atual, chave='PLANO_CONTAS_MENSALIDADE_ID').valor)
+                            plano_juros_id = int(ConfiguracaoSistema.objects.get(empresa=empresa_atual, chave='PLANO_CONTAS_JUROS_ID').valor)
+                            plano_mensal = PlanoDeContas.objects.get(id=plano_mensal_id)
+                            plano_juros = PlanoDeContas.objects.get(id=plano_juros_id)
+                        except:
+                            continue
+                        LancamentoCaixa.objects.create(
+                            empresa=empresa_atual, caixa=caixa, plano_de_contas=plano_mensal,
+                            data_lancamento=data_pagamento, descricao=f"Pag. Mensalidade: {mensalidade.socio.nome} ({mensalidade.competencia.strftime('%m/%Y')})",
+                            valor=mensalidade.valor, mensalidade_origem=mensalidade
+                        )
+                        if juros and juros > 0:
+                            LancamentoCaixa.objects.create(
+                                empresa=empresa_atual, caixa=caixa, plano_de_contas=plano_juros,
+                                data_lancamento=data_pagamento, descricao=f"Juros Mens.: {mensalidade.socio.nome} ({mensalidade.competencia.strftime('%m/%Y')})",
+                                valor=juros, mensalidade_origem=mensalidade
+                            )
+                    sucesso += 1
+            messages.success(request, f'{sucesso} mensalidade(s) baixada(s) com sucesso!')
+        except Exception as e:
+            messages.error(request, f'Erro na baixa em lote: {e}')
         return redirect('financeiro:lista_mensalidades')
     
 class MensalidadeUpdateView(LoginRequiredMixin, UpdateView):
@@ -1132,7 +1232,7 @@ class MensalidadePDFView(LoginRequiredMixin, View):
         if data_inicio: queryset = queryset.filter(data_vencimento__gte=data_inicio)
         if data_fim: queryset = queryset.filter(data_vencimento__lte=data_fim)
 
-        mensalidades = queryset.select_related('socio', 'socio__categoria').order_by('data_vencimento')
+        mensalidades = queryset.select_related('socio', 'socio__categoria', 'socio__convenio').order_by('data_vencimento')
         total_geral = mensalidades.aggregate(total=Sum('valor'))['total'] or 0
 
         # --- BUSCANDO OS NOMES PARA O CABEÇALHO ---
