@@ -396,11 +396,26 @@ class SocioPDFView(LoginRequiredMixin, View):
             # Busca o sócio e seus dependentes, garantindo que pertence à empresa do usuário
             socio = get_object_or_404(Socio, pk=pk, empresa=request.user.empresa)
             dependentes = socio.dependentes.all()
+            # Débitos em aberto para a ficha
+            try:
+                contas = socio.contas.filter(plano_de_contas__tipo='RECEITA', status__in=['PENDENTE', 'VENCIDA', 'PARCIAL']).select_related('plano_de_contas').order_by('data_vencimento')
+            except:
+                from financeiro.models import Conta
+                contas = Conta.objects.filter(socio=socio, plano_de_contas__tipo='RECEITA', status__in=['PENDENTE', 'VENCIDA', 'PARCIAL']).select_related('plano_de_contas').order_by('data_vencimento')
+            mensalidades = socio.mensalidades.filter(status__in=['PENDENTE', 'ATRASADA']).order_by('data_vencimento')
+            from django.db.models import Sum
+            total_contas = contas.aggregate(total=Sum('valor'))['total'] or 0
+            total_mensal = mensalidades.aggregate(total=Sum('valor'))['total'] or 0
             
             # Contexto de dados para o template
             context = {
                 'socio': socio,
                 'dependentes': dependentes,
+                'contas': contas,
+                'mensalidades_aberto': mensalidades,
+                'total_contas': total_contas,
+                'total_mensal': total_mensal,
+                'total_geral_debitos': (total_contas or 0) + (total_mensal or 0),
                 'empresa': request.user.empresa,
             }
 

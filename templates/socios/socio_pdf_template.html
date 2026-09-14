@@ -213,6 +213,57 @@
         </div>
     </div>
 
+    <!-- DÉBITOS EM ABERTO -->
+    <div class="section">
+        <div class="section-header" style="background: linear-gradient(90deg, #dc2626, #ef4444);">Débitos em Aberto</div>
+        <div class="section-body" style="padding:0;">
+            <div class="two-col">
+                <div class="col" style="padding:8px; border-right:1px solid #e2e8f0;">
+                    <div style="font-size:8pt; font-weight:800; color:#dc2626; text-transform:uppercase; margin-bottom:6px;"><i class="fa fa-calendar"></i> Mensalidades ({{ mensalidades_aberto|length }}) — R$ {{ total_mensal|floatformat:2 }}</div>
+                    {% if mensalidades_aberto %}
+                    <table class="dep-table" style="font-size:7.5pt;">
+                        <thead><tr><th>Compet.</th><th>Venc.</th><th style="text-align:right;">Valor</th><th>Status</th></tr></thead>
+                        <tbody>
+                        {% for m in mensalidades_aberto %}
+                            <tr>
+                                <td style="text-align:center;">{{ m.competencia|date:"m/Y" }}</td>
+                                <td style="text-align:center;">{{ m.data_vencimento|date:"d/m/Y" }}</td>
+                                <td style="text-align:right;">R$ {{ m.valor|floatformat:2 }}</td>
+                                <td style="text-align:center;">{% if m.status == 'ATRASADA' %}<span class="badge" style="background:#dc2626;">Atrasada</span>{% else %}<span class="badge" style="background:#f59e0b;">Pendente</span>{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div style="text-align:center; padding:12px; color:#16a34a; font-size:8pt;">Nenhuma mensalidade em aberto.</div>
+                    {% endif %}
+                </div>
+                <div class="col" style="padding:8px;">
+                    <div style="font-size:8pt; font-weight:800; color:#991b1b; text-transform:uppercase; margin-bottom:6px;"><i class="fa fa-file-text-o"></i> Contas a Receber ({{ contas|length }}) — R$ {{ total_contas|floatformat:2 }}</div>
+                    {% if contas %}
+                    <table class="dep-table" style="font-size:7.5pt;">
+                        <thead><tr><th>Venc.</th><th>Descrição</th><th style="text-align:right;">Valor</th></tr></thead>
+                        <tbody>
+                        {% for c in contas %}
+                            <tr>
+                                <td style="text-align:center;">{{ c.data_vencimento|date:"d/m/Y" }}</td>
+                                <td>{{ c.descricao|truncatechars:22 }}</td>
+                                <td style="text-align:right;">R$ {{ c.valor|floatformat:2 }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div style="text-align:center; padding:12px; color:#16a34a; font-size:8pt;">Nenhuma conta em aberto.</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div style="padding:6px 10px; background:#fef2f2; border-top:1px solid #fecaca; font-size:8pt; text-align:right; font-weight:800; color:#991b1b;">
+                Total Geral em Aberto: R$ {{ total_geral_debitos|floatformat:2 }}
+            </div>
+        </div>
+    </div>
+
     <!-- DEPENDENTES -->
     <div class="section">
         <div class="section-header orange">Vínculos & Dependentes</div>
