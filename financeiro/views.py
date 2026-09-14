@@ -193,24 +193,42 @@ class GerarMensalidadePorSocioView(LoginRequiredMixin, FormView):
         socio = form.cleaned_data['socio']
         periodo = form.cleaned_data['periodo']
         data_primeira = form.cleaned_data.get('data_vencimento_primeira')
-        meses_a_gerar = 1 if periodo == 'mes' else 12
+        quantidade = form.cleaned_data.get('quantidade_parcelas') or (1 if periodo == 'mes' else 12)
+        valor_informado = form.cleaned_data.get('valor')
+        # Se quantidade informada, usa ela; senão usa periodo
+        try:
+            meses_a_gerar = int(quantidade) if quantidade else (1 if periodo == 'mes' else 12)
+            if meses_a_gerar < 1:
+                meses_a_gerar = 1
+            if meses_a_gerar > 24:
+                meses_a_gerar = 24
+        except:
+            meses_a_gerar = 1 if periodo == 'mes' else 12
 
         # Valida pertence à empresa
         if socio.empresa_id != self.request.user.empresa.id:
             messages.error(self.request, 'Sócio não pertence à sua empresa.')
             return redirect('financeiro:gerar_mensalidade_socio')
 
-        # Usa valor do convênio se existir e >0, senão categoria
-        if socio.convenio and socio.convenio.valor_mensalidade > 0:
-            valor = socio.convenio.valor_mensalidade
-            dia_vencimento = socio.convenio.dia_vencimento or socio.categoria.dia_vencimento
+        # Valor: se informado manualmente usa ele, senão usa do convênio/categoria
+        if valor_informado and valor_informado > 0:
+            valor = valor_informado
+            # dia mantém do cadastro
+            if socio.convenio and socio.convenio.dia_vencimento:
+                dia_vencimento = socio.convenio.dia_vencimento
+            else:
+                dia_vencimento = socio.categoria.dia_vencimento
         else:
-            valor = socio.categoria.valor_mensalidade
-            dia_vencimento = socio.categoria.dia_vencimento
-        if dia_vencimento == 0:
+            if socio.convenio and socio.convenio.valor_mensalidade > 0:
+                valor = socio.convenio.valor_mensalidade
+                dia_vencimento = socio.convenio.dia_vencimento or socio.categoria.dia_vencimento
+            else:
+                valor = socio.categoria.valor_mensalidade
+                dia_vencimento = socio.categoria.dia_vencimento
+        if dia_vencimento == 0 or not dia_vencimento:
             dia_vencimento = 10
         if valor is None or valor <= 0:
-            messages.error(self.request, f'O sócio {socio.nome} está em categoria/convênio sem valor de mensalidade definido ({valor}). Ajuste no cadastro.')
+            messages.error(self.request, f'O sócio {socio.nome} está em categoria/convênio sem valor de mensalidade definido ({valor}). Informe o valor manualmente ou ajuste no cadastro.')
             return redirect('financeiro:gerar_mensalidade_socio')
 
         import datetime, calendar
@@ -319,24 +337,37 @@ class ConfirmarGeracaoMensalidadesView(LoginRequiredMixin, View):
             messages.error(request, 'Voce nao tem permissao para executar esta acao.')
             return redirect('financeiro:lista_mensalidades')
 
+        import datetime
         empresa_atual = request.user.empresa
         meses_a_gerar = int(request.POST.get('meses_a_gerar', 1))
         convenio_id = request.POST.get('convenio_id')
         categoria_id = request.POST.get('categoria_id')
         origem = request.POST.get('origem', 'convenio')
-        # Para retroativo, usa mes/ano guardados na sessão
+        # Para retroativo, usa mes/ano guardados na sessão ou, para por-sócio, usa a competência do preview
         preview = request.session.get('preview_geracao', {})
-        mes_ref = int(preview.get('mes_referencia') or request.POST.get('mes_referencia') or datetime.date.today().month)
-        ano_ref = int(preview.get('ano_referencia') or request.POST.get('ano_referencia') or datetime.date.today().year)
+        # Se for geração por sócio (origem socio_unico), a base é a primeira competência do preview
+        base_competencia = None
+        if preview.get('origem') == 'socio_unico' and preview.get('socios'):
+            try:
+                first = preview['socios'][0]
+                comp = first.get('competencia')
+                if isinstance(comp, str):
+                    base_competencia = datetime.date.fromisoformat(comp)
+                else:
+                    base_competencia = comp
+                base_competencia = base_competencia.replace(day=1)
+            except:
+                pass
+        if not base_competencia:
+            mes_ref = int(preview.get('mes_referencia') or request.POST.get('mes_referencia') or datetime.date.today().month)
+            ano_ref = int(preview.get('ano_referencia') or request.POST.get('ano_referencia') or datetime.date.today().year)
+            try:
+                base_competencia = datetime.date(ano_ref, mes_ref, 1)
+            except ValueError:
+                base_competencia = datetime.date.today().replace(day=1)
 
         socios_ids = request.POST.getlist('socios_selecionados')
         valores = request.POST.getlist('valores')
-
-        import datetime
-        try:
-            base_competencia = datetime.date(ano_ref, mes_ref, 1)
-        except ValueError:
-            base_competencia = datetime.date.today().replace(day=1)
         mensalidades_para_criar = []
         num_ignoradas = 0
 
@@ -439,6 +470,7 @@ class MensalidadeListView(LoginRequiredMixin, ListView):
         status = self.request.GET.get('status')
         categoria_id = self.request.GET.get('categoria')
         convenio_id = self.request.GET.get('convenio')
+        forma_id = self.request.GET.get('forma_pagamento')
 
         if search_query:
             queryset = queryset.filter(socio__nome__icontains=search_query)
@@ -448,8 +480,10 @@ class MensalidadeListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(socio__categoria_id=categoria_id)
         if convenio_id:
             queryset = queryset.filter(socio__convenio_id=convenio_id)
+        if forma_id:
+            queryset = queryset.filter(forma_pagamento_id=forma_id)
             
-        return queryset.select_related('socio', 'socio__categoria', 'socio__convenio').order_by('-data_vencimento')
+        return queryset.select_related('socio', 'socio__categoria', 'socio__convenio', 'forma_pagamento').order_by('-data_vencimento')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -465,11 +499,14 @@ class MensalidadeListView(LoginRequiredMixin, ListView):
         context['categorias'] = CategoriaSocio.objects.filter(empresa=empresa_atual)
         context['convenios'] = Convenio.objects.filter(empresa=empresa_atual) # Adicionado para o filtro
         context['situacao_choices'] = Mensalidade.StatusChoice.choices
+        from formas_pagamento.models import FormaPagamento
+        context['formas_pagamento'] = FormaPagamento.objects.filter(empresa=empresa_atual, ativo=True).order_by('nome')
         
         context['search_query'] = self.request.GET.get('q', '')
         context['status_selecionado'] = self.request.GET.get('status', '')
         context['categoria_selecionada'] = self.request.GET.get('categoria', '')
         context['convenio_selecionado'] = self.request.GET.get('convenio', '')
+        context['forma_selecionada'] = self.request.GET.get('forma_pagamento', '')
         context['baixa_form'] = BaixaMensalidadeForm(empresa=empresa_atual)
         # Total filtrado formatado como R$
         try:
@@ -1207,6 +1244,21 @@ class LancamentoCaixaDeleteView(LoginRequiredMixin, View):
             messages.success(request, 'O lançamento manual foi excluído com sucesso.')
         return redirect('financeiro:fluxo_de_caixa')
 
+class LancamentoComprovantePDFView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        lanc = get_object_or_404(LancamentoCaixa, pk=pk, empresa=request.user.empresa)
+        context = {
+            'lancamento': lanc,
+            'empresa': request.user.empresa,
+            'data_emissao': timezone.now(),
+        }
+        html_string = render_to_string('financeiro/lancamento_comprovante_pdf.html', context)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="comprovante_{lanc.pk}.pdf"'
+        return response
+
 class MensalidadePDFView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         empresa_atual = request.user.empresa
@@ -1217,6 +1269,7 @@ class MensalidadePDFView(LoginRequiredMixin, View):
         status = request.GET.get('status')
         categoria_id = request.GET.get('categoria')
         convenio_id = request.GET.get('convenio')
+        forma_id = request.GET.get('forma_pagamento')
         
         # Filtros de data (se existirem na URL, assumindo que você pode querer filtrar por data no futuro)
         # Se não tiver filtro de data na tela de mensalidades ainda, isso prepara o terreno.
@@ -1227,12 +1280,13 @@ class MensalidadePDFView(LoginRequiredMixin, View):
         if status: queryset = queryset.filter(status=status)
         if categoria_id: queryset = queryset.filter(socio__categoria_id=categoria_id)
         if convenio_id: queryset = queryset.filter(socio__convenio_id=convenio_id)
+        if forma_id: queryset = queryset.filter(forma_pagamento_id=forma_id)
         
         # Logica para filtro de data (opcional, caso adicione no futuro)
         if data_inicio: queryset = queryset.filter(data_vencimento__gte=data_inicio)
         if data_fim: queryset = queryset.filter(data_vencimento__lte=data_fim)
 
-        mensalidades = queryset.select_related('socio', 'socio__categoria', 'socio__convenio').order_by('data_vencimento')
+        mensalidades = queryset.select_related('socio', 'socio__categoria', 'socio__convenio', 'forma_pagamento').order_by('data_vencimento')
         total_geral = mensalidades.aggregate(total=Sum('valor'))['total'] or 0
 
         # --- BUSCANDO OS NOMES PARA O CABEÇALHO ---
@@ -1246,6 +1300,12 @@ class MensalidadePDFView(LoginRequiredMixin, View):
             conv = Convenio.objects.filter(id=convenio_id).first()
             if conv: convenio_nome = conv.nome
 
+        forma_nome = None
+        if forma_id:
+            from formas_pagamento.models import FormaPagamento
+            fp = FormaPagamento.objects.filter(id=forma_id).first()
+            if fp: forma_nome = fp.nome
+
         context = {
             'mensalidades': mensalidades,
             'empresa': empresa_atual,
@@ -1255,6 +1315,7 @@ class MensalidadePDFView(LoginRequiredMixin, View):
             'filtro_categoria': categoria_nome,
             'filtro_convenio': convenio_nome,
             'filtro_status': status,
+            'filtro_forma': forma_nome,
             'filtro_data_inicio': data_inicio,
             'filtro_data_fim': data_fim,
         }

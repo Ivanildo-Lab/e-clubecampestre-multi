@@ -23,12 +23,62 @@ class MensalidadeForm(forms.ModelForm):
             field.widget.attrs['class'] = 'form-control'
 
 
+    def _get_next_codigo(self, empresa, parent):
+        """Gera próximo código sequencial baseado no pai. Ex: pai 10.000.000 -> filhos 10.000.001, 10.000.002"""
+        from django.db.models import Max
+        if parent:
+            # Busca maior código entre filhos do mesmo pai
+            max_codigo = PlanoDeContas.objects.filter(empresa=empresa, parent=parent).aggregate(Max('codigo'))['codigo__max']
+            if max_codigo:
+                try:
+                    # Tenta interpretar como número com pontos: 10.000.001 -> 10000001
+                    base = parent.codigo.replace('.', '')
+                    # Se filho tem código, incrementa último segmento
+                    # Simples: pega max e incrementa
+                    # Converte removendo pontos e incrementa
+                    num = int(max_codigo.replace('.', ''))
+                    nxt = num + 1
+                    # Formata de volta com pontos a cada 3? Mantém formato do pai + 3 dígitos
+                    # Ex: 10.000.000 -> 10.000.001
+                    # Usa formato do pai para determinar casas
+                    if '.' in parent.codigo:
+                        # Mantém mesma quantidade de dígitos após último ponto
+                        prefix = parent.codigo.rsplit('.', 1)[0]
+                        last_len = len(parent.codigo.rsplit('.', 1)[1])
+                        suffix = str(nxt).zfill(len(max_codigo.replace('.', '')))[-last_len:]
+                        # Se não conseguiu, apenas incrementa
+                        try:
+                            suffix_num = int(max_codigo.split('.')[-1]) + 1
+                            return f"{prefix}.{str(suffix_num).zfill(last_len)}"
+                        except:
+                            return str(nxt)
+                    return str(nxt)
+                except:
+                    pass
+            # Sem filhos: primeiro filho é pai + .001 ou .01
+            if '.' in parent.codigo:
+                return f"{parent.codigo.rsplit('.', 1)[0]}.{parent.codigo.split('.')[-1][:1]}001".replace('..', '.') if False else f"{parent.codigo}.001"
+            return f"{parent.codigo}.001"
+        else:
+            # Sem pai: próximo código de nível raiz
+            max_codigo = PlanoDeContas.objects.filter(empresa=empresa, parent__isnull=True).aggregate(Max('codigo'))['codigo__max']
+            if max_codigo:
+                try:
+                    # Incrementa último número
+                    parts = max_codigo.split('.')
+                    last = int(parts[-1]) + 1
+                    parts[-1] = str(last).zfill(len(parts[-1]))
+                    return '.'.join(parts)
+                except:
+                    return str(int(max_codigo.replace('.', '')) + 1)
+            return "10.000.000"
+
 class PlanoDeContasForm(forms.ModelForm):
     class Meta:
         model = PlanoDeContas
         fields = ['codigo', 'nome', 'tipo', 'parent', 'aceita_lancamentos']
         widgets = {
-            'codigo': forms.TextInput(attrs={'placeholder': 'Ex: 1.100.001'}),
+            'codigo': forms.TextInput(attrs={'placeholder': 'Gerado automaticamente após escolher o pai'}),
             'nome': forms.TextInput(attrs={'placeholder': 'Ex: Receita de Mensalidades'}),
         }
 
@@ -38,13 +88,27 @@ class PlanoDeContasForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if empresa:
-            # Filtra o campo 'parent' para mostrar apenas contas da mesma empresa
-            # e que NÃO aceitam lançamentos (são contas sintéticas/agrupadoras).
             self.fields['parent'].queryset = PlanoDeContas.objects.filter(
                 empresa=empresa,
                 aceita_lancamentos=False
             )
             self.fields['parent'].empty_label = "Nenhuma (Conta Principal)"
+            # Se for criação e já tem parent inicial, sugere próximo código
+            if not self.instance.pk:
+                parent_initial = None
+                # Tenta pegar do initial ou do POST
+                parent_id = self.initial.get('parent') or self.data.get('parent')
+                if parent_id:
+                    try:
+                        parent_initial = PlanoDeContas.objects.get(id=parent_id, empresa=empresa)
+                    except:
+                        pass
+                if parent_initial:
+                    self.fields['codigo'].initial = self._get_next_codigo(empresa, parent_initial)
+                elif not self.data.get('codigo'):
+                    # Sugere próximo raiz se não tem pai
+                    self.fields['codigo'].initial = self._get_next_codigo(empresa, None)
+                    self.fields['codigo'].help_text = "Gerado automaticamente. Altere se necessário."
 
         # Aplica a classe do Bootstrap a todos os campos
         for field_name, field in self.fields.items():
@@ -305,9 +369,9 @@ class GerarMensalidadesForm(forms.Form):
         import datetime
         from django.utils.formats import date_format
         hoje = datetime.date.today()
-        # Meses
+        # Meses - anos com intervalo maior para retroativo (10 anos atrás até 2 à frente)
         meses = [(str(i), date_format(datetime.date(2000, i, 1), "F").capitalize()) for i in range(1, 13)]
-        anos = [(str(i), str(i)) for i in range(hoje.year - 2, hoje.year + 3)]
+        anos = [(str(i), str(i)) for i in range(hoje.year - 10, hoje.year + 3)]
         self.fields['mes_referencia'].choices = meses
         self.fields['ano_referencia'].choices = anos
         # Default atual
@@ -368,6 +432,19 @@ class GerarMensalidadePorSocioForm(forms.Form):
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         required=False,
         help_text="Deixe em branco para usar hoje. Permite retroativo."
+    )
+    quantidade_parcelas = forms.IntegerField(
+        label="Quantidade de Parcelas",
+        min_value=1, max_value=24, initial=1,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '24'}),
+        help_text="1 para apenas um mês, até 24"
+    )
+    valor = forms.DecimalField(
+        label="Valor (R$)",
+        max_digits=10, decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Deixe vazio para usar do convênio/categoria'}),
+        help_text="Deixe vazio para usar valor do convênio/categoria"
     )
 
     def __init__(self, *args, **kwargs):
