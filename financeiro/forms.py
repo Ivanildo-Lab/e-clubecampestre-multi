@@ -309,7 +309,10 @@ class GerarMensalidadesForm(forms.Form):
         origem = cleaned.get('origem')
         categoria = cleaned.get('categoria')
         convenio = cleaned.get('convenio')
-        # Validação cruzada não obrigatória - pode gerar para todos se vazio, mas se origem específica exige seleção? Mantemos opcional.
+        if origem == 'convenio' and not convenio:
+            self.add_error('convenio', 'Preencha o campo convênio.')
+        if origem == 'categoria' and not categoria:
+            self.add_error('categoria', 'Preencha o campo categoria.')
         return cleaned
 
 

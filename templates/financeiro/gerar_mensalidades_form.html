@@ -8,7 +8,12 @@
             <div class="box-header with-border">
                 <h3 class="box-title">Geração de Mensalidades em Lote</h3>
             </div>
-            <form role="form" method="post" onsubmit="return confirm('Você confirma a geração das mensalidades com as opções selecionadas?');">
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            <form role="form" method="post" id="formGerarMensalidades">
                 {% csrf_token %}
                 <div class="box-body">
                     <p class="lead">Escolha se a mensalidade será gerada por <strong>Categoria</strong> ou por <strong>Convênio</strong>. O valor e o vencimento virão do cadastro escolhido.</p>
@@ -24,16 +29,18 @@
                         </div>
                     </div>
 
-                    <div class="form-group" id="groupCategoria">
-                        {{ form.categoria.label_tag }}
+                    <div class="form-group {% if form.categoria.errors %}has-error{% endif %}" id="groupCategoria">
+                        {{ form.categoria.label_tag }} <span class="text-red">*</span>
                         {{ form.categoria }}
-                        <p class="help-block">Se escolher Categoria, o valor/dia virão do cadastro da categoria. Deixe em branco para todos.</p>
+                        {% if form.categoria.errors %}<span class="help-block text-red">{{ form.categoria.errors.0 }}</span>{% endif %}
+                        <p class="help-block">Se escolher Categoria, selecione a categoria. Obrigatório.</p>
                     </div>
 
-                    <div class="form-group" id="groupConvenio">
-                        {{ form.convenio.label_tag }}
+                    <div class="form-group {% if form.convenio.errors %}has-error{% endif %}" id="groupConvenio">
+                        {{ form.convenio.label_tag }} <span class="text-red">*</span>
                         {{ form.convenio }}
-                        <p class="help-block">Se escolher Convênio, o valor/dia virão do convênio (se 0, usa categoria do sócio). Deixe em branco para todos.</p>
+                        {% if form.convenio.errors %}<span class="help-block text-red">{{ form.convenio.errors.0 }}</span>{% endif %}
+                        <p class="help-block">Se escolher Convênio, selecione o convênio. Obrigatório. O valor/dia virão do convênio (se 0, usa categoria do sócio).</p>
                     </div>
 
                     <div class="form-group">
@@ -74,6 +81,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     document.querySelectorAll('input[name="origem"]').forEach(el => el.addEventListener('change', toggleOrigem));
     toggleOrigem();
+
+    const form = document.getElementById('formGerarMensalidades');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const origem = document.querySelector('input[name="origem"]:checked');
+            const val = origem ? origem.value : 'convenio';
+            if (val === 'convenio') {
+                const conv = document.getElementById('id_convenio');
+                if (!conv || !conv.value) {
+                    e.preventDefault();
+                    alert('Preencha o campo convênio.');
+                    if (conv) conv.focus();
+                    return false;
+                }
+            } else if (val === 'categoria') {
+                const cat = document.getElementById('id_categoria');
+                if (!cat || !cat.value) {
+                    e.preventDefault();
+                    alert('Preencha o campo categoria.');
+                    if (cat) cat.focus();
+                    return false;
+                }
+            }
+            return confirm('Você confirma a geração das mensalidades com as opções selecionadas?');
+        });
+    }
 });
 </script>
 {% endblock %}
