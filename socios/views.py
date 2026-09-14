@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
 from django.db import transaction
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib import messages
 import datetime
 
@@ -155,6 +155,36 @@ class SocioUpdateView(LoginRequiredMixin, UpdateView):
             return redirect(self.get_success_url())
         return self.render_to_response(self.get_context_data(form=form))
     
+
+class SocioDebitosView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        socio = get_object_or_404(Socio, pk=pk, empresa=request.user.empresa)
+        # Contas a receber em aberto (RECEITA, PENDENTE/VENCIDA/PARCIAL)
+        contas = socio.contas.filter(plano_de_contas__tipo='RECEITA', status__in=['PENDENTE', 'VENCIDA', 'PARCIAL']).select_related('plano_de_contas').order_by('data_vencimento') if hasattr(socio, 'contas') else \
+                 __import__('financeiro.models', fromlist=['Conta']).Conta.objects.filter(socio=socio, plano_de_contas__tipo='RECEITA', status__in=['PENDENTE', 'VENCIDA', 'PARCIAL']).select_related('plano_de_contas').order_by('data_vencimento')
+        # Fallback se relação não existir
+        try:
+            contas_qs = socio.contas.all()
+        except:
+            from financeiro.models import Conta
+            contas_qs = Conta.objects.filter(socio=socio)
+        contas = contas_qs.filter(plano_de_contas__tipo='RECEITA', status__in=['PENDENTE', 'VENCIDA', 'PARCIAL']).select_related('plano_de_contas').order_by('data_vencimento')
+        # Mensalidades em aberto
+        mensalidades = socio.mensalidades.filter(status__in=['PENDENTE', 'ATRASADA']).order_by('data_vencimento')
+        # Totais
+        from django.db.models import Sum
+        total_contas = contas.aggregate(total=Sum('valor'))['total'] or 0
+        total_mensal = mensalidades.aggregate(total=Sum('valor'))['total'] or 0
+        context = {
+            'socio': socio,
+            'contas': contas,
+            'mensalidades': mensalidades,
+            'total_contas': total_contas,
+            'total_mensal': total_mensal,
+            'total_geral': (total_contas or 0) + (total_mensal or 0),
+            'empresa': request.user.empresa,
+        }
+        return render(request, 'socios/socio_debitos.html', context)
 
 class SocioDeleteView(LoginRequiredMixin, DeleteView):
     model = Socio
