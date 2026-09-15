@@ -15,7 +15,8 @@ from decimal import Decimal
 from .models import Mensalidade, LancamentoCaixa, Caixa, PlanoDeContas, Conta
 from .forms import MensalidadeForm, PlanoDeContasForm, CaixaForm, ContaForm,GerarMensalidadesForm,GerarMensalidadePorSocioForm,LancamentoCaixaForm, BaixaMensalidadeForm, BaixaContaForm
 from core.models import CategoriaSocio, ConfiguracaoSistema, Convenio, Socio
-from django.views.generic import FormView
+from django.http import HttpResponse, JsonResponse
+from django.views.generic import View, FormView
 
 from django.http import HttpResponse
 from django.template.loader import render_to_string
@@ -748,10 +749,31 @@ class PlanoDeContasCreateView(LoginRequiredMixin, CreateView):
     form_class = PlanoDeContasForm
     template_name = 'financeiro/plano_de_contas_form.html'
     success_url = reverse_lazy('financeiro:lista_plano_de_contas')
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['empresa'] = self.request.user.empresa
+        return kwargs
     def form_valid(self, form):
         form.instance.empresa = self.request.user.empresa
         messages.success(self.request, 'Conta adicionada ao plano com sucesso!')
         return super().form_valid(form)
+
+class PlanoDeContasProximoCodigoView(LoginRequiredMixin, View):
+    def get(self, request):
+        empresa = request.user.empresa
+        parent_id = request.GET.get('parent_id')
+        parent = None
+        if parent_id:
+            try:
+                parent = PlanoDeContas.objects.get(id=parent_id, empresa=empresa)
+            except:
+                parent = None
+        # Reusa helper do form
+        from .forms import PlanoDeContasForm
+        form = PlanoDeContasForm(empresa=empresa)
+        codigo = form._get_next_codigo(empresa, parent)
+        from django.http import JsonResponse
+        return JsonResponse({'codigo': codigo})
 
 class PlanoDeContasUpdateView(LoginRequiredMixin, UpdateView):
     model = PlanoDeContas
@@ -760,6 +782,10 @@ class PlanoDeContasUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('financeiro:lista_plano_de_contas')
     def get_queryset(self):
         return PlanoDeContas.objects.filter(empresa=self.request.user.empresa)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['empresa'] = self.request.user.empresa
+        return kwargs
     def form_valid(self, form):
         messages.success(self.request, 'Conta atualizada com sucesso!')
         return super().form_valid(form)
@@ -828,19 +854,24 @@ class FluxoDeCaixaView(LoginRequiredMixin, ListView):
         self.caixa_selecionado = self.request.GET.get('caixa', caixa_padrao_id)
         self.data_inicio = self.request.GET.get('data_inicio', hoje_str)
         self.data_fim = self.request.GET.get('data_fim', hoje_str)
+        self.plano_selecionado = self.request.GET.get('plano', '')
         if self.caixa_selecionado:
             queryset = queryset.filter(caixa_id=self.caixa_selecionado)
         if self.data_inicio:
             queryset = queryset.filter(data_lancamento__gte=self.data_inicio)
         if self.data_fim:
             queryset = queryset.filter(data_lancamento__lte=self.data_fim)
+        if self.plano_selecionado:
+            queryset = queryset.filter(plano_de_contas_id=self.plano_selecionado)
         return queryset.select_related('caixa', 'plano_de_contas').order_by('-data_lancamento', '-id')
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         empresa_atual = self.request.user.empresa
         context['titulo_pagina'] = 'Fluxo de Caixa'
         context['caixas'] = Caixa.objects.filter(empresa=empresa_atual)
+        context['planos'] = PlanoDeContas.objects.filter(empresa=empresa_atual, aceita_lancamentos=True).order_by('codigo')
         context['caixa_selecionado_id'] = self.caixa_selecionado
+        context['plano_selecionado_id'] = self.plano_selecionado
         context['data_inicio'] = self.data_inicio
         context['data_fim'] = self.data_fim
         saldo_inicial = 0
@@ -853,6 +884,8 @@ class FluxoDeCaixaView(LoginRequiredMixin, ListView):
                 lancamentos_anteriores_qs = LancamentoCaixa.objects.filter(caixa=caixa)
                 if self.data_inicio:
                     lancamentos_anteriores_qs = lancamentos_anteriores_qs.filter(data_lancamento__lt=self.data_inicio)
+                if getattr(self, 'plano_selecionado', ''):
+                    lancamentos_anteriores_qs = lancamentos_anteriores_qs.filter(plano_de_contas_id=self.plano_selecionado)
                 lancamentos_anteriores = lancamentos_anteriores_qs.aggregate(total=Coalesce(Sum('valor'), 0, output_field=DecimalField()))['total']
                 saldo_inicial += lancamentos_anteriores
                 lancamentos_periodo = self.get_queryset()
@@ -905,6 +938,7 @@ class BaseContaListView(LoginRequiredMixin, ListView):
         cliente = self.request.GET.get('cliente')
         status = self.request.GET.get('status')
         categoria_id = self.request.GET.get('categoria')
+        convenio_id = self.request.GET.get('convenio')
         ordenar = self.request.GET.get('ordenar', 'data_vencimento')
 
         if data_ini and data_fim:
@@ -928,6 +962,9 @@ class BaseContaListView(LoginRequiredMixin, ListView):
 
         if categoria_id:
             qs = qs.filter(plano_de_contas_id=categoria_id)
+
+        if convenio_id and self.tipo == 'RECEITA':
+            qs = qs.filter(socio__convenio_id=convenio_id)
 
         if data_pag_ini and data_pag_fim:
             qs = qs.filter(data_pagamento__range=[data_pag_ini, data_pag_fim])
@@ -982,6 +1019,7 @@ class BaseContaListView(LoginRequiredMixin, ListView):
             'tipo_lista': 'receber' if self.tipo == 'RECEITA' else 'pagar',
             'categorias': PlanoDeContas.objects.filter(empresa=empresa, tipo=self.tipo).order_by('nome'),
             'caixas': Caixa.objects.filter(empresa=empresa),
+            'convenios': Convenio.objects.filter(empresa=empresa).order_by('nome') if self.tipo == 'RECEITA' else [],
             'total_geral': total_geral,
             'total_pago': total_pago,
             'total_pendente': total_pendente,
@@ -995,6 +1033,7 @@ class BaseContaListView(LoginRequiredMixin, ListView):
             'filtro_nome': self.request.GET.get('cliente', ''),
             'filtro_status': self.request.GET.get('status', ''),
             'filtro_categoria': self.request.GET.get('categoria', ''),
+            'filtro_convenio': self.request.GET.get('convenio', ''),
             'ordenar': self.request.GET.get('ordenar', 'data_vencimento'),
             'qtd_total': qs.count(),
             'qtd_pendentes': qs.filter(status='PENDENTE').count(),
@@ -1260,8 +1299,77 @@ class LancamentoCaixaCreateView(LoginRequiredMixin, CreateView):
         return kwargs
     def form_valid(self, form):
         form.instance.empresa = self.request.user.empresa
-        messages.success(self.request, 'Lançamento manual adicionado ao caixa com sucesso!')
-        return super().form_valid(form)
+        # Se for AJAX (do JS que abre nova aba no clique), retorna JSON com URLs
+        is_ajax = self.request.headers.get('x-requested-with') == 'XMLHttpRequest' or self.request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+        if is_ajax:
+            self.object = form.save()
+            from django.urls import reverse
+            comprovante_url = reverse('financeiro:comprovante_lancamento', kwargs={'pk': self.object.pk})
+            redirect_url = f"{reverse('financeiro:fluxo_de_caixa')}?caixa={self.object.caixa_id}&impresso={self.object.pk}"
+            from django.contrib import messages as msg_lib
+            # Também adiciona mensagem para quando voltar ao fluxo sem JS
+            msg_lib.success(self.request, f'Lançamento #{self.object.pk} criado. Comprovante aberto em nova página.')
+            return __import__('django.http', fromlist=['JsonResponse']).JsonResponse({
+                'success': True,
+                'pk': self.object.pk,
+                'comprovante_url': comprovante_url,
+                'redirect_url': redirect_url,
+            })
+        response = super().form_valid(form)
+        from django.utils.safestring import mark_safe
+        from django.urls import reverse
+        url = reverse('financeiro:comprovante_lancamento', kwargs={'pk': self.object.pk})
+        messages.success(self.request, mark_safe(
+            f'Lançamento salvo com sucesso! <a href="{url}" target="_blank" class="alert-link" style="margin-left:8px;"><i class="fa fa-print"></i> Imprimir comprovante</a>'
+        ))
+        # guarda pk para auto-abrir no fluxo (via ?impresso=pk) - fallback se JS bloqueado
+        self.request.session['ultimo_lancamento_id'] = self.object.pk
+        return response
+    def form_invalid(self, form):
+        is_ajax = self.request.headers.get('x-requested-with') == 'XMLHttpRequest' or self.request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+        if is_ajax:
+            from django.http import JsonResponse
+            from django.template.loader import render_to_string
+            html = render_to_string(self.template_name, self.get_context_data(form=form), request=self.request)
+            return JsonResponse({'success': False, 'html': html}, status=400)
+        return super().form_invalid(form)
+    def get_success_url(self):
+        # redireciona para fluxo com flag de impressão
+        from django.urls import reverse
+        base = reverse('financeiro:fluxo_de_caixa')
+        # mantém caixa selecionado para já filtrar
+        caixa_id = self.object.caixa_id if hasattr(self, 'object') else ''
+        return f"{base}?caixa={caixa_id}&impresso={self.object.pk}" if hasattr(self, 'object') and self.object.pk else base
+
+class LancamentoImprimirView(LoginRequiredMixin, View):
+    """View que salva o lançamento e retorna HTML com window.open automático."""
+    def post(self, request, pk=None):
+        if pk:
+            lanc = get_object_or_404(LancamentoCaixa, pk=pk, empresa=request.user.empresa)
+            form = LancamentoCaixaForm(request.POST, instance=lanc, empresa=request.user.empresa)
+        else:
+            form = LancamentoCaixaForm(request.POST, empresa=request.user.empresa)
+        if not form.is_valid():
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+        lanc = form.save()
+        from django.urls import reverse
+        comprovante_url = reverse('financeiro:comprovante_lancamento', kwargs={'pk': lanc.pk})
+        redirect_url = f"{reverse('financeiro:fluxo_de_caixa')}?caixa={lanc.caixa_id}"
+        html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<script>
+(function() {{
+    window.open("{comprovante_url}", "_blank");
+    window.location.href = "{redirect_url}";
+}})();
+</script>
+<noscript>
+<meta http-equiv="refresh" content="0;url={redirect_url}">
+</noscript>
+</head><body>
+<p>Salvo! Redirecionando...</p>
+</body></html>"""
+        return HttpResponse(html, content_type='text/html; charset=utf-8')
 
 class LancamentoCaixaUpdateView(LoginRequiredMixin, UpdateView):
     model = LancamentoCaixa
@@ -1382,6 +1490,7 @@ class FluxoDeCaixaPDFView(LoginRequiredMixin, View):
         caixa_selecionado = request.GET.get('caixa', caixa_padrao_id)
         data_inicio = request.GET.get('data_inicio', hoje_str)
         data_fim = request.GET.get('data_fim', hoje_str)
+        plano_selecionado = request.GET.get('plano', '')
 
         queryset = LancamentoCaixa.objects.filter(empresa=empresa_atual)
         if caixa_selecionado:
@@ -1390,6 +1499,8 @@ class FluxoDeCaixaPDFView(LoginRequiredMixin, View):
             queryset = queryset.filter(data_lancamento__gte=data_inicio)
         if data_fim:
             queryset = queryset.filter(data_lancamento__lte=data_fim)
+        if plano_selecionado:
+            queryset = queryset.filter(plano_de_contas_id=plano_selecionado)
 
         lancamentos = queryset.select_related('caixa', 'plano_de_contas').order_by('data_lancamento', 'id')
 
@@ -1405,6 +1516,8 @@ class FluxoDeCaixaPDFView(LoginRequiredMixin, View):
                 lancamentos_anteriores_qs = LancamentoCaixa.objects.filter(caixa=caixa_obj)
                 if data_inicio:
                     lancamentos_anteriores_qs = lancamentos_anteriores_qs.filter(data_lancamento__lt=data_inicio)
+                if plano_selecionado:
+                    lancamentos_anteriores_qs = lancamentos_anteriores_qs.filter(plano_de_contas_id=plano_selecionado)
                 lancamentos_anteriores = lancamentos_anteriores_qs.aggregate(total=Coalesce(Sum('valor'), 0, output_field=DecimalField()))['total']
                 saldo_inicial += lancamentos_anteriores
                 total_entradas = lancamentos.filter(valor__gt=0).aggregate(total=Coalesce(Sum('valor'), 0, output_field=DecimalField()))['total'] or 0
@@ -1419,11 +1532,22 @@ class FluxoDeCaixaPDFView(LoginRequiredMixin, View):
 
         saldo_final = saldo_inicial + total_entradas + total_saidas_negativo
 
+        # Para header do PDF
+        plano_nome = None
+        if plano_selecionado:
+            try:
+                plano_obj = PlanoDeContas.objects.get(id=plano_selecionado, empresa=empresa_atual)
+                plano_nome = f"{plano_obj.codigo} - {plano_obj.nome}"
+            except:
+                pass
+
         context = {
             'lancamentos': lancamentos,
             'empresa': empresa_atual,
             'caixa_obj': caixa_obj,
             'caixa_selecionado_id': caixa_selecionado,
+            'plano_selecionado_id': plano_selecionado,
+            'plano_nome': plano_nome,
             'data_inicio': data_inicio,
             'data_fim': data_fim,
             'saldo_inicial': saldo_inicial,

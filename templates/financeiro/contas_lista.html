@@ -35,6 +35,17 @@
                     {% endfor %}
                 </select>
             </div>
+            {% if tipo_lista == 'receber' %}
+            <div class="col-md-2">
+                <label style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#6c757d;">Convênio</label>
+                <select name="convenio" class="form-control input-sm">
+                    <option value="">Todos</option>
+                    {% for conv in convenios %}
+                        <option value="{{ conv.id }}" {% if filtro_convenio == conv.id|stringformat:"s" %}selected{% endif %}>{{ conv.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
             <div class="col-md-2">
                 <label style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#6c757d;">Status</label>
                 <select name="status" class="form-control input-sm">
@@ -162,9 +173,9 @@
         <div class="pagination pagination-sm no-margin pull-right">
             {% if page_obj.has_other_pages %}
             <ul class="pagination pagination-sm no-margin">
-                {% if page_obj.has_previous %}<li><a href="?page={{ page_obj.previous_page_number }}&cliente={{ filtro_nome }}&status={{ filtro_status }}&categoria={{ filtro_categoria }}&data_ini={{ filtro_data_ini }}&data_fim={{ filtro_data_fim }}&data_pag_ini={{ filtro_data_pag_ini }}&data_pag_fim={{ filtro_data_pag_fim }}&ordenar={{ ordenar }}">«</a></li>{% endif %}
+                {% if page_obj.has_previous %}<li><a href="?page={{ page_obj.previous_page_number }}&cliente={{ filtro_nome }}&status={{ filtro_status }}&categoria={{ filtro_categoria }}&convenio={{ filtro_convenio }}&data_ini={{ filtro_data_ini }}&data_fim={{ filtro_data_fim }}&data_pag_ini={{ filtro_data_pag_ini }}&data_pag_fim={{ filtro_data_pag_fim }}&ordenar={{ ordenar }}">«</a></li>{% endif %}
                 <li class="active"><a>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</a></li>
-                {% if page_obj.has_next %}<li><a href="?page={{ page_obj.next_page_number }}&cliente={{ filtro_nome }}&status={{ filtro_status }}&categoria={{ filtro_categoria }}&data_ini={{ filtro_data_ini }}&data_fim={{ filtro_data_fim }}&data_pag_ini={{ filtro_data_pag_ini }}&data_pag_fim={{ filtro_data_pag_fim }}&ordenar={{ ordenar }}">»</a></li>{% endif %}
+                {% if page_obj.has_next %}<li><a href="?page={{ page_obj.next_page_number }}&cliente={{ filtro_nome }}&status={{ filtro_status }}&categoria={{ filtro_categoria }}&convenio={{ filtro_convenio }}&data_ini={{ filtro_data_ini }}&data_fim={{ filtro_data_fim }}&data_pag_ini={{ filtro_data_pag_ini }}&data_pag_fim={{ filtro_data_pag_fim }}&ordenar={{ ordenar }}">»</a></li>{% endif %}
             </ul>
             {% endif %}
         </div>

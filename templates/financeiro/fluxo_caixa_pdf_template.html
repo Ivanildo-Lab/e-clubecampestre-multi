@@ -54,7 +54,7 @@
                     <div class="company-name">{{ empresa.nome }}</div>
                     <div class="company-sub">{% if empresa.cidade %}{{ empresa.cidade }}{% if empresa.estado %} - {{ empresa.estado }}{% endif %} | {% endif %}Sistema e-Clube Campestre</div>
                     <div class="report-title">Fluxo de Caixa / Extrato</div>
-                    <div class="report-sub">{% if caixa_obj %}Caixa: {{ caixa_obj.nome }} &bull; {% endif %}Período {{ data_inicio|date:"d/m/Y" }} até {{ data_fim|date:"d/m/Y" }} &bull; Gerado em {{ data_emissao|date:"d/m/Y H:i" }}</div>
+                    <div class="report-sub">{% if caixa_obj %}Caixa: {{ caixa_obj.nome }} &bull; {% endif %}{% if plano_nome %}Plano: {{ plano_nome }} &bull; {% endif %}Período {{ data_inicio|date:"d/m/Y" }} até {{ data_fim|date:"d/m/Y" }} &bull; Gerado em {{ data_emissao|date:"d/m/Y H:i" }}</div>
                 </td>
                 <td style="width:30%; text-align:right;">
                     {% if empresa.logo %}<img src="{{ empresa.logo.url }}" class="logo">{% else %}<span class="badge-report">CAIXA</span>{% endif %}
@@ -67,6 +67,7 @@
     <div class="filters-box">
         <span class="filter-item"><span class="filter-label">Filtros:</span></span>
         <span class="filter-item"><span class="filter-label">Caixa:</span> {% if caixa_obj %}{{ caixa_obj.nome }}{% else %}Todos{% endif %}</span>
+        {% if plano_nome %}<span class="filter-item"><span class="filter-label">Plano:</span> {{ plano_nome }}</span>{% endif %}
         <span class="filter-item"><span class="filter-label">Periodo:</span> {{ data_inicio|date:"d/m/Y" }} ate {{ data_fim|date:"d/m/Y" }}</span>
         <span class="filter-item"><span class="filter-label">Registros:</span> {{ lancamentos|length }}</span>
     </div>

@@ -32,12 +32,12 @@
             <form method="GET" action="{% url 'financeiro:lista_mensalidades' %}">
                 <div class="box-body">
                     <div class="row">
-                        <div class="col-md-3"><div class="form-group"><label>Status</label><select name="status" class="form-control"><option value="">Todos</option>{% for value, display in situacao_choices %}<option value="{{ value }}" {% if value == status_selecionado %}selected{% endif %}>{{ display }}</option>{% endfor %}</select></div></div>
-                        <div class="col-md-3"><div class="form-group"><label>Categoria do Sócio</label><select name="categoria" class="form-control"><option value="">Todas</option>{% for cat in categorias %}<option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == categoria_selecionada %}selected{% endif %}>{{ cat.nome }}</option>{% endfor %}</select></div></div>
+                        <div class="col-md-2"><div class="form-group"><label>Status</label><select name="status" class="form-control input-sm"><option value="">Todos</option>{% for value, display in situacao_choices %}<option value="{{ value }}" {% if value == status_selecionado %}selected{% endif %}>{{ display }}</option>{% endfor %}</select></div></div>
+                        <div class="col-md-2"><div class="form-group"><label>Categoria do Sócio</label><select name="categoria" class="form-control input-sm"><option value="">Todas</option>{% for cat in categorias %}<option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == categoria_selecionada %}selected{% endif %}>{{ cat.nome }}</option>{% endfor %}</select></div></div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Convênio</label>
-                                <select name="convenio" class="form-control">
+                                <select name="convenio" class="form-control input-sm">
                                     <option value="">Todos</option>
                                     {% for conv in convenios %}
                                         <option value="{{ conv.id }}" {% if conv.id|stringformat:"s" == convenio_selecionado %}selected{% endif %}>{{ conv.nome }}</option>
@@ -45,21 +45,29 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4"><label>Buscar por Sócio</label><input type="text" name="q" class="form-control" placeholder="Digite o nome do sócio..." value="{{ search_query }}"></div>
-                        <div class="col-md-2"><label>&nbsp;</label><div class="btn-group" style="display: flex;"><button type="submit" class="btn btn-info btn-flat" style="flex-grow: 1;">Filtrar</button><a href="{% url 'financeiro:lista_mensalidades' %}" class="btn btn-default btn-flat" title="Limpar Filtros"><i class="fa fa-eraser"></i></a></div></div>
+                        <div class="col-md-2"><div class="form-group"><label>Forma Pagamento</label><select name="forma_pagamento" class="form-control input-sm"><option value="">Todas</option>{% for fp in formas_pagamento %}<option value="{{ fp.id }}" {% if fp.id|stringformat:"s" == forma_selecionada %}selected{% endif %}>{{ fp.nome }}</option>{% endfor %}</select></div></div>
+                        <div class="col-md-2"><label>Buscar por Sócio</label><input type="text" name="q" class="form-control input-sm" placeholder="Nome do sócio..." value="{{ search_query }}"></div>
+                        <div class="col-md-2"><label>&nbsp;</label><div class="btn-group" style="display: flex;"><button type="submit" class="btn btn-info btn-flat btn-sm" style="flex-grow: 1;">Filtrar</button><a href="{% url 'financeiro:lista_mensalidades' %}" class="btn btn-default btn-flat btn-sm" title="Limpar"><i class="fa fa-eraser"></i></a></div></div>
                     </div>
                 </div>
             </form>
             
+            <div id="barraLoteMensalidade" class="hidden" style="background:#e8f4f8; border-bottom:1px solid #d2e3f0; padding:8px 15px; display:flex; justify-content:space-between; align-items:center;">
+                <span><strong id="qtdSelMensal">0</strong> mensalidade(s) selecionada(s)</span>
+                <button type="button" id="btnBaixaLoteMensal" class="btn btn-success btn-sm"><i class="fa fa-check"></i> Baixar Selecionadas</button>
+            </div>
             <div class="box-body table-responsive no-padding">
                 <table class="table table-hover">
                     <tbody>
                         <tr>
-                            <th>Sócio</th><th>Competência</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Data Pagamento</th><th>Forma Pgto</th><th>Ações</th>
+                            <th style="width:30px;"><input type="checkbox" id="checkAllMensal"></th>
+                            <th>Sócio</th><th>Convênio</th><th>Competência</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Data Pagamento</th><th>Forma Pgto</th><th>Ações</th>
                         </tr>
                         {% for mensalidade in mensalidades %}
                         <tr>
-                            <td>{{ mensalidade.socio.nome }}</td>
+                            <td><input type="checkbox" class="check-mensal" value="{{ mensalidade.pk }}" {% if mensalidade.status == 'PAGA' %}disabled{% endif %}></td>
+                            <td>{{ mensalidade.socio.nome }}<br><small class="text-muted">{{ mensalidade.socio.categoria.nome }}</small></td>
+                            <td>{% if mensalidade.socio.convenio %}<span class="label label-info">{{ mensalidade.socio.convenio.nome }}</span>{% else %}<small class="text-muted">—</small>{% endif %}</td>
                             <td>{{ mensalidade.competencia|date:"m/Y" }}</td>
                             <td>{{ mensalidade.data_vencimento|date:"d/m/Y" }}</td>
                             <td>R$ {{ mensalidade.valor|brl }}</td>
@@ -92,7 +100,7 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="8" class="text-center">Nenhuma mensalidade encontrada.</td></tr>
+                        <tr><td colspan="10" class="text-center">Nenhuma mensalidade encontrada.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -104,13 +112,13 @@
                 </div>
                 <ul class="pagination pagination-sm no-margin pull-right">
                     {% if page_obj.has_previous %}
-                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}">&laquo; Primeira</a></li>
-                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}">&lsaquo; Anterior</a></li>
+                        <li><a href="?page=1&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}&forma_pagamento={{ forma_selecionada }}">&laquo; Primeira</a></li>
+                        <li><a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}&forma_pagamento={{ forma_selecionada }}">&lsaquo; Anterior</a></li>
                     {% endif %}
                     <li class="disabled"><a>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.</a></li>
                     {% if page_obj.has_next %}
-                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}">Próxima &rsaquo;</a></li>
-                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}">Última &raquo;</a></li>
+                        <li><a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}&forma_pagamento={{ forma_selecionada }}">Próxima &rsaquo;</a></li>
+                        <li><a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query }}&categoria={{ categoria_selecionada }}&status={{ status_selecionado }}&convenio={{ convenio_selecionado }}&forma_pagamento={{ forma_selecionada }}">Última &raquo;</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -150,6 +158,41 @@
                     </div>
                 </div>
                 <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-success">Confirmar Pagamento</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Baixa em Lote -->
+<div class="modal fade" id="baixaLoteMensalidadeModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="baixaLoteMensalidadeForm" method="post" action="{% url 'financeiro:baixar_mensalidades_lote' %}">
+                {% csrf_token %}
+                <div class="modal-header"><button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button><h4 class="modal-title">Baixar Mensalidades em Lote</h4></div>
+                <div class="modal-body">
+                    <p><strong id="qtdLoteModal">0</strong> mensalidade(s) selecionada(s).</p>
+                    <div id="listaLoteMensal" style="max-height:150px; overflow-y:auto; font-size:12px; margin-bottom:10px;"></div>
+                    <hr>
+                    <div class="form-group">
+                        {{ baixa_form.forma_pagamento.label_tag }}
+                        <select name="forma_pagamento" class="form-control" required>
+                            <option value="">-- Selecione --</option>
+                            {% for fp in baixa_form.fields.forma_pagamento.queryset %}
+                                <option value="{{ fp.id }}">{{ fp.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        {{ baixa_form.caixa.label_tag }}
+                        {{ baixa_form.caixa }}
+                    </div>
+                    <div class="form-group">
+                        {{ baixa_form.data_pagamento.label_tag }}
+                        {{ baixa_form.data_pagamento }}
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-success">Confirmar Baixa em Lote</button></div>
             </form>
         </div>
     </div>
@@ -197,6 +240,57 @@ document.addEventListener('DOMContentLoaded', function() {
             $('#baixaMensalidadeModal').modal('show');
         });
     });
+
+    // Lote
+    const checkAll = document.getElementById('checkAllMensal');
+    const barraLote = document.getElementById('barraLoteMensalidade');
+    const btnLote = document.getElementById('btnBaixaLoteMensal');
+    const qtdSel = document.getElementById('qtdSelMensal');
+    function updateBarra() {
+        const checks = document.querySelectorAll('.check-mensal:checked');
+        const qtd = checks.length;
+        qtdSel.textContent = qtd;
+        if (qtd > 0) barraLote.classList.remove('hidden');
+        else barraLote.classList.add('hidden');
+        if (checkAll) checkAll.checked = qtd > 0 && qtd === document.querySelectorAll('.check-mensal:not(:disabled)').length;
+    }
+    if (checkAll) {
+        checkAll.addEventListener('change', function() {
+            document.querySelectorAll('.check-mensal:not(:disabled)').forEach(cb => cb.checked = checkAll.checked);
+            updateBarra();
+        });
+    }
+    document.querySelectorAll('.check-mensal').forEach(cb => cb.addEventListener('change', updateBarra));
+    if (btnLote) {
+        btnLote.addEventListener('click', function() {
+            const checks = document.querySelectorAll('.check-mensal:checked');
+            if (checks.length === 0) return;
+            const form = document.getElementById('baixaLoteMensalidadeForm');
+            // limpa antigos
+            form.querySelectorAll('input[name=\"mensalidades_ids\"]').forEach(e => e.remove());
+            const lista = document.getElementById('listaLoteMensal');
+            lista.innerHTML = '';
+            checks.forEach(cb => {
+                const tr = cb.closest('tr');
+                const nome = tr ? tr.querySelector('td:nth-child(2)')?.innerText.trim().split('\n')[0] : 'Mensalidade ' + cb.value;
+                const inp = document.createElement('input');
+                inp.type = 'hidden'; inp.name = 'mensalidades_ids'; inp.value = cb.value;
+                form.appendChild(inp);
+                const div = document.createElement('div');
+                div.textContent = nome;
+                div.style.padding = '2px 0';
+                div.style.borderBottom = '1px solid #eee';
+                lista.appendChild(div);
+            });
+            document.getElementById('qtdLoteModal').textContent = checks.length;
+            // data e caixa padrão
+            form.querySelector('input[name=\"data_pagamento\"]').value = hoje;
+            const caixaPadraoId = "{{ caixa_padrao_id }}";
+            if (caixaPadraoId) form.querySelector('select[name=\"caixa\"]').value = caixaPadraoId;
+            $('#baixaLoteMensalidadeModal').modal('show');
+        });
+    }
+    updateBarra();
 });
 </script>
 {% endblock %}

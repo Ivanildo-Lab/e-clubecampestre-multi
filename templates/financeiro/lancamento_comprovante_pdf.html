@@ -1,0 +1,97 @@
+{% load brl %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Comprovante - Lançamento #{{ lancamento.pk }}</title>
+    <style>
+        @page { size: A5 landscape; margin: 1cm; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9pt; color: #2c3e50; margin:0; }
+        .header {
+            background: linear-gradient(135deg, #004080 0%, #0066cc 100%);
+            color: white; padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; text-align: center;
+        }
+        .company-name { font-size:13pt; font-weight:800; margin:0; }
+        .report-title { font-size:10pt; margin:4px 0 0 0; text-transform: uppercase; letter-spacing:0.8px; }
+        .box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: white; }
+        .row { display: table; width: 100%; }
+        .col { display: table-cell; width: 50%; padding: 4px 8px; vertical-align: top; }
+        .label { font-size:7pt; text-transform: uppercase; letter-spacing:0.6px; color:#64748b; display:block; margin-bottom:2px; }
+        .value { font-size:10pt; font-weight:700; color:#0f172a; }
+        .value-large { font-size:14pt; font-weight:800; color: {% if lancamento.valor > 0 %}#059669{% else %}#dc2626{% endif %}; }
+        .footer { text-align: center; font-size: 7pt; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; margin-top: 16px; }
+        .sign { margin-top: 28px; display: table; width: 100%; font-size: 7.5pt; color: #64748b; text-align: center; }
+        .sign-cell { display: table-cell; width: 50%; padding: 0 20px; }
+        .sign-line { border-top: 1px solid #cbd5e1; padding-top: 6px; margin-top: 30px; }
+        .watermark { position: fixed; top:45%; left:50%; transform: translate(-50%,-50%) rotate(-30deg); font-size:48pt; color: rgba(0,64,128,0.05); font-weight:900; letter-spacing:6px; z-index:-1; }
+    </style>
+</head>
+<body>
+    <div class="watermark">{{ empresa.nome|upper }}</div>
+    <div class="header">
+        <div class="company-name">{{ empresa.nome }}</div>
+        <div class="report-title">Comprovante de Lançamento</div>
+        <div style="font-size:7.5pt; opacity:0.9; margin-top:4px;">{{ lancamento.caixa.nome }} — {{ lancamento.data_lancamento|date:"d/m/Y" }}</div>
+    </div>
+
+    <div class="box">
+        <div class="row">
+            <div class="col">
+                <span class="label">Descrição</span>
+                <span class="value">{{ lancamento.descricao }}</span>
+            </div>
+            <div class="col" style="text-align:right;">
+                <span class="label">Valor</span>
+                <span class="value-large">R$ {{ lancamento.valor|brl }}</span>
+                <span class="label" style="margin-top:4px;">Tipo: {% if lancamento.valor > 0 %}Crédito (Entrada){% else %}Débito (Saída){% endif %}</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col">
+                <span class="label">Caixa / Conta</span>
+                <span class="value">{{ lancamento.caixa.nome }}</span>
+            </div>
+            <div class="col">
+                <span class="label">Plano de Contas</span>
+                <span class="value">{{ lancamento.plano_de_contas.nome|default:"—" }} {% if lancamento.plano_de_contas %}<small style="color:#64748b;">({{ lancamento.plano_de_contas.codigo }})</small>{% endif %}</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col">
+                <span class="label">Data do Lançamento</span>
+                <span class="value">{{ lancamento.data_lancamento|date:"d/m/Y" }}</span>
+            </div>
+            <div class="col">
+                <span class="label">Lançamento #</span>
+                <span class="value">#{{ lancamento.pk }}</span>
+            </div>
+        </div>
+        {% if lancamento.mensalidade_origem %}
+        <div class="row" style="margin-top:10px; background:#f8fafc; padding:6px; border-radius:4px;">
+            <div class="col">
+                <span class="label">Origem</span>
+                <span class="value" style="font-size:8.5pt;">Mensalidade: {{ lancamento.mensalidade_origem.socio.nome }} — {{ lancamento.mensalidade_origem.competencia|date:"m/Y" }}</span>
+            </div>
+        </div>
+        {% elif lancamento.conta_origem %}
+        <div class="row" style="margin-top:10px; background:#f8fafc; padding:6px; border-radius:4px;">
+            <div class="col">
+                <span class="label">Origem</span>
+                <span class="value" style="font-size:8.5pt;">Conta: {{ lancamento.conta_origem.descricao }}</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="sign">
+        <div class="sign-cell">
+            <div class="sign-line">Assinatura do Responsável</div>
+        </div>
+        <div class="sign-cell">
+            <div class="sign-line">{{ empresa.nome }}</div>
+        </div>
+    </div>
+
+    <div class="footer">Gerado em {{ data_emissao|date:"d/m/Y H:i" }} &nbsp;|&nbsp; {{ empresa.nome }} — Sistema e-Clube Campestre &nbsp;|&nbsp; Comprovante #{{ lancamento.pk }}</div>
+</body>
+</html>

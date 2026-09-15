@@ -28,11 +28,28 @@ class SocioForm(forms.ModelForm):
         # REMOVEMOS a lógica de 'empresa = kwargs.pop...' 
         super().__init__(*args, **kwargs)
         
+        # Auto numeração: num_registro = último id + 1 para novos
+        if not self.instance.pk and not self.initial.get('num_registro') and not self.data.get('num_registro'):
+            try:
+                from core.models import Socio as SocioModel
+                ultimo = SocioModel.objects.order_by('-id').first()
+                proximo = (ultimo.id + 1) if ultimo else 1
+                # Garante que não colida com num_registro existente
+                while SocioModel.objects.filter(num_registro=proximo).exists():
+                    proximo += 1
+                self.fields['num_registro'].initial = proximo
+                self.fields['num_registro'].help_text = f"Próximo disponível: {proximo} (id do último sócio +1)"
+            except:
+                pass
+
         # A única responsabilidade deste __init__ é estilizar os campos
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
         
         self.fields['foto'].widget.attrs.pop('class', None)
+        # Destaca num_registro como auto
+        if 'num_registro' in self.fields:
+            self.fields['num_registro'].widget.attrs['placeholder'] = 'Gerado automaticamente'
 
         
 class DependenteForm(forms.ModelForm):
