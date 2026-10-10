@@ -20,11 +20,12 @@
 <div class="wrapper">
 
   <header class="main-header">
-    <a href="{% url 'landing_page' %}" class="logo">
-      <span class="logo-mini"><img src="{% static 'img/favicon.png' %}" alt="Ícone" style="max-height: 40px; margin-top: 5px;"></span>
-      <span class="logo-lg" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; height: 100%; padding-left: 10px; text-align: left; line-height: 1.1;">
-        <div style="display: flex; align-items: center; margin-bottom: 2px;"><img src="{% static 'img/favicon.png' %}" alt="Ícone do Sistema" style="height: 20px; margin-right: 8px;"><span style="font-size: 15px; font-weight: bold;">e-Clube Campestre</span></div>
-        <div style="display: flex; align-items: center;">{% if empresa_ativa.logo %}<img src="{{ empresa_ativa.logo.url }}" alt="Logo Empresa" style="height: 18px; margin-right: 8px;">{% endif %}<span style="font-size: 12px; font-weight: normal;">{{ empresa_ativa.nome }}</span></div>
+    <a href="{% url 'landing_page' %}" class="logo" style="display:flex;align-items:center;gap:8px;padding:0 12px;overflow:hidden;white-space:nowrap;">
+      <span class="logo-mini"><b>eC</b></span>
+      <span class="logo-lg" style="display:flex;align-items:center;gap:8px;overflow:hidden;white-space:nowrap;">
+        <img src="{% static 'img/favicon.png' %}" alt="e-Clube" style="height:24px;width:24px;flex:0 0 auto;">
+        <b style="font-size:15px;flex:0 0 auto;">e-Clube</b>
+        {% if empresa_ativa %}<span style="opacity:.5;flex:0 0 auto;">|</span>{% if empresa_ativa.logo %}<img src="{{ empresa_ativa.logo.url }}" alt="Logo" style="height:24px;width:24px;object-fit:cover;border-radius:50%;flex:0 0 auto;background:#fff;">{% endif %}<small style="font-size:12px;overflow:hidden;text-overflow:ellipsis;">{{ empresa_ativa.nome }}</small>{% endif %}
       </span>
     </a>
     <nav class="navbar navbar-static-top" role="navigation">
