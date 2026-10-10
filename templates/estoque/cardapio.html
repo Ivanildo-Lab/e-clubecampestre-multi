@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cardápio — {{ empresa.nome }}</title>
+<link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+{% if empresa.logo %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ empresa.logo.url }}">{% endif %}
 <style>
   :root{
     --bg:#f7f5f0; --card:#ffffff; --ink:#1c1917; --muted:#78716c;
