@@ -363,7 +363,14 @@ class CardapioQRCodeView(LoginRequiredMixin, View):
     def get(self, request):
         from django.shortcuts import render
         from django.urls import reverse
-        empresa = request.user.empresa
+        empresa = getattr(request.user, 'empresa', None)
+        if empresa is None:
+            messages.warning(
+                request,
+                'Seu usuário não está vinculado a nenhuma empresa. '
+                'Vincule-o em Administração → Usuários.'
+            )
+            return redirect('home')
         cardapio_url = request.build_absolute_uri(
             reverse('estoque:cardapio_publico', kwargs={'empresa_id': empresa.id})
         )
@@ -393,7 +400,9 @@ class CardapioQRImageView(LoginRequiredMixin, View):
     """Gera o PNG do QR Code que aponta para o cardápio público (uso interno)."""
     def get(self, request):
         from django.urls import reverse
-        empresa = request.user.empresa
+        empresa = getattr(request.user, 'empresa', None)
+        if empresa is None:
+            return redirect('estoque:cardapio_qr')
         cardapio_url = request.build_absolute_uri(
             reverse('estoque:cardapio_publico', kwargs={'empresa_id': empresa.id})
         )
