@@ -127,6 +127,7 @@
             <li {% if 'estoque/' in request.path and 'movimentacoes' not in request.path and 'categorias' not in request.path %}class="active"{% endif %}><a href="{% url 'estoque:lista_produtos' %}"><i class="fa fa-cube"></i> Produtos</a></li>
             <li {% if 'estoque/categorias' in request.path %}class="active"{% endif %}><a href="{% url 'estoque:lista_categorias' %}"><i class="fa fa-tags"></i> Categorias</a></li>
             <li {% if 'estoque/movimentacoes' in request.path %}class="active"{% endif %}><a href="{% url 'estoque:lista_movimentacoes' %}"><i class="fa fa-exchange"></i> Movimentacoes</a></li>
+            <li {% if 'cardapio' in request.path %}class="active"{% endif %}><a href="{% url 'estoque:cardapio_qr' %}"><i class="fa fa-qrcode"></i> Cardápio / QR Code</a></li>
           </ul>
         </li>
 

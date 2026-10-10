@@ -80,6 +80,8 @@ class Venda(models.Model):
 
         with transaction.atomic():
             for item in self.itens.select_related('produto').all():
+                if not item.produto.controla_estoque:
+                    continue
                 if item.produto.estoque_atual < item.quantidade:
                     raise ValueError(
                         f"Estoque insuficiente para '{item.produto.nome}'. "
@@ -131,6 +133,8 @@ class Venda(models.Model):
 
         with transaction.atomic():
             for item in self.itens.select_related('produto').all():
+                if not item.produto.controla_estoque:
+                    continue
                 item.produto.estoque_atual += item.quantidade
                 item.produto.save(update_fields=['estoque_atual'])
 

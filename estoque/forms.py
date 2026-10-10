@@ -23,7 +23,8 @@ class ProdutoForm(forms.ModelForm):
         model = Produto
         fields = [
             'nome', 'descricao', 'codigo_barras', 'categoria', 'unidade',
-            'preco_custo', 'preco_venda', 'estoque_atual', 'estoque_minimo', 'ativo'
+            'preco_custo', 'preco_venda', 'estoque_atual', 'estoque_minimo',
+            'imagem', 'exibir_cardapio', 'controla_estoque', 'ativo'
         ]
         widgets = {
             'nome': forms.TextInput(attrs={'placeholder': 'Nome do produto'}),
@@ -81,7 +82,7 @@ class MovimentacaoEstoqueForm(forms.ModelForm):
         valor_compra = cleaned_data.get('valor_compra')
 
         if tipo and quantidade and produto:
-            if tipo == 'SAIDA' and quantidade > produto.estoque_atual:
+            if tipo == 'SAIDA' and produto.controla_estoque and quantidade > produto.estoque_atual:
                 raise forms.ValidationError(
                     f'Estoque insuficiente. Disponivel: {produto.estoque_atual} {produto.get_unidade_display()}'
                 )

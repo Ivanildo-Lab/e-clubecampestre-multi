@@ -100,9 +100,13 @@
                             <td>R$ {{ produto.preco_custo|floatformat:2 }}</td>
                             <td>R$ {{ produto.preco_venda|floatformat:2 }}</td>
                             <td>
-                                <strong>{{ produto.estoque_atual }}</strong>
-                                {% if produto.estoque_baixo %}
-                                    <span class="label label-danger"><i class="fa fa-exclamation"></i> Baixo</span>
+                                {% if not produto.controla_estoque %}
+                                    <span class="label label-info" title="Pratos, serviços e itens sem controle de estoque"><i class="fa fa-cutlery"></i> Sem controle</span>
+                                {% else %}
+                                    <strong>{{ produto.estoque_atual }}</strong>
+                                    {% if produto.estoque_baixo %}
+                                        <span class="label label-danger"><i class="fa fa-exclamation"></i> Baixo</span>
+                                    {% endif %}
                                 {% endif %}
                             </td>
                             <td>{{ produto.estoque_minimo }}</td>

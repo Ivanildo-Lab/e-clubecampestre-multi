@@ -13,6 +13,7 @@ from decimal import Decimal
 
 from .models import Produto, CategoriaProduto, MovimentacaoEstoque
 from .forms import ProdutoForm, CategoriaProdutoForm, MovimentacaoEstoqueForm
+from core.models import Empresa
 
 
 class ProdutoListView(LoginRequiredMixin, ListView):
@@ -35,7 +36,7 @@ class ProdutoListView(LoginRequiredMixin, ListView):
         if categoria_id:
             queryset = queryset.filter(categoria_id=categoria_id)
         if estoque_baixo == '1':
-            queryset = queryset.filter(estoque_atual__lte=F('estoque_minimo'))
+            queryset = queryset.filter(controla_estoque=True, estoque_atual__lte=F('estoque_minimo'))
 
         return queryset.select_related('categoria').order_by('nome')
 
@@ -49,7 +50,8 @@ class ProdutoListView(LoginRequiredMixin, ListView):
         context['estoque_baixo_filtro'] = self.request.GET.get('estoque_baixo', '')
         context['total_produtos'] = Produto.objects.filter(empresa=empresa_atual).count()
         context['produtos_estoque_baixo'] = Produto.objects.filter(
-            empresa=empresa_atual, estoque_atual__lte=F('estoque_minimo'), ativo=True
+            empresa=empresa_atual, controla_estoque=True,
+            estoque_atual__lte=F('estoque_minimo'), ativo=True
         ).count()
         return context
 
@@ -132,8 +134,9 @@ class MovimentacaoEstoqueCreateView(LoginRequiredMixin, CreateView):
             tipo = form.cleaned_data['tipo']
             quantidade = form.cleaned_data['quantidade']
             valor_compra = form.cleaned_data.get('valor_compra') or Decimal('0.00')
+            controla = produto.controla_estoque
 
-            if tipo == 'ENTRADA':
+            if controla and tipo == 'ENTRADA':
                 estoque_anterior = produto.estoque_atual
                 estoque_novo = estoque_anterior + quantidade
 
@@ -147,11 +150,11 @@ class MovimentacaoEstoqueCreateView(LoginRequiredMixin, CreateView):
                 produto.estoque_atual = estoque_novo
                 produto.save()
 
-            elif tipo == 'SAIDA':
+            elif controla and tipo == 'SAIDA':
                 produto.estoque_atual -= quantidade
                 produto.save()
 
-            elif tipo == 'AJUSTE':
+            elif controla and tipo == 'AJUSTE':
                 produto.estoque_atual = quantidade
                 produto.save()
 
@@ -313,6 +316,109 @@ class EstoquePDFView(LoginRequiredMixin, View):
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'inline; filename="relatorio_estoque.pdf"'
         return response
+
+
+class CardapioPublicView(View):
+    """Cardápio online público (sem login), agrupado por categoria."""
+    template_name = 'estoque/cardapio.html'
+
+    def get(self, request, empresa_id):
+        from django.shortcuts import render
+        empresa = get_object_or_404(Empresa, pk=empresa_id)
+        busca = (request.GET.get('q') or '').strip()
+        qs = Produto.objects.filter(
+            empresa=empresa, ativo=True, exibir_cardapio=True
+        ).select_related('categoria')
+        if busca:
+            qs = qs.filter(Q(nome__icontains=busca) | Q(descricao__icontains=busca))
+        produtos = list(qs.order_by('categoria__nome', 'nome'))
+        grupos = []
+        por_categoria = {}
+        ordem_categorias = []
+        sem_categoria = []
+        for p in produtos:
+            if p.categoria_id:
+                key = p.categoria_id
+                if key not in por_categoria:
+                    por_categoria[key] = {'categoria': p.categoria, 'produtos': []}
+                    ordem_categorias.append(key)
+                por_categoria[key]['produtos'].append(p)
+            else:
+                sem_categoria.append(p)
+        for key in sorted(ordem_categorias, key=lambda k: (por_categoria[k]['categoria'].nome or '').lower()):
+            grupos.append(por_categoria[key])
+        if sem_categoria:
+            grupos.append({'categoria': None, 'produtos': sem_categoria})
+        context = {
+            'empresa': empresa,
+            'grupos': grupos,
+            'total_produtos': len(produtos),
+            'busca': busca,
+        }
+        return render(request, self.template_name, context)
+
+
+class CardapioQRCodeView(LoginRequiredMixin, View):
+    """Página interna com o QR Code do cardápio da empresa do usuário."""
+    def get(self, request):
+        from django.shortcuts import render
+        from django.urls import reverse
+        empresa = request.user.empresa
+        cardapio_url = request.build_absolute_uri(
+            reverse('estoque:cardapio_publico', kwargs={'empresa_id': empresa.id})
+        )
+        context = {
+            'titulo_pagina': 'Cardápio Online / QR Code',
+            'empresa': empresa,
+            'cardapio_url': cardapio_url,
+        }
+        return render(request, 'estoque/cardapio_qr.html', context)
+
+
+def _gerar_qr_png(url):
+    """Gera bytes PNG do QR Code para uma URL (sem depender de login)."""
+    import qrcode
+    from io import BytesIO
+    qr = qrcode.QRCode(box_size=10, border=4)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color='black', back_color='white')
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    buf.seek(0)
+    return buf.getvalue()
+
+
+class CardapioQRImageView(LoginRequiredMixin, View):
+    """Gera o PNG do QR Code que aponta para o cardápio público (uso interno)."""
+    def get(self, request):
+        from django.urls import reverse
+        empresa = request.user.empresa
+        cardapio_url = request.build_absolute_uri(
+            reverse('estoque:cardapio_publico', kwargs={'empresa_id': empresa.id})
+        )
+        try:
+            return HttpResponse(_gerar_qr_png(cardapio_url), content_type='image/png')
+        except Exception as e:
+            messages.error(request, f'Não foi possível gerar o QR Code: {e}')
+            return redirect('estoque:cardapio_qr')
+
+
+class CardapioQRPublicImageView(View):
+    """PNG do QR Code público (sem login) — mesma imagem colada nas mesas."""
+    def get(self, request, empresa_id):
+        from django.urls import reverse
+        empresa = get_object_or_404(Empresa, pk=empresa_id)
+        cardapio_url = request.build_absolute_uri(
+            reverse('estoque:cardapio_publico', kwargs={'empresa_id': empresa.id})
+        )
+        try:
+            resp = HttpResponse(_gerar_qr_png(cardapio_url), content_type='image/png')
+            resp['Content-Disposition'] = f'inline; filename="qrcode-cardapio-{empresa.id}.png"'
+            return resp
+        except Exception:
+            from django.http import HttpResponseNotFound
+            return HttpResponseNotFound('QR Code indisponível')
 
 
 class MovimentacaoEstoquePDFView(LoginRequiredMixin, View):

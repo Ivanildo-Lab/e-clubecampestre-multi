@@ -33,17 +33,21 @@
                     </thead>
                     <tbody>
                         {% for p in produtos %}
-                        <tr data-id="{{ p.id }}" data-nome="{{ p.nome }}" data-preco="{{ p.preco_venda }}" data-estoque="{{ p.estoque_atual }}" data-unidade="{{ p.get_unidade_display }}">
+                        <tr data-id="{{ p.id }}" data-nome="{{ p.nome }}" data-preco="{{ p.preco_venda }}" data-estoque="{{ p.estoque_atual }}" data-controla="{{ p.controla_estoque|yesno:'1,0' }}" data-unidade="{{ p.get_unidade_display }}">
                             <td>
                                 <strong>{{ p.nome }}</strong><br>
-                                <small class="text-muted">{{ p.categoria.nome|default:"Sem categoria" }} {% if p.codigo_barras %} | {{ p.codigo_barras }}{% endif %}</small>
+                                <small class="text-muted">{{ p.categoria.nome|default:"Sem categoria" }} {% if p.codigo_barras %} | {{ p.codigo_barras }}{% endif %}{% if not p.controla_estoque %} | <i class="fa fa-cutlery"></i> sem controle de estoque{% endif %}</small>
                             </td>
                             <td>
+                                {% if not p.controla_estoque %}
+                                <span class="badge bg-blue">Sem controle</span>
+                                {% else %}
                                 <span class="badge {% if p.estoque_atual <= p.estoque_minimo %}bg-red{% else %}bg-green{% endif %}">{{ p.estoque_atual }} {{ p.get_unidade_display }}</span>
+                                {% endif %}
                             </td>
                             <td>R$ {{ p.preco_venda|floatformat:2 }}</td>
                             <td>
-                                <button class="btn btn-xs btn-success btn-add" {% if p.estoque_atual <= 0 %}disabled title="Sem estoque"{% endif %}>
+                                <button class="btn btn-xs btn-success btn-add" {% if p.controla_estoque and p.estoque_atual <= 0 %}disabled title="Sem estoque"{% endif %}>
                                     <i class="fa fa-plus"></i> Adicionar
                                 </button>
                             </td>
@@ -197,7 +201,7 @@
                     <div class="input-group input-group-sm">
                         <input type="number" min="0.01" step="0.01" class="form-control input-sm qtd-input" data-idx="${idx}" value="${item.quantidade}" style="padding:3px;">
                     </div>
-                    <small class="text-muted">est: ${item.estoque}</small>
+                    <small class="text-muted">${item.controla ? 'est: ' + item.estoque : 'sem controle'}</small>
                 </td>
                 <td style="text-align:right;">${formatBRL(subtotal)}</td>
                 <td><button class="btn btn-xs btn-danger btn-remove" data-idx="${idx}"><i class="fa fa-trash"></i></button></td>
@@ -217,11 +221,13 @@
                 const idx = parseInt(this.dataset.idx);
                 let val = parseFloat(this.value);
                 if(isNaN(val) || val <= 0){ val = 1; this.value = 1; }
-                const estoque = parseFloat(carrinho[idx].estoque);
-                if(val > estoque){
-                    alert('Estoque insuficiente! Disponível: ' + estoque);
-                    val = estoque;
-                    this.value = estoque;
+                if(carrinho[idx].controla){
+                    const estoque = parseFloat(carrinho[idx].estoque);
+                    if(val > estoque){
+                        alert('Estoque insuficiente! Disponível: ' + estoque);
+                        val = estoque;
+                        this.value = estoque;
+                    }
                 }
                 carrinho[idx].quantidade = val;
                 renderCarrinho();
@@ -236,22 +242,23 @@
         });
     }
 
-    function addProduto(id, nome, preco, estoque, unidade){
+    function addProduto(id, nome, preco, estoque, unidade, controla){
+        controla = (controla === true || controla === '1' || controla === 1 || controla === 'true');
         estoque = parseFloat(estoque);
-        if(estoque <= 0){
+        if(controla && estoque <= 0){
             alert('Produto sem estoque!');
             return;
         }
         const exist = carrinho.findIndex(i => i.id == id);
         if(exist >= 0){
             let novaQtd = parseFloat(carrinho[exist].quantidade) + 1;
-            if(novaQtd > estoque){
+            if(controla && novaQtd > estoque){
                 alert('Estoque insuficiente! Disponível: ' + estoque);
                 return;
             }
             carrinho[exist].quantidade = novaQtd;
         } else {
-            carrinho.push({id: id, nome: nome, preco: parseFloat(preco), quantidade: 1, estoque: estoque, unidade: unidade});
+            carrinho.push({id: id, nome: nome, preco: parseFloat(preco), quantidade: 1, estoque: estoque, unidade: unidade, controla: controla});
         }
         renderCarrinho();
     }
@@ -266,7 +273,8 @@
         const preco = tr.dataset.preco;
         const estoque = tr.dataset.estoque;
         const unidade = tr.dataset.unidade;
-        addProduto(id, nome, preco, estoque, unidade);
+        const controla = tr.dataset.controla;
+        addProduto(id, nome, preco, estoque, unidade, controla);
     });
 
     // Tipo toggle
@@ -304,16 +312,22 @@
                 return;
             }
             data.produtos.forEach(p => {
-                const disabled = parseFloat(p.estoque_atual) <= 0 ? 'disabled title="Sem estoque"' : '';
+                const controla = (p.controla_estoque === true);
+                const semEstoque = controla && parseFloat(p.estoque_atual) <= 0;
+                const disabled = semEstoque ? 'disabled title="Sem estoque"' : '';
                 const tr = document.createElement('tr');
                 tr.dataset.id = p.id;
                 tr.dataset.nome = p.nome;
                 tr.dataset.preco = p.preco_venda;
                 tr.dataset.estoque = p.estoque_atual;
+                tr.dataset.controla = controla ? '1' : '0';
                 tr.dataset.unidade = p.unidade;
+                const badge = controla
+                    ? `<span class="badge ${semEstoque ? 'bg-red' : 'bg-green'}">${p.estoque_atual} ${p.unidade}</span>`
+                    : `<span class="badge bg-blue">Sem controle</span>`;
                 tr.innerHTML = `
-                    <td><strong>${p.nome}</strong><br><small class="text-muted">${p.categoria} | estoque: ${p.estoque_atual} ${p.unidade}</small></td>
-                    <td><span class="badge ${parseFloat(p.estoque_atual)<=0 ? 'bg-red' : 'bg-green'}">${p.estoque_atual} ${p.unidade}</span></td>
+                    <td><strong>${p.nome}</strong><br><small class="text-muted">${p.categoria} | ${controla ? 'estoque: ' + p.estoque_atual + ' ' + p.unidade : 'sem controle de estoque'}</small></td>
+                    <td>${badge}</td>
                     <td>R$ ${parseFloat(p.preco_venda).toFixed(2).replace('.',',')}</td>
                     <td><button class="btn btn-xs btn-success btn-add" ${disabled}><i class="fa fa-plus"></i> Adicionar</button></td>
                 `;

@@ -10,7 +10,7 @@
             <div class="box-header with-border">
                 <h3 class="box-title">{{ titulo_pagina }}</h3>
             </div>
-            <form role="form" method="post">
+            <form role="form" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="box-body">
                     <div class="row">
@@ -30,6 +30,30 @@
                     <div class="form-group">
                         {{ form.descricao.label_tag }}
                         {{ form.descricao }}
+                    </div>
+                    <hr>
+                    <h4>Cardápio Online</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.imagem.label_tag }}
+                                {% if form.instance.imagem %}
+                                <p><img src="{{ form.instance.imagem.url }}" alt="Foto atual" style="max-height:120px;border-radius:6px;"></p>
+                                {% endif %}
+                                {{ form.imagem }}
+                                <p class="help-block">Foto exibida no cardápio (JPG/PNG).</p>
+                                {% if form.imagem.errors %}<p class="text-danger">{{ form.imagem.errors }}</p>{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <div class="checkbox">
+                                    <label>{{ form.exibir_cardapio }} {{ form.exibir_cardapio.label }}</label>
+                                </div>
+                                <p class="help-block">Desmarque para ocultar este produto do cardápio.</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-4">
@@ -55,7 +79,13 @@
                     </div>
                     <hr>
                     <h4>Valores e Estoque</h4>
-                    <div class="row">
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>{{ form.controla_estoque }} {{ form.controla_estoque.label }}</label>
+                        </div>
+                        <p class="help-block">Desmarque para pratos, serviços e itens sem controle de estoque. Vendas não descontam nem bloqueiam por saldo.</p>
+                    </div>
+                    <div class="row" id="blocoEstoque">
                         <div class="col-md-3">
                             <div class="form-group">
                                 {{ form.preco_custo.label_tag }}
@@ -96,4 +126,19 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function(){
+    var chk = $('#id_controla_estoque');
+    var bloco = $('#blocoEstoque');
+    function toggle(){
+        if(chk.is(':checked')){ bloco.css('opacity','1'); }
+        else { bloco.css('opacity','0.45'); }
+    }
+    chk.on('change', toggle);
+    toggle();
+});
+</script>
 {% endblock %}
