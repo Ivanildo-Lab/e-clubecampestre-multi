@@ -133,6 +133,9 @@ STORAGES = {
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
 
+# Permite que referências a arquivos ausentes (ex: source maps) não quebrem o collectstatic
+WHITENOISE_MANIFEST_STRICT = False
+
 # Proxy SSL (Traefik/HTTPS)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
