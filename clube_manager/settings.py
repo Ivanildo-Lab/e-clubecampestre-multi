@@ -128,13 +128,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Whitenoise storage (Django 5.2 STORAGES)
+# Usamos CompressedStaticFilesStorage (sem manifest) para evitar erros de source maps ausentes
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
 }
-
-# Permite que referências a arquivos ausentes (ex: source maps) não quebrem o collectstatic
-WHITENOISE_MANIFEST_STRICT = False
 
 # Proxy SSL (Traefik/HTTPS)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
