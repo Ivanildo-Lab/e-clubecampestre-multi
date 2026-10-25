@@ -14,8 +14,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='').split(',') if config('DJANGO_ALLOWED_HOSTS', default='') else []
-CSRF_TRUSTED_ORIGINS = config('DJANGO_CSRF_TRUSTED_ORIGINS', default='').split(',') if config('DJANGO_CSRF_TRUSTED_ORIGINS', default='') else []
+# Helper to split comma‑separated env vars and strip whitespace
+def _csv(value: str):
+    return [v.strip() for v in value.split(',') if v.strip()]
+
+ALLOWED_HOSTS = _csv(config('DJANGO_ALLOWED_HOSTS', default=''))
+CSRF_TRUSTED_ORIGINS = _csv(config('DJANGO_CSRF_TRUSTED_ORIGINS', default=''))
 
 # Application definition
 INSTALLED_APPS = [
