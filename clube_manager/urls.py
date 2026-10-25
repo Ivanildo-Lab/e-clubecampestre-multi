@@ -1,9 +1,10 @@
 # clube_manager/urls.py
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 from django.contrib.auth.decorators import login_required
 from core.views import HomeView, LandingPageView, HelpView
 
@@ -16,7 +17,6 @@ urlpatterns = [
     path('core/', include('core.urls')),
     # --- ROTAS DOS APPS ---
     path('usuarios/', include('usuarios.urls')),
-    
     path('socios/', include('socios.urls')),
     path('financeiro/', include('financeiro.urls')),
     path('fornecedores/', include('fornecedores.urls')),
@@ -26,9 +26,11 @@ urlpatterns = [
     path('relatorios/', include('relatorios.urls')),
     path('select2/', include('django_select2.urls')),
     path('ajuda/', login_required(HelpView.as_view()), name='ajuda'),
+
+    # Rota /media/ INCONDICIONAL (evita 404 de mídia em produção quando DEBUG=False)
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
-# Configuração para servir arquivos de mídia e estáticos em desenvolvimento
+# Configuração para servir arquivos estáticos em desenvolvimento (DEBUG=True)
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
