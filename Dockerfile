@@ -40,9 +40,13 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libmariadb3 \
     libpango-1.0-0 \
+    libpangoft2-1.0-0 \
     libcairo2 \
     libgdk-pixbuf-2.0-0 \
     libffi8 \
+    libharfbuzz0b \
+    libfontconfig1 \
+    libfreetype6 \
     shared-mime-info \
     && rm -rf /var/lib/apt/lists/*
 

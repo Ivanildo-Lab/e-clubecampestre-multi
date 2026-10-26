@@ -14,10 +14,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# ALLOWED_HOSTS - permite configurar via env, com fallback direto para produção
+# Helper to split comma‑separated env vars and strip whitespace
+def _csv(value: str):
+    return [v.strip() for v in value.split(',') if v.strip()]
+
+# ALLOWED_HOSTS - env + fallback direto para produção
 _env_allowed = config('DJANGO_ALLOWED_HOSTS', default='')
 if _env_allowed:
-    ALLOWED_HOSTS = [v.strip() for v in _env_allowed.split(',') if v.strip()]
+    ALLOWED_HOSTS = _csv(_env_allowed)
 else:
     ALLOWED_HOSTS = [
         'eclubecampestre.187-127-63-185.sslip.io',
@@ -29,12 +33,13 @@ else:
 
 _env_csrf = config('DJANGO_CSRF_TRUSTED_ORIGINS', default='')
 if _env_csrf:
-    CSRF_TRUSTED_ORIGINS = [v.strip() for v in _env_csrf.split(',') if v.strip()]
+    CSRF_TRUSTED_ORIGINS = _csv(_env_csrf)
 else:
     CSRF_TRUSTED_ORIGINS = [
         'https://eclubecampestre.187-127-63-185.sslip.io',
         'https://eclubecampestre.ivcsofthouse.com.br',
     ]
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -146,9 +151,10 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Whitenoise storage (Django 5.2 STORAGES)
+# Usamos CompressedStaticFilesStorage (sem manifest) para evitar erros de source maps ausentes
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
 }
 
 # Proxy SSL (Traefik/HTTPS)
