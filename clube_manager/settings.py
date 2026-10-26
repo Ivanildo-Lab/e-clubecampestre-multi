@@ -14,9 +14,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='').split(',') if config('DJANGO_ALLOWED_HOSTS', default='') else []
-CSRF_TRUSTED_ORIGINS = config('DJANGO_CSRF_TRUSTED_ORIGINS', default='').split(',') if config('DJANGO_CSRF_TRUSTED_ORIGINS', default='') else []
+# ALLOWED_HOSTS - permite configurar via env, com fallback direto para produção
+_env_allowed = config('DJANGO_ALLOWED_HOSTS', default='')
+if _env_allowed:
+    ALLOWED_HOSTS = [v.strip() for v in _env_allowed.split(',') if v.strip()]
+else:
+    ALLOWED_HOSTS = [
+        'eclubecampestre.187-127-63-185.sslip.io',
+        'eclubecampestre.ivcsofthouse.com.br',
+        '0.0.0.0',
+        'localhost',
+        '127.0.0.1',
+    ]
 
+_env_csrf = config('DJANGO_CSRF_TRUSTED_ORIGINS', default='')
+if _env_csrf:
+    CSRF_TRUSTED_ORIGINS = [v.strip() for v in _env_csrf.split(',') if v.strip()]
+else:
+    CSRF_TRUSTED_ORIGINS = [
+        'https://eclubecampestre.187-127-63-185.sslip.io',
+        'https://eclubecampestre.ivcsofthouse.com.br',
+    ]
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
