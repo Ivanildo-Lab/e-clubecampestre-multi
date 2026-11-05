@@ -12,7 +12,7 @@
                 <!-- BOTÕES -->
                 <div class="box-tools pull-right">
                     {% if caixa_selecionado_id %}
-                    <a href="{% url 'financeiro:fluxo_caixa_pdf' %}?caixa={{ caixa_selecionado_id }}&data_inicio={{ data_inicio }}&data_fim={{ data_fim }}" target="_blank" class="btn btn-danger btn-flat">
+                    <a href="{% url 'financeiro:fluxo_caixa_pdf' %}?caixa={{ caixa_selecionado_id }}&plano={{ plano_selecionado_id }}&data_inicio={{ data_inicio }}&data_fim={{ data_fim }}" target="_blank" class="btn btn-danger btn-flat">
                         <i class="fa fa-file-pdf-o"></i> PDF
                     </a>
                     {% endif %}
@@ -25,7 +25,7 @@
             <form method="GET" action="{% url 'financeiro:fluxo_de_caixa' %}">
                 <div class="box-body">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label>Selecione o Caixa / Conta</label>
                             <select name="caixa" class="form-control" required onchange="this.form.submit()">
                                 <option value="">--- Selecione ---</option>
@@ -37,10 +37,21 @@
                             </select>
                         </div>
                         <div class="col-md-3">
+                            <label>Plano de Contas</label>
+                            <select name="plano" class="form-control">
+                                <option value="">-- Todos os Planos --</option>
+                                {% for plano in planos %}
+                                <option value="{{ plano.id }}" {% if plano.id|stringformat:"s" == plano_selecionado_id %}selected{% endif %}>
+                                    {{ plano.codigo }} - {{ plano.nome }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
                             <label>Data de Início</label>
                             <input type="date" name="data_inicio" class="form-control" value="{{ data_inicio }}">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label>Data Final</label>
                             <input type="date" name="data_fim" class="form-control" value="{{ data_fim }}">
                         </div>
@@ -51,6 +62,18 @@
                     </div>
                 </div>
             </form>
+
+            {% if request.GET.impresso %}
+            <div class="box-body">
+                <div class="alert alert-success" style="margin-bottom:0;">
+                    <i class="fa fa-check"></i> Lançamento #{{ request.GET.impresso }} salvo com sucesso!
+                    <a id="btnImprimirComprovante" href="{% url 'financeiro:comprovante_lancamento' request.GET.impresso %}" target="_blank" class="btn btn-success btn-sm" style="margin-left:12px;">
+                        <i class="fa fa-print"></i> Imprimir comprovante em nova página
+                    </a>
+                    <span class="text-muted" style="margin-left:8px; font-size:8pt;">(abriu automaticamente em nova aba)</span>
+                </div>
+            </div>
+            {% endif %}
 
             {% if caixa_selecionado_id %}
             <div class="box-body">
@@ -94,11 +117,12 @@
                             </td>
                             <!-- CÉLULA DE AÇÕES COM LÓGICA -->
                             <td>
+                                <a href="{% url 'financeiro:comprovante_lancamento' lancamento.pk %}" target="_blank" class="btn btn-xs btn-default" title="Imprimir comprovante"><i class="fa fa-print"></i></a>
                                 {% if not lancamento.mensalidade_origem and not lancamento.conta_origem %}
                                     <a href="{% url 'financeiro:editar_lancamento' lancamento.pk %}" class="btn btn-xs btn-info" title="Editar Lançamento Manual"><i class="fa fa-pencil"></i></a>
                                     <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'financeiro:excluir_lancamento' lancamento.pk %}" data-nome="este lançamento"><i class="fa fa-trash"></i></button>
                                 {% else %}
-                                    <span class="text-muted" title="Lançamento automático, não pode ser editado."><i class="fa fa-lock"></i></span>
+                                    <span class="text-muted" title="Lançamento automático, não pode ser editado." style="margin-left:4px;"><i class="fa fa-lock"></i></span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -118,4 +142,25 @@
 
 {% block scripts %}
 {% include 'partials/modal_delete_script.js' %}
+{% if request.GET.impresso %}
+<script>
+$(function(){
+    var pk = "{{ request.GET.impresso|escapejs }}";
+    if(pk){
+        var url = "{% url 'financeiro:comprovante_lancamento' 0 %}".replace('0', pk);
+        // Tenta abrir em nova página automaticamente
+        var win = window.open(url, '_blank');
+        // Fallback: se bloqueado, cria link clicável e destaca
+        if(!win || win.closed || typeof win.closed === 'undefined'){
+            // popup bloqueado - o banner abaixo já tem o link
+            console.log('Popup bloqueado, use o botão Imprimir comprovante');
+        } else {
+            win.focus();
+        }
+        // Também garante que o botão no banner funciona
+        $('#btnImprimirComprovante').attr('href', url);
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}{{ titulo_pagina }}{% endblock %}
+{% block titulo_cabecalho %}Cardápio Online{% endblock %}
+{% block subtitulo_cabecalho %}QR Code para os clientes acessarem pelo celular{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="box box-primary" id="qrPrintArea">
+      <div class="box-header with-border">
+        <h3 class="box-title">QR Code — {{ empresa.nome }}</h3>
+      </div>
+      <div class="box-body text-center">
+        <img src="{% url 'estoque:cardapio_qr_png' %}" alt="QR Code do cardápio" style="width:280px;max-width:100%;border:1px solid #eee;border-radius:8px;padding:8px;background:#fff;">
+        <p class="text-muted" style="margin-top:10px;">Aponte a câmera do celular para abrir o cardápio</p>
+        <p class="print-only" style="font-size:10pt;">{{ cardapio_url }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="box box-default">
+      <div class="box-header with-border">
+        <h3 class="box-title">Link do cardápio</h3>
+      </div>
+      <div class="box-body">
+        <div class="input-group">
+          <input type="text" id="linkCardapio" class="form-control" readonly value="{{ cardapio_url }}">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" onclick="copiarLink()"><i class="fa fa-copy"></i> Copiar</button>
+          </span>
+        </div>
+        <p class="help-block">Este link é público (não precisa de login). Imprima o QR Code e deixe nas mesas/balcão.</p>
+        <hr>
+        <a href="{{ cardapio_url }}" target="_blank" class="btn btn-success"><i class="fa fa-external-link"></i> Abrir cardápio</a>
+        <a href="{% url 'estoque:cardapio_qr_png' %}" download="qrcode-cardapio.png" class="btn btn-info"><i class="fa fa-download"></i> Baixar QR (PNG)</a>
+        <button class="btn btn-default" onclick="window.print()"><i class="fa fa-print"></i> Imprimir</button>
+      </div>
+    </div>
+    <div class="box box-default">
+      <div class="box-header with-border"><h3 class="box-title">Como usar</h3></div>
+      <div class="box-body">
+        <ol style="padding-left:18px;">
+          <li>Cadastre a <strong>foto</strong> dos produtos em <em>Estoque → Produtos → Editar</em>.</li>
+          <li>Marque <strong>“Exibir no Cardápio”</strong> apenas nos itens à venda.</li>
+          <li>Imprima este QR Code e fixe nas mesas ou no balcão.</li>
+          <li>O cliente aponta a câmera e vê o cardápio organizado por categoria, com fotos e preços.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copiarLink(){
+  var el = document.getElementById('linkCardapio');
+  el.select(); el.setSelectionRange(0, 99999);
+  try{ document.execCommand('copy'); alert('Link copiado!'); }
+  catch(e){
+    if(navigator.clipboard){ navigator.clipboard.writeText(el.value).then(function(){ alert('Link copiado!'); }); }
+  }
+}
+</script>
+<style>
+.print-only{display:none}
+@media print{
+  body *{visibility:hidden}
+  #qrPrintArea, #qrPrintArea *{visibility:visible}
+  #qrPrintArea{position:absolute;left:0;top:0;width:100%;border:none;box-shadow:none}
+  .print-only{display:block;margin-top:6px;word-break:break-all}
+}
+</style>
+{% endblock %}

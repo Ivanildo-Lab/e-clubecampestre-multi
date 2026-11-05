@@ -12,7 +12,7 @@
             <div class="box-header with-border">
                 <h3 class="box-title">Detalhes do Lançamento</h3>
             </div>
-            <form role="form" method="post">
+            <form role="form" method="post" action="{% if object %}{% url 'financeiro:editar_lancamento' object.pk %}{% else %}{% url 'financeiro:adicionar_lancamento' %}{% endif %}" id="formLancamento">
                 {% csrf_token %}
                 <div class="box-body">
                     <div class="form-group">
@@ -58,11 +58,29 @@
                     {% endif %}
                 </div>
                 <div class="box-footer">
-                    <button type="submit" class="btn btn-primary">Salvar Lançamento</button>
+                    <button type="submit" name="action" value="save" class="btn btn-primary">Salvar Lançamento</button>
+                    <button type="submit" name="action" value="save_print" id="btnSalvarImprimir" class="btn btn-success">Salvar & Imprimir</button>
                     <a href="{% url 'financeiro:fluxo_de_caixa' %}" class="btn btn-default">Cancelar</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function(){
+    $('#btnSalvarImprimir').on('click', function(e){
+        e.preventDefault();
+        var form = $('#formLancamento');
+        {% if object %}
+        form.attr('action', '{% url "financeiro:imprimir_lancamento" object.pk %}');
+        {% else %}
+        form.attr('action', '{% url "financeiro:imprimir_lancamento_novo" %}');
+        {% endif %}
+        form.submit();
+    });
+});
+</script>
 {% endblock %}

@@ -11,8 +11,8 @@ class CategoriaProdutoAdmin(admin.ModelAdmin):
 
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'categoria', 'unidade', 'preco_custo', 'preco_venda', 'estoque_atual', 'estoque_minimo', 'ativo')
-    list_filter = ('ativo', 'categoria', 'empresa')
+    list_display = ('nome', 'categoria', 'unidade', 'preco_custo', 'preco_venda', 'estoque_atual', 'estoque_minimo', 'controla_estoque', 'ativo')
+    list_filter = ('ativo', 'controla_estoque', 'categoria', 'empresa')
     search_fields = ('nome', 'codigo_barras')
     list_editable = ('estoque_atual', 'ativo')
 

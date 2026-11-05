@@ -39,6 +39,24 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.quantidade_parcelas.label_tag }}
+                                {{ form.quantidade_parcelas }}
+                                {% if form.quantidade_parcelas.errors %}<span class="text-red">{{ form.quantidade_parcelas.errors }}</span>{% endif %}
+                                <p class="help-block" style="margin-bottom:0;">{{ form.quantidade_parcelas.help_text }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.valor.label_tag }}
+                                {{ form.valor }}
+                                {% if form.valor.errors %}<span class="text-red">{{ form.valor.errors }}</span>{% endif %}
+                                <p class="help-block" style="margin-bottom:0;">{{ form.valor.help_text }}</p>
+                            </div>
+                        </div>
+                    </div>
                     <div class="callout callout-warning" style="margin-bottom:0;">
                         <strong>Dica:</strong> Você também pode clicar no ícone <i class="fa fa-dollar"></i> na lista de sócios para pré-selecionar o sócio.
                     </div>

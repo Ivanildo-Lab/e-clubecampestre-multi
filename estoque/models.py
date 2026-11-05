@@ -45,6 +45,12 @@ class Produto(models.Model):
     estoque_atual = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Estoque Atual")
     estoque_minimo = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Estoque Minimo")
     ativo = models.BooleanField(default=True, verbose_name="Ativo")
+    imagem = models.ImageField(upload_to='produtos/', blank=True, null=True, verbose_name="Foto do Produto")
+    exibir_cardapio = models.BooleanField(default=True, verbose_name="Exibir no Cardápio")
+    controla_estoque = models.BooleanField(
+        default=True, verbose_name="Controla Estoque?",
+        help_text="Desmarque para pratos, serviços e itens sem controle de estoque. Vendas não descontam nem bloqueiam por saldo."
+    )
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
 
@@ -53,6 +59,8 @@ class Produto(models.Model):
 
     @property
     def estoque_baixo(self):
+        if not self.controla_estoque:
+            return False
         return self.estoque_atual <= self.estoque_minimo
 
     class Meta:

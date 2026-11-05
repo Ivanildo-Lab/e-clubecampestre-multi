@@ -23,62 +23,65 @@ class MensalidadeForm(forms.ModelForm):
             field.widget.attrs['class'] = 'form-control'
 
 
+class PlanoDeContasForm(forms.ModelForm):
     def _get_next_codigo(self, empresa, parent):
-        """Gera próximo código sequencial baseado no pai. Ex: pai 10.000.000 -> filhos 10.000.001, 10.000.002"""
+        """Gera próximo código no formato blindado XX.XXX.XXX.
+        - Sem pai (raiz): 01.000.000, 02.000.000, 03.000.000...
+        - Com pai: incrementa último segmento dentro do pai.
+          Ex: pai 02.000.000 -> filhos 02.000.001, 02.000.002
+              pai 02.001.000 -> filhos 02.001.001, 02.001.002
+              pai 01.000.000 -> próximo filho 01.000.001 (não 01.000.000.001)
+        """
         from django.db.models import Max
+        import re
+        def format_codigo(num_str):
+            # Garante XX.XXX.XXX com zeros à esquerda (2+3+3 = 8 dígitos)
+            digits = re.sub(r'\D', '', num_str or '')
+            digits = digits.zfill(8)[-8:]
+            return f"{digits[0:2]}.{digits[2:5]}.{digits[5:8]}"
         if parent:
-            # Busca maior código entre filhos do mesmo pai
+            # Normaliza pai para XX.XXX.XXX
+            parent_fmt = format_codigo(parent.codigo)
             max_codigo = PlanoDeContas.objects.filter(empresa=empresa, parent=parent).aggregate(Max('codigo'))['codigo__max']
             if max_codigo:
                 try:
-                    # Tenta interpretar como número com pontos: 10.000.001 -> 10000001
-                    base = parent.codigo.replace('.', '')
-                    # Se filho tem código, incrementa último segmento
-                    # Simples: pega max e incrementa
-                    # Converte removendo pontos e incrementa
-                    num = int(max_codigo.replace('.', ''))
-                    nxt = num + 1
-                    # Formata de volta com pontos a cada 3? Mantém formato do pai + 3 dígitos
-                    # Ex: 10.000.000 -> 10.000.001
-                    # Usa formato do pai para determinar casas
-                    if '.' in parent.codigo:
-                        # Mantém mesma quantidade de dígitos após último ponto
-                        prefix = parent.codigo.rsplit('.', 1)[0]
-                        last_len = len(parent.codigo.rsplit('.', 1)[1])
-                        suffix = str(nxt).zfill(len(max_codigo.replace('.', '')))[-last_len:]
-                        # Se não conseguiu, apenas incrementa
-                        try:
-                            suffix_num = int(max_codigo.split('.')[-1]) + 1
-                            return f"{prefix}.{str(suffix_num).zfill(last_len)}"
-                        except:
-                            return str(nxt)
-                    return str(nxt)
+                    max_fmt = format_codigo(max_codigo)
+                    # Incrementa último segmento do maior filho
+                    # Se pai é 02.000.000 e max é 02.000.002 -> prefix 02.000 + 003
+                    # Se pai é 02.000.000 e max é 02.000.001 -> proximo 02.000.002
+                    # Usa prefixo do pai (primeiros 6 dígitos = XX.XXX) para primeiro filho sem max seria 02.000.001
+                    # Para max existente, pega max e incrementa
+                    parts = max_fmt.split('.')
+                    last = int(parts[-1]) + 1
+                    if last > 999:
+                        last = 999
+                    prefix = parent_fmt.rsplit('.', 1)[0]  # XX.XXX
+                    return f"{prefix}.{str(last).zfill(3)}"
                 except:
                     pass
-            # Sem filhos: primeiro filho é pai + .001 ou .01
-            if '.' in parent.codigo:
-                return f"{parent.codigo.rsplit('.', 1)[0]}.{parent.codigo.split('.')[-1][:1]}001".replace('..', '.') if False else f"{parent.codigo}.001"
-            return f"{parent.codigo}.001"
+            # Sem filhos: primeiro filho é pai com último segmento 001
+            # Pai 02.000.000 -> 02.000.001 ; Pai 01.001.000 -> 01.001.001
+            prefix = parent_fmt.rsplit('.', 1)[0]
+            return f"{prefix}.001"
         else:
-            # Sem pai: próximo código de nível raiz
             max_codigo = PlanoDeContas.objects.filter(empresa=empresa, parent__isnull=True).aggregate(Max('codigo'))['codigo__max']
             if max_codigo:
                 try:
-                    # Incrementa último número
-                    parts = max_codigo.split('.')
-                    last = int(parts[-1]) + 1
-                    parts[-1] = str(last).zfill(len(parts[-1]))
-                    return '.'.join(parts)
+                    max_fmt = format_codigo(max_codigo)
+                    parts = max_fmt.split('.')
+                    first = int(parts[0]) + 1
+                    if first > 99:
+                        first = 99
+                    return f"{str(first).zfill(2)}.000.000"
                 except:
-                    return str(int(max_codigo.replace('.', '')) + 1)
-            return "10.000.000"
+                    pass
+            return "01.000.000"
 
-class PlanoDeContasForm(forms.ModelForm):
     class Meta:
         model = PlanoDeContas
-        fields = ['codigo', 'nome', 'tipo', 'parent', 'aceita_lancamentos']
+        fields = ['parent', 'codigo', 'nome', 'tipo', 'aceita_lancamentos']
         widgets = {
-            'codigo': forms.TextInput(attrs={'placeholder': 'Gerado automaticamente após escolher o pai'}),
+            'codigo': forms.TextInput(attrs={'placeholder': '00.000.000', 'maxlength': '10'}),
             'nome': forms.TextInput(attrs={'placeholder': 'Ex: Receita de Mensalidades'}),
         }
 
@@ -115,6 +118,29 @@ class PlanoDeContasForm(forms.ModelForm):
             # Checkboxes são estilizados de forma diferente
             if not isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs['class'] = 'form-control'
+
+    def clean_codigo(self):
+        import re
+        codigo = self.cleaned_data.get('codigo', '')
+        # Aceita 1.000.000 ou 01.000.000 e normaliza para XX.XXX.XXX
+        if not re.match(r'^\d{1,2}\.\d{3}\.\d{3}$', (codigo or '').strip()):
+            raise forms.ValidationError('Código deve estar no formato XX.XXX.XXX (ex: 01.000.000, 02.000.001).')
+        # Normaliza com zeros à esquerda para 8 dígitos
+        digits = re.sub(r'\D', '', codigo).zfill(8)[-8:]
+        codigo_fmt = f"{digits[0:2]}.{digits[2:5]}.{digits[5:8]}"
+        # Verifica se parent gera código inconsistente (filho deve compartilhar prefixo do pai)
+        parent = self.cleaned_data.get('parent')
+        if parent:
+            import re as re2
+            parent_fmt = re2.sub(r'\D','', parent.codigo).zfill(8)[-8:]
+            parent_prefix = f"{parent_fmt[0:2]}.{parent_fmt[2:5]}"
+            if not codigo_fmt.startswith(parent_prefix):
+                raise forms.ValidationError(f'Código deve começar com prefixo do pai {parent_prefix}.XXX (ex: {parent_prefix}.001).')
+            # Filho não pode ser igual ao pai
+            p_fmt = f"{parent_fmt[0:2]}.{parent_fmt[2:5]}.{parent_fmt[5:8]}"
+            if codigo_fmt == p_fmt:
+                raise forms.ValidationError('Código do filho não pode ser igual ao do pai.')
+        return codigo_fmt
 
 
 
@@ -185,7 +211,7 @@ class ContaForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if empresa:
-            qs = PlanoDeContas.objects.filter(empresa=empresa)
+            qs = PlanoDeContas.objects.filter(empresa=empresa, aceita_lancamentos=True)
             if tipo_filtro == 'RECEITA':
                 qs = qs.filter(tipo='RECEITA')
             elif tipo_filtro == 'DESPESA':
@@ -211,28 +237,6 @@ class BaixaContaForm(forms.Form):
             self.fields['caixa'].queryset = Caixa.objects.filter(empresa=empresa)
 
 
-class LancamentoCaixaForm(forms.ModelForm):
-    class Meta:
-        model = LancamentoCaixa
-        fields = ['caixa', 'plano_de_contas', 'data_lancamento', 'descricao', 'valor']
-        widgets = {
-            'data_lancamento': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
-            'descricao': forms.TextInput(attrs={'placeholder': 'Ex: Pagamento conta de luz, Venda avulsa'}),
-            'valor': forms.NumberInput(attrs={'placeholder': 'Use negativo para saídas. Ex: -50.00'}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        empresa = kwargs.pop('empresa', None)
-        super().__init__(*args, **kwargs)
-
-        if empresa:
-            self.fields['caixa'].queryset = Caixa.objects.filter(empresa=empresa)
-            self.fields['plano_de_contas'].queryset = PlanoDeContas.objects.filter(empresa=empresa)
-        
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-
-    
 class LancamentoCaixaForm(forms.ModelForm):
     # 1. Novos campos que o usuário irá ver
     TIPO_CHOICES = [('C', 'Crédito (Entrada)'), ('D', 'Débito (Saída)')]
@@ -263,13 +267,12 @@ class LancamentoCaixaForm(forms.ModelForm):
 
         if empresa:
             self.fields['caixa'].queryset = Caixa.objects.filter(empresa=empresa)
+            self.fields['plano_de_contas'].queryset = PlanoDeContas.objects.filter(
+                empresa=empresa, aceita_lancamentos=True
+            ).order_by('codigo')
             self.fields['plano_de_contas'].required = False
             self.fields['plano_de_contas'].empty_label = "Nenhum (usar para ajustes de caixa)"
 
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-        
-        # Adiciona a classe 'form-control' a todos os campos
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
 

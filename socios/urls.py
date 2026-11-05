@@ -7,7 +7,7 @@ from .views import (
     CategoriaSocioUpdateView, CategoriaSocioDeleteActionView ,
     # ... views de convenio
     ConvenioListView, ConvenioCreateView,
-    ConvenioUpdateView, ConvenioDeleteActionView,SocioPDFView, SocioListPDFView
+    ConvenioUpdateView, ConvenioDeleteActionView,SocioPDFView, SocioListPDFView, SocioDebitosView
 
 )
 
@@ -28,5 +28,6 @@ urlpatterns = [
     path('convenios/<int:pk>/editar/', ConvenioUpdateView.as_view(), name='editar_convenio'),
     path('convenios/<int:pk>/delete-action/', ConvenioDeleteActionView.as_view(), name='excluir_convenio_action'),
     path('relatorio/pdf/', SocioListPDFView.as_view(), name='relatorio_pdf'),
+    path('<int:pk>/debitos/', SocioDebitosView.as_view(), name='socio_debitos'),
     path('<int:pk>/pdf/', SocioPDFView.as_view(), name='socio_pdf'),
 ]

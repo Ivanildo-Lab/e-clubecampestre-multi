@@ -46,6 +46,7 @@ class VendaPDVView(LoginRequiredMixin, View):
                         'nome': p.nome,
                         'preco_venda': str(p.preco_venda),
                         'estoque_atual': str(p.estoque_atual),
+                        'controla_estoque': p.controla_estoque,
                         'unidade': p.get_unidade_display(),
                         'categoria': p.categoria.nome if p.categoria else '--',
                     }
@@ -154,7 +155,7 @@ class VendaPDVView(LoginRequiredMixin, View):
                     raise ValueError('Quantidade deve ser maior que zero.')
                 if preco < 0:
                     raise ValueError('Preco nao pode ser negativo.')
-                if produto.estoque_atual < qtd:
+                if produto.controla_estoque and produto.estoque_atual < qtd:
                     raise ValueError(f"Estoque insuficiente para '{produto.nome}'. Disponivel: {produto.estoque_atual}")
                 subtotal = qtd * preco
                 validated_itens.append({
@@ -226,6 +227,7 @@ class ProdutoAjaxSearchView(LoginRequiredMixin, View):
                 'nome': p.nome,
                 'preco_venda': str(p.preco_venda),
                 'estoque_atual': str(p.estoque_atual),
+                'controla_estoque': p.controla_estoque,
                 'unidade': p.get_unidade_display(),
                 'categoria': p.categoria.nome if p.categoria else '--',
             }

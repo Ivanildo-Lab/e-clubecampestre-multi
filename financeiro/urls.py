@@ -1,8 +1,8 @@
 from django.urls import path
 from .views import (MensalidadeListView, MensalidadeUpdateView,
-                     GerarMensalidadesEmMassaView, GerarMensalidadePorSocioView, BaixarMensalidadeView,
+                     GerarMensalidadesEmMassaView, GerarMensalidadePorSocioView, BaixarMensalidadeView, BaixarMensalidadesLoteView,
                      PreviewGerarMensalidadesView, ConfirmarGeracaoMensalidadesView,
-                    PlanoDeContasListView, PlanoDeContasCreateView,
+                    PlanoDeContasListView, PlanoDeContasCreateView, PlanoDeContasProximoCodigoView,
                     PlanoDeContasUpdateView, PlanoDeContasDeleteView,
                     CaixaListView, CaixaCreateView,
                     CaixaUpdateView, CaixaDeleteView, FluxoDeCaixaView, MensalidadeDeleteView, BaixarContaView,
@@ -10,7 +10,7 @@ from .views import (MensalidadeListView, MensalidadeUpdateView,
                     ContasReceberListView, ContasPagarListView, ContaReceberCreateView, ContaPagarCreateView,
                     ContasReceberPDFView, ContasPagarPDFView,
                     LancamentoCaixaCreateView, LancamentoCaixaUpdateView, LancamentoCaixaDeleteView,MensalidadePDFView,
-                    FluxoDeCaixaPDFView
+                    FluxoDeCaixaPDFView, LancamentoComprovantePDFView, LancamentoImprimirView
 
                     )
 
@@ -20,6 +20,7 @@ app_name = 'financeiro'
 
 urlpatterns = [
     path('mensalidades/', MensalidadeListView.as_view(), name='lista_mensalidades'),
+    path('mensalidades/baixar-lote/', BaixarMensalidadesLoteView.as_view(), name='baixar_mensalidades_lote'),
     path('mensalidades/<int:pk>/baixar/', BaixarMensalidadeView.as_view(), name='baixar_mensalidade'),
     path('mensalidades/<int:pk>/editar/', MensalidadeUpdateView.as_view(), name='editar_mensalidade'),
     path('mensalidades/gerar-em-massa/', GerarMensalidadesEmMassaView.as_view(), name='gerar_mensalidades_massa'),
@@ -29,6 +30,7 @@ urlpatterns = [
     path('mensalidades/confirmar-geracao/', ConfirmarGeracaoMensalidadesView.as_view(), name='confirmar_geracao_mensalidades'),
     path('plano-de-contas/', PlanoDeContasListView.as_view(), name='lista_plano_de_contas'),
     path('plano-de-contas/adicionar/', PlanoDeContasCreateView.as_view(), name='adicionar_plano_de_contas'),
+    path('plano-de-contas/proximo-codigo/', PlanoDeContasProximoCodigoView.as_view(), name='plano_proximo_codigo'),
     path('plano-de-contas/<int:pk>/editar/', PlanoDeContasUpdateView.as_view(), name='editar_plano_de_contas'),
     path('plano-de-contas/<int:pk>/excluir/', PlanoDeContasDeleteView.as_view(), name='excluir_plano_de_contas'),
     path('caixas/', CaixaListView.as_view(), name='lista_caixas'),
@@ -53,6 +55,9 @@ urlpatterns = [
     path('fluxo-de-caixa/adicionar/', LancamentoCaixaCreateView.as_view(), name='adicionar_lancamento'),
     path('fluxo-de-caixa/<int:pk>/editar/', LancamentoCaixaUpdateView.as_view(), name='editar_lancamento'),
     path('fluxo-de-caixa/<int:pk>/excluir/', LancamentoCaixaDeleteView.as_view(), name='excluir_lancamento'),
+    path('fluxo-de-caixa/<int:pk>/comprovante/', LancamentoComprovantePDFView.as_view(), name='comprovante_lancamento'),
+    path('fluxo-de-caixa/imprimir/', LancamentoImprimirView.as_view(), name='imprimir_lancamento_novo'),
+    path('fluxo-de-caixa/imprimir/<int:pk>/', LancamentoImprimirView.as_view(), name='imprimir_lancamento'),
 
 
 ]

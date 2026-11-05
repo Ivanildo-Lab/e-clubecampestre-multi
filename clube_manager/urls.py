@@ -17,7 +17,6 @@ urlpatterns = [
     path('core/', include('core.urls')),
     # --- ROTAS DOS APPS ---
     path('usuarios/', include('usuarios.urls')),
-    
     path('socios/', include('socios.urls')),
     path('financeiro/', include('financeiro.urls')),
     path('fornecedores/', include('fornecedores.urls')),
@@ -28,7 +27,7 @@ urlpatterns = [
     path('select2/', include('django_select2.urls')),
     path('ajuda/', login_required(HelpView.as_view()), name='ajuda'),
 
-    # Rota /media/ INCONDICIONAL (serve mídia em produção quando DEBUG=False)
+# Rota /media/ INCONDICIONAL (evita 404 de mídia em produção quando DEBUG=False)
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 

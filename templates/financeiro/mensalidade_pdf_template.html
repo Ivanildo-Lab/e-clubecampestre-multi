@@ -89,6 +89,10 @@
             </span>
         {% endif %}
 
+        {% if filtro_forma %}
+            <span class="filter-item"><span class="filter-label">Forma Pgto:</span> {{ filtro_forma }}</span>
+        {% endif %}
+
         {% if filtro_data_inicio or filtro_data_fim %}
             <span class="filter-item">
                 <span class="filter-label">Período:</span> 
@@ -96,7 +100,7 @@
             </span>
         {% endif %}
 
-        {% if not filtro_categoria and not filtro_convenio and not filtro_status and not filtro_data_inicio %}
+        {% if not filtro_categoria and not filtro_convenio and not filtro_status and not filtro_forma and not filtro_data_inicio %}
             <span class="filter-item"><i>Mostrando todos os registros</i></span>
         {% endif %}
     </div>
@@ -105,20 +109,22 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 30%;">Sócio</th>
-                <th style="width: 15%;">Categoria</th>
-                <th style="width: 10%;" class="text-center">Competência</th>
-                <th style="width: 10%;" class="text-center">Vencimento</th>
-                <th style="width: 10%;" class="text-center">Pagamento</th>
-                <th style="width: 10%;" class="text-center">Status</th>
-                <th style="width: 15%;" class="text-right">Valor</th>
+                <th style="width: 28%;">Sócio</th>
+                <th style="width: 12%;">Categoria</th>
+                <th style="width: 12%;">Convênio</th>
+                <th style="width: 9%;" class="text-center">Competência</th>
+                <th style="width: 9%;" class="text-center">Vencimento</th>
+                <th style="width: 9%;" class="text-center">Pagamento</th>
+                <th style="width: 9%;" class="text-center">Status</th>
+                <th style="width: 12%;" class="text-right">Valor</th>
             </tr>
         </thead>
         <tbody>
             {% for m in mensalidades %}
             <tr>
                 <td>{{ m.socio.nome }}</td>
-                <td style="font-size: 8pt; color: #555;">{{ m.socio.categoria.nome }}</td>
+                <td style="font-size: 7pt; color: #555;">{{ m.socio.categoria.nome }}</td>
+                <td style="font-size: 7pt; color: #555;">{{ m.socio.convenio.nome|default:"—" }}</td>
                 <td class="text-center">{{ m.competencia|date:"m/Y" }}</td>
                 <td class="text-center">{{ m.data_vencimento|date:"d/m/Y" }}</td>
                 <td class="text-center">{{ m.data_pagamento|date:"d/m/Y"|default:"-" }}</td>
@@ -137,7 +143,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" class="text-center" style="padding: 20px; color: #777;">
+                <td colspan="8" class="text-center" style="padding: 20px; color: #777;">
                     Nenhum registro encontrado para os filtros selecionados.
                 </td>
             </tr>
@@ -145,7 +151,7 @@
         </tbody>
         <tfoot>
             <tr class="total-row">
-                <td colspan="6" class="text-right">TOTAL GERAL:</td>
+                <td colspan="7" class="text-right">TOTAL GERAL:</td>
                 <td class="text-right">R$ {{ total_geral|brl }}</td>
             </tr>
         </tfoot>

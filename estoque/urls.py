@@ -5,6 +5,8 @@ from .views import (
     CategoriaProdutoListView, CategoriaProdutoCreateView,
     CategoriaProdutoUpdateView, CategoriaProdutoDeleteView,
     EstoquePDFView, MovimentacaoEstoquePDFView,
+    CardapioPublicView, CardapioQRCodeView, CardapioQRImageView,
+    CardapioQRPublicImageView,
 )
 
 app_name = 'estoque'
@@ -22,4 +24,8 @@ urlpatterns = [
     path('categorias/<int:pk>/excluir/', CategoriaProdutoDeleteView.as_view(), name='excluir_categoria'),
     path('pdf/', EstoquePDFView.as_view(), name='estoque_pdf'),
     path('movimentacoes/pdf/', MovimentacaoEstoquePDFView.as_view(), name='movimentacoes_pdf'),
+    path('cardapio/qr/', CardapioQRCodeView.as_view(), name='cardapio_qr'),
+    path('cardapio/qr.png', CardapioQRImageView.as_view(), name='cardapio_qr_png'),
+    path('cardapio/<int:empresa_id>/', CardapioPublicView.as_view(), name='cardapio_publico'),
+    path('cardapio/<int:empresa_id>/qr.png', CardapioQRPublicImageView.as_view(), name='cardapio_qr_publico_png'),
 ]

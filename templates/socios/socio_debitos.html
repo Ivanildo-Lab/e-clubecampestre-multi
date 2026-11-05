@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load brl %}
+{% block titulo_pagina %}Débitos - {{ socio.nome }}{% endblock %}
+{% block titulo_cabecalho %}Débitos do Sócio{% endblock %}
+{% block subtitulo_cabecalho %}{{ socio.nome }} - Registro {{ socio.num_registro }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-danger">
+            <div class="box-header with-border">
+                <h3 class="box-title"><i class="fa fa-exclamation-triangle"></i> Débitos em Aberto — {{ socio.nome }}</h3>
+                <div class="box-tools pull-right">
+                    <a href="{% url 'socios:lista_socios' %}" class="btn btn-default btn-sm"><i class="fa fa-arrow-left"></i> Voltar</a>
+                    <a href="{% url 'socios:socio_pdf' socio.pk %}" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-print"></i> Ficha</a>
+                </div>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="info-box bg-yellow"><span class="info-box-icon"><i class="fa fa-calendar"></i></span><div class="info-box-content"><span class="info-box-text">Mensalidades</span><span class="info-box-number">R$ {{ total_mensal|brl }}</span><span class="info-box-text">{{ mensalidades|length }} título(s)</span></div></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-box bg-red"><span class="info-box-icon"><i class="fa fa-file-text"></i></span><div class="info-box-content"><span class="info-box-text">Contas a Receber</span><span class="info-box-number">R$ {{ total_contas|brl }}</span><span class="info-box-text">{{ contas|length }} título(s)</span></div></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-box bg-blue"><span class="info-box-icon"><i class="fa fa-dollar"></i></span><div class="info-box-content"><span class="info-box-text">Total Geral</span><span class="info-box-number">R$ {{ total_geral|brl }}</span></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="box box-warning">
+            <div class="box-header with-border"><h3 class="box-title"><i class="fa fa-calendar"></i> Mensalidades em Aberto</h3></div>
+            <div class="box-body no-padding">
+                <table class="table table-hover">
+                    <thead><tr><th>Competência</th><th>Vencimento</th><th>Valor</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for m in mensalidades %}
+                        <tr>
+                            <td>{{ m.competencia|date:"m/Y" }}</td>
+                            <td>{{ m.data_vencimento|date:"d/m/Y" }}</td>
+                            <td>R$ {{ m.valor|brl }}</td>
+                            <td>{% if m.status == 'ATRASADA' %}<span class="label label-danger">Atrasada</span>{% else %}<span class="label label-warning">Pendente</span>{% endif %}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted" style="padding:15px;">Nenhuma mensalidade em aberto.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if mensalidades %}<tfoot><tr style="background:#f9f9f9; font-weight:bold;"><td colspan="2" class="text-right">Total Mensalidades:</td><td colspan="2">R$ {{ total_mensal|brl }}</td></tr></tfoot>{% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="box box-danger">
+            <div class="box-header with-border"><h3 class="box-title"><i class="fa fa-file-text-o"></i> Contas a Receber em Aberto</h3></div>
+            <div class="box-body no-padding">
+                <table class="table table-hover">
+                    <thead><tr><th>Vencimento</th><th>Descrição</th><th style="text-align:right;">Valor</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for c in contas %}
+                        <tr>
+                            <td>{{ c.data_vencimento|date:"d/m/Y" }}</td>
+                            <td>{{ c.descricao|truncatechars:30 }}</td>
+                            <td style="text-align:right;">R$ {{ c.valor|brl }}</td>
+                            <td><span class="label label-warning">{{ c.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted" style="padding:15px;">Nenhuma conta em aberto.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if contas %}<tfoot><tr style="background:#f9f9f9; font-weight:bold;"><td colspan="2" class="text-right">Total Contas:</td><td colspan="2" style="text-align:right;">R$ {{ total_contas|brl }}</td></tr></tfoot>{% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
