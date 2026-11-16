@@ -89,6 +89,10 @@
                                 </button>
                                 {% endif %}
                                 
+                                {% if mensalidade.status == 'PAGA' %}
+                                <a href="{% url 'financeiro:recibo_quitacao' %}?tipo=mensalidade&ids={{ mensalidade.pk }}" target="_blank" class="btn btn-xs btn-default" title="Emitir Recibo de Quitação"><i class="fa fa-file-text-o"></i></a>
+                                {% endif %}
+
                                 {% if user.is_superuser or user.nivel_acesso == 'ADMIN' %}
                                 <a href="{% url 'financeiro:editar_mensalidade' mensalidade.pk %}" class="btn btn-xs btn-info" title="Editar"><i class="fa fa-pencil"></i></a>
                                 <button class="btn btn-xs btn-danger js-delete-btn"
@@ -199,10 +203,12 @@
 </div>
 
 {% include 'partials/modal_delete.html' %}
+{% include 'partials/modal_recibo_quitacao.html' %}
 {% endblock %}
 
 {% block scripts %}
 {% include 'partials/modal_delete_script.js' %}
+{% include 'partials/modal_recibo_quitacao_script.js' %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const baixaButtons = document.querySelectorAll('.js-baixa-mensalidade-btn');

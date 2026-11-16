@@ -109,6 +109,8 @@
                                 {% if conta.status != 'PAGA' %}
                                 <form action="{% url 'financeiro:baixar_conta' conta.pk %}" method="post" style="display: inline;" onsubmit="return confirm('Confirmar a baixa desta conta no caixa padrão?')">
                                     {% csrf_token %}
+                                    <input type="hidden" name="caixa" value="{{ caixa_padrao_id|default:'' }}">
+                                    <input type="hidden" name="data_pagamento" value="{% now 'Y-m-d' %}">
                                     <button type="submit" class="btn btn-xs btn-success" title="Baixar Conta">
                                         <i class="fa fa-check"></i>
                                     </button>

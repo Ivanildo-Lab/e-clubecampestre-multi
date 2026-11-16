@@ -55,6 +55,9 @@
                                     <i class="fa fa-check"></i> Baixar
                                 </button>
                                 {% endif %}
+                                {% if conta.status == 'PAGA' and conta.plano_de_contas.tipo == 'RECEITA' %}
+                                <a href="{% url 'financeiro:recibo_quitacao' %}?tipo=conta&ids={{ conta.pk }}" target="_blank" class="btn btn-xs btn-default" title="Emitir Recibo de Quitação"><i class="fa fa-file-text-o"></i></a>
+                                {% endif %}
                                 <a href="{% url 'financeiro:editar_conta' conta.pk %}" class="btn btn-xs btn-info" title="Editar"><i class="fa fa-pencil"></i></a>
                                 <button class="btn btn-xs btn-danger js-delete-btn" data-url="{% url 'financeiro:excluir_conta' conta.pk %}" data-nome="{{ conta.descricao }}"><i class="fa fa-trash"></i></button>
                             </td>

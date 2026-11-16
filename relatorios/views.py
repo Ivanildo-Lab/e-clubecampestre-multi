@@ -14,6 +14,7 @@ from decimal import Decimal
 
 # Importações de Modelos e Formulários
 from financeiro.models import Mensalidade, Conta, LancamentoCaixa
+from core.models import ConfiguracaoSistema
 from .forms import FiltroInadimplenciaMensalForm, FiltroContasForm
 
 class RelatorioInadimplenciaView(LoginRequiredMixin, TemplateView):
@@ -171,7 +172,10 @@ class RelatorioContasView(LoginRequiredMixin, TemplateView):
         context['total_despesas'] = total_despesas
         context['saldo_final'] = total_receitas - total_despesas
         context['filtro_tipo'] = self.request.GET.get('tipo', '') # Para saber qual rodapé mostrar
-        
+
+        # Para a baixa rápida da tela (caixa padrão configurado na empresa)
+        caixa_padrao_obj = ConfiguracaoSistema.objects.filter(empresa=empresa_atual, chave='CAIXA_PADRAO_ID').first()
+        context['caixa_padrao_id'] = caixa_padrao_obj.valor if caixa_padrao_obj else None
         context['titulo_pagina'] = 'Relatório de Contas a Pagar/Receber'
         return context
 

@@ -1,0 +1,25 @@
+<!-- templates/partials/modal_recibo_quitacao.html -->
+<!-- Pergunta padrão exibida após a baixa: "Deseja imprimir Recibo de Quitação?" -->
+
+<div class="modal fade" id="reciboQuitacaoModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><i class="fa fa-file-text-o"></i> Recibo de Quitação</h4>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:15px; margin-bottom:8px;"><strong>Deseja imprimir Recibo de Quitação?</strong></p>
+                <p class="text-muted" id="reciboQuitacaoInfo" style="font-size:12px;"></p>
+                <p class="text-muted" style="font-size:12px; margin-bottom:0;">
+                    O recibo em PDF será aberto em uma nova aba do navegador, onde você pode
+                    <strong>imprimir</strong> ou <strong>baixar</strong> o arquivo.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="reciboQuitacaoNao" data-dismiss="modal">Não</button>
+                <button type="button" class="btn btn-success" id="reciboQuitacaoSim"><i class="fa fa-external-link"></i> Sim, abrir Recibo (PDF)</button>
+            </div>
+        </div>
+    </div>
+</div>

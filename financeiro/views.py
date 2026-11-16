@@ -7,12 +7,13 @@ from django.db.models.functions import Coalesce
 from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib import messages
 from django.utils import timezone
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.db import transaction
 from decimal import Decimal
 
 # Importações de Modelos e Formulários
 from .models import Mensalidade, LancamentoCaixa, Caixa, PlanoDeContas, Conta
+from .recibos import montar_recibo
 from .forms import MensalidadeForm, PlanoDeContasForm, CaixaForm, ContaForm,GerarMensalidadesForm,GerarMensalidadePorSocioForm,LancamentoCaixaForm, BaixaMensalidadeForm, BaixaContaForm
 from core.models import CategoriaSocio, ConfiguracaoSistema, Convenio, Socio
 from django.http import HttpResponse, JsonResponse
@@ -569,6 +570,7 @@ class BaixarMensalidadeView(LoginRequiredMixin, View):
         empresa_atual = request.user.empresa
         mensalidade = get_object_or_404(Mensalidade, pk=pk, socio__empresa=empresa_atual)
         form = BaixaMensalidadeForm(request.POST, empresa=empresa_atual)
+        recibo_ok = False
 
         if form.is_valid():
             caixa = form.cleaned_data.get('caixa')
@@ -612,14 +614,20 @@ class BaixarMensalidadeView(LoginRequiredMixin, View):
                     else: # Se nenhum caixa foi selecionado
                         messages.success(request, f'Mensalidade de {mensalidade.socio.nome} baixada com sucesso (sem lançamento no caixa).')
 
+                # Baixa concluída: oferece a emissão do Recibo de Quitação
+                recibo_ok = True
+
             except (ConfiguracaoSistema.DoesNotExist, PlanoDeContas.DoesNotExist):
                 messages.error(request, 'Erro de configuração! Verifique os Parâmetros do Sistema para o financeiro.')
             except Exception as e:
                 messages.error(request, f"Ocorreu um erro ao baixar a mensalidade: {e}")
         else:
             messages.error(request, f"Dados inválidos. Por favor, verifique: {form.errors}")
-        
-        return redirect('financeiro:lista_mensalidades')
+
+        url = reverse('financeiro:lista_mensalidades')
+        if recibo_ok:
+            url += f'?recibo=mensalidade&recibo_ids={mensalidade.pk}'
+        return redirect(url)
 
 class BaixarMensalidadesLoteView(LoginRequiredMixin, View):
     def post(self, request):
@@ -649,6 +657,8 @@ class BaixarMensalidadesLoteView(LoginRequiredMixin, View):
         if not mensalidades.exists():
             messages.warning(request, 'Nenhuma mensalidade válida para baixa (já pagas ou não encontradas).')
             return redirect('financeiro:lista_mensalidades')
+        # Guarda os ids antes das baixas (após o UPDATE o filtro de status não retornaria mais nada)
+        ids_baixados = list(mensalidades.values_list('id', flat=True))
 
         taxa_obj = ConfiguracaoSistema.objects.filter(empresa=empresa_atual, chave='TAXA_JUROS_MENSAL').first()
         taxa = taxa_obj.valor if taxa_obj else '2.0'
@@ -697,10 +707,17 @@ class BaixarMensalidadesLoteView(LoginRequiredMixin, View):
                                 valor=juros, mensalidade_origem=mensalidade
                             )
                     sucesso += 1
+            # Baixa em lote concluída: oferece a emissão do Recibo de Quitação
             messages.success(request, f'{sucesso} mensalidade(s) baixada(s) com sucesso!')
         except Exception as e:
+            # Rollback: nada foi quitado, então não há recibo a emitir
+            ids_baixados = []
             messages.error(request, f'Erro na baixa em lote: {e}')
-        return redirect('financeiro:lista_mensalidades')
+
+        url = reverse('financeiro:lista_mensalidades')
+        if sucesso and ids_baixados:
+            url += '?recibo=mensalidade&recibo_ids=' + ','.join(str(i) for i in ids_baixados)
+        return redirect(url)
     
 class MensalidadeUpdateView(LoginRequiredMixin, UpdateView):
     model = Mensalidade
@@ -984,13 +1001,16 @@ class BaseContaListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         empresa = self.request.user.empresa
         qs = self.get_queryset()
+        # Dados para o modal de baixa (caixa padrão da empresa)
+        context['caixas_disponiveis'] = Caixa.objects.filter(empresa=empresa)
+        caixa_padrao_obj = ConfiguracaoSistema.objects.filter(empresa=empresa, chave='CAIXA_PADRAO_ID').first()
+        context['caixa_padrao_id'] = int(caixa_padrao_obj.valor) if caixa_padrao_obj else None
         # Totais
         total_geral = qs.aggregate(total=Sum('valor'))['total'] or 0
         total_pago = qs.filter(status='PAGA').aggregate(total=Sum('valor'))['total'] or 0
         total_pendente = qs.filter(status__in=['PENDENTE', 'PARCIAL']).aggregate(total=Sum('valor'))['total'] or 0
         # Para valor_restante = valor - valor_pago, mas se valor_pago=0 então total_pendente == total_geral - total_pago (aprox)
         # Calcula juros se houver taxa
-        from core.models import ConfiguracaoSistema
         taxa_obj = ConfiguracaoSistema.objects.filter(empresa=empresa, chave='TAXA_JUROS_MENSAL').first()
         taxa = taxa_obj.valor if taxa_obj else '2.0'
         try:
@@ -1262,6 +1282,7 @@ class BaixarContaView(LoginRequiredMixin, View):
     def post(self, request, pk):
         conta = get_object_or_404(Conta, pk=pk, empresa=request.user.empresa)
         form = BaixaContaForm(request.POST, empresa=request.user.empresa)
+        recibo_ok = False
         if form.is_valid():
             caixa = form.cleaned_data['caixa']
             data_pagamento = form.cleaned_data['data_pagamento']
@@ -1280,13 +1301,19 @@ class BaixarContaView(LoginRequiredMixin, View):
                         valor=valor_lancamento,
                         conta_origem=conta
                     )
+                # Baixa concluída: oferece a emissão do Recibo de Quitação
+                recibo_ok = True
                 messages.success(request, f'Conta "{conta.descricao}" baixada com sucesso!')
             except Exception as e:
                 messages.error(request, f"Ocorreu um erro ao baixar a conta: {e}")
         else:
             messages.error(request, "Dados inválidos. Por favor, verifique.")
         tipo = conta.plano_de_contas.tipo if conta.plano_de_contas else 'RECEITA'
-        return redirect('financeiro:lista_receber' if tipo == 'RECEITA' else 'financeiro:lista_pagar')
+        url = reverse('financeiro:lista_receber' if tipo == 'RECEITA' else 'financeiro:lista_pagar')
+        # O recibo comprova a quitação de valores RECEBIDOS do cliente
+        if recibo_ok and tipo == 'RECEITA':
+            url += f'?recibo=conta&recibo_ids={conta.pk}'
+        return redirect(url)
 
 class LancamentoCaixaCreateView(LoginRequiredMixin, CreateView):
     model = LancamentoCaixa
@@ -1478,6 +1505,44 @@ class MensalidadePDFView(LoginRequiredMixin, View):
         
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'inline; filename="relatorio_mensalidades.pdf"'
+        return response
+
+class ReciboQuitacaoPDFView(LoginRequiredMixin, View):
+    """
+    Emite o RECIBO DE QUITAÇÃO em PDF, aberto em nova aba do navegador
+    (visualizador com opções de imprimir / baixar).
+
+    Uso: /financeiro/recibo-quitacao/?tipo=mensalidade|conta&ids=1,2,3
+    Só são considerados títulos já QUITADOS (status PAGA) da empresa do usuário.
+    """
+    def get(self, request):
+        tipo = request.GET.get('tipo', 'mensalidade')
+        if tipo not in ('mensalidade', 'conta'):
+            tipo = 'mensalidade'
+
+        ids = []
+        for parte in (request.GET.get('ids', '') or '').replace(';', ',').split(','):
+            parte = parte.strip()
+            if parte.isdigit():
+                ids.append(int(parte))
+        ids = list(dict.fromkeys(ids))
+
+        recibo = montar_recibo(request, tipo, ids) if ids else None
+        if not recibo:
+            messages.warning(request, 'Nenhum título quitado encontrado para emitir o Recibo de Quitação.')
+            fallback = reverse('financeiro:lista_mensalidades' if tipo == 'mensalidade' else 'financeiro:lista_receber')
+            return redirect(fallback)
+
+        html_string = render_to_string('financeiro/recibo_quitacao_pdf.html', recibo)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+
+        response = HttpResponse(pdf, content_type='application/pdf')
+        # "inline": o navegador abre o PDF em nova aba (visualizador com
+        # imprimir/baixar) em vez de forçar o download imediato.
+        response['Content-Disposition'] = (
+            f'inline; filename="recibo_quitacao_{recibo["numero_recibo"]}.pdf"'
+        )
         return response
 
 class FluxoDeCaixaPDFView(LoginRequiredMixin, View):

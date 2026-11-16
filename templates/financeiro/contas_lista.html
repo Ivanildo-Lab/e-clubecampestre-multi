@@ -153,10 +153,15 @@
                     </td>
                     <td style="text-align:center; white-space:nowrap;">
                         {% if c.status == 'PENDENTE' or c.status == 'PARCIAL' %}
-                        <form action="{% url 'financeiro:baixar_conta' c.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button class="btn btn-xs btn-success" title="Baixar"><i class="fa fa-check"></i></button>
-                        </form>
+                        <button type="button" class="btn btn-xs btn-success js-baixa-conta-btn"
+                                data-url="{% url 'financeiro:baixar_conta' c.id %}"
+                                data-descricao="{{ c.descricao }}"
+                                data-valor="{{ c.valor|floatformat:2 }}"
+                                data-tipo="{{ c.plano_de_contas.tipo }}"
+                                title="Baixar"><i class="fa fa-check"></i></button>
+                        {% endif %}
+                        {% if tipo_lista == 'receber' and c.status == 'PAGA' %}
+                        <a href="{% url 'financeiro:recibo_quitacao' %}?tipo=conta&ids={{ c.id }}" target="_blank" class="btn btn-xs btn-default" title="Emitir Recibo de Quitação"><i class="fa fa-file-text-o"></i></a>
                         {% endif %}
                         <a href="{% url 'financeiro:editar_conta' c.id %}" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a>
                         <a href="{% url 'financeiro:excluir_conta' c.id %}" onclick="return confirm('Tem certeza?')" class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></a>
@@ -181,4 +186,67 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de Baixa de Conta (Receber / Pagar) -->
+<div class="modal fade" id="baixaContaModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="baixaContaForm" method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Baixar {% if tipo_lista == 'receber' %}Conta a Receber{% else %}Conta a Pagar{% endif %}</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Você está baixando a seguinte conta:</p>
+                    <p><strong>Descrição:</strong> <span id="contaDescricaoModal"></span></p>
+                    <p><strong>Valor:</strong> <span id="contaValorModal"></span></p>
+                    <hr>
+                    <div class="form-group">
+                        <label for="id_caixa">Confirmar no Caixa / Conta:</label>
+                        <select name="caixa" id="id_caixa" class="form-control" required>
+                            <option value="">--- Selecione ---</option>
+                            {% for caixa in caixas_disponiveis %}
+                            <option value="{{ caixa.id }}" {% if caixa.id == caixa_padrao_id %}selected{% endif %}>{{ caixa.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_data_pagamento">Data do Pagamento / Recebimento:</label>
+                        <input type="date" name="data_pagamento" id="id_data_pagamento" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Confirmar Baixa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include 'partials/modal_recibo_quitacao.html' %}
+{% endblock %}
+
+{% block scripts %}
+{% include 'partials/modal_recibo_quitacao_script.js' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hoje = new Date().toISOString().slice(0, 10);
+    const caixaPadraoId = "{% if caixa_padrao_id %}{{ caixa_padrao_id }}{% endif %}";
+
+    document.querySelectorAll('.js-baixa-conta-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const form = document.getElementById('baixaContaForm');
+            form.action = this.dataset.url;
+            document.getElementById('contaDescricaoModal').textContent = this.dataset.descricao;
+            document.getElementById('contaValorModal').textContent =
+                (this.dataset.tipo === 'RECEITA' ? '+ R$ ' : '- R$ ') + this.dataset.valor;
+            document.getElementById('id_data_pagamento').value = hoje;
+            if (caixaPadraoId) document.getElementById('id_caixa').value = caixaPadraoId;
+            $('#baixaContaModal').modal('show');
+        });
+    });
+});
+</script>
 {% endblock %}
