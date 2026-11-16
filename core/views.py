@@ -7,10 +7,32 @@ from django.db.models import Sum
 from django.utils import timezone
 from django.db.models.functions import TruncMonth
 from django.urls import reverse_lazy
+from django.http import FileResponse, Http404
+from django.conf import settings
+import os
 
 from .models import Empresa, Socio, Dependente
 from financeiro.models import Mensalidade
 from .help_data import PARAMETROS_SISTEMA # Importa nossa lista de ajuda
+
+
+def serve_media(request, path):
+    """
+    Serve arquivos de mídia em produção (DEBUG=False).
+    Necessário porque o Django não serve mídia em produção e o Traefik/Coolify
+    não está configurado para servir /media/ do volume persistente.
+    """
+    # Segurança: apenas arquivos dentro de MEDIA_ROOT
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
+    file_path = os.path.normpath(file_path)
+    
+    if not file_path.startswith(os.path.normpath(settings.MEDIA_ROOT)):
+        raise Http404("Acesso negado")
+    
+    if not os.path.exists(file_path):
+        raise Http404("Arquivo não encontrado")
+    
+    return FileResponse(open(file_path, 'rb'))
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
