@@ -27,11 +27,17 @@
   .search input{flex:1;border:1px solid #e7e5e4;border-radius:10px;padding:12px 14px;font-size:1rem;outline:none}
   .search input:focus{border-color:var(--brand)}
   .search .count{font-size:.8rem;color:var(--muted);white-space:nowrap;padding-right:4px}
-  .cats{position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 78%,transparent);padding:14px 2px 10px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  /* Barra de categorias: rolagem horizontal com fundo sólido e "sinais" de que há mais itens */
+  .cats-wrap{position:sticky;top:0;z-index:5;margin:0 -16px;padding:12px 16px 10px;background:rgba(247,245,240,.97);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 8px 14px -12px rgba(0,0,0,.4)}
+  .cats-wrap::before,.cats-wrap::after{content:"";position:absolute;top:0;bottom:0;width:30px;pointer-events:none;opacity:0;transition:opacity .2s}
+  .cats-wrap::before{left:0;background:linear-gradient(90deg,var(--bg),rgba(247,245,240,0))}
+  .cats-wrap::after{right:0;background:linear-gradient(270deg,var(--bg),rgba(247,245,240,0))}
+  .cats-wrap.pode-esq::before,.cats-wrap.pode-dir::after{opacity:1}
+  .cats{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
   .cats::-webkit-scrollbar{display:none}
-  .cats button{flex:0 0 auto;cursor:pointer;color:var(--brand-dark);background:#fff;border:1px solid #e7e5e4;padding:9px 16px;border-radius:999px;font-size:.85rem;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.05);font-family:inherit}
+  .cats button{flex:0 0 auto;white-space:nowrap;cursor:pointer;color:var(--brand-dark);background:#fff;border:1px solid #e7e5e4;padding:9px 16px;border-radius:999px;font-size:.85rem;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.05);font-family:inherit}
   .cats button.ativo{background:var(--brand);border-color:var(--brand);color:#fff}
-  .section{margin-top:26px;scroll-margin-top:110px}
+  .section{margin-top:26px;scroll-margin-top:80px}
   .section-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;padding:0 2px}
   .section-head h2{font-size:1.25rem;color:var(--brand-dark)}
   .section-head span{font-size:.8rem;color:var(--muted)}
@@ -70,12 +76,14 @@
   </form>
 
   {% if grupos %}
-  <nav class="cats" aria-label="Categorias">
-    <button type="button" class="ativo" data-cat="todas">Todas</button>
-    {% for g in grupos %}
-      <button type="button" data-cat="cat-{{ forloop.counter }}">{% if g.categoria %}{{ g.categoria.nome }}{% else %}Outros{% endif %}</button>
-    {% endfor %}
-  </nav>
+  <div class="cats-wrap pode-dir">
+    <nav class="cats" aria-label="Categorias">
+      <button type="button" class="ativo" data-cat="todas">Todas</button>
+      {% for g in grupos %}
+        <button type="button" data-cat="cat-{{ forloop.counter }}">{% if g.categoria %}{{ g.categoria.nome }}{% else %}Outros{% endif %}</button>
+      {% endfor %}
+    </nav>
+  </div>
 
   <div id="lista">
   {% for g in grupos %}
@@ -144,12 +152,30 @@
     if(sem) sem.style.display = visiveis === 0 ? '' : 'none';
     if(contador) contador.textContent = visiveis + ' visível(is)';
   }
+  var cats = document.querySelector('.cats');
+  var catsWrap = document.querySelector('.cats-wrap');
+  function atualizarSinais(){
+    if(!cats || !catsWrap) return;
+    catsWrap.classList.toggle('pode-esq', cats.scrollLeft > 4);
+    catsWrap.classList.toggle('pode-dir', cats.scrollLeft < cats.scrollWidth - cats.clientWidth - 4);
+  }
+  function centralizar(btn){
+    if(!cats || !btn) return;
+    var alvo = btn.offsetLeft - (cats.clientWidth - btn.offsetWidth) / 2;
+    cats.scrollTo({left: Math.max(0, alvo), behavior:'smooth'});
+  }
+  if(cats){
+    cats.addEventListener('scroll', atualizarSinais, {passive:true});
+    window.addEventListener('resize', atualizarSinais);
+    atualizarSinais();
+  }
   document.querySelectorAll('.cats button').forEach(function(btn){
     btn.addEventListener('click', function(){
       document.querySelectorAll('.cats button').forEach(function(b){ b.classList.remove('ativo'); });
       btn.classList.add('ativo');
       categoriaAtiva = btn.getAttribute('data-cat');
       filtrar();
+      centralizar(btn);
       var lista = document.getElementById('lista');
       if(lista) lista.scrollIntoView({behavior:'smooth', block:'start'});
     });
