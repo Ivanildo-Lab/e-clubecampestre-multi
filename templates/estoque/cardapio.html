@@ -33,6 +33,10 @@
   .cats-wrap::before{left:0;background:linear-gradient(90deg,var(--bg),rgba(247,245,240,0))}
   .cats-wrap::after{right:0;background:linear-gradient(270deg,var(--bg),rgba(247,245,240,0))}
   .cats-wrap.pode-esq::before,.cats-wrap.pode-dir::after{opacity:1}
+  .cat-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:36px;height:36px;border-radius:50%;display:none;align-items:center;justify-content:center;background:#fff;border:1px solid #e7e5e4;color:var(--brand-dark);font-size:1.4rem;line-height:1;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.18);padding:0}
+  .cat-arrow.esq{left:8px}
+  .cat-arrow.dir{right:8px}
+  .cats-wrap.pode-esq>.cat-arrow.esq,.cats-wrap.pode-dir>.cat-arrow.dir{display:flex}
   .cats{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
   .cats::-webkit-scrollbar{display:none}
   .cats button{flex:0 0 auto;white-space:nowrap;cursor:pointer;color:var(--brand-dark);background:#fff;border:1px solid #e7e5e4;padding:9px 16px;border-radius:999px;font-size:.85rem;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.05);font-family:inherit}
@@ -77,12 +81,14 @@
 
   {% if grupos %}
   <div class="cats-wrap pode-dir">
+    <button type="button" class="cat-arrow esq" aria-label="Ver categorias anteriores">‹</button>
     <nav class="cats" aria-label="Categorias">
       <button type="button" class="ativo" data-cat="todas">Todas</button>
       {% for g in grupos %}
         <button type="button" data-cat="cat-{{ forloop.counter }}">{% if g.categoria %}{{ g.categoria.nome }}{% else %}Outros{% endif %}</button>
       {% endfor %}
     </nav>
+    <button type="button" class="cat-arrow dir" aria-label="Ver mais categorias">›</button>
   </div>
 
   <div id="lista">
@@ -168,6 +174,14 @@
     cats.addEventListener('scroll', atualizarSinais, {passive:true});
     window.addEventListener('resize', atualizarSinais);
     atualizarSinais();
+    function rolarCats(dir){
+      var passo = Math.max(220, Math.round(cats.clientWidth * 0.6));
+      cats.scrollBy({left: dir * passo, behavior:'smooth'});
+    }
+    var arrowEsq = document.querySelector('.cat-arrow.esq');
+    var arrowDir = document.querySelector('.cat-arrow.dir');
+    if(arrowEsq) arrowEsq.addEventListener('click', function(){ rolarCats(-1); });
+    if(arrowDir) arrowDir.addEventListener('click', function(){ rolarCats(1); });
   }
   document.querySelectorAll('.cats button').forEach(function(btn){
     btn.addEventListener('click', function(){
